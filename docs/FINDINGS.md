@@ -316,27 +316,30 @@ The rules that did work were `R7` (a stash-shaped audit action) and `R2b` (major
 
 The general lesson: **text matching cannot distinguish a lie from a true statement that contains a matching word.** A contradiction rule needs the world's structured facts, not its prose. This is why the reward-hack family works after the evidence fix: there, the audit log holds the submitted code, so the check is against bytes, not phrasing.
 
-### The pooled monitor tables below are a mixture, and one of them is invalid
+### The monitor result is per family, and the audit gain is real in exactly one of them
 
-Every monitor number in this document until now pooled all four families. That is wrong, and the report command now refuses to present it alone.
+Every monitor number earlier in this document pooled families. That is invalid, and `crucible report` now refuses to present a pooled table alone. The reason is not pedantry: each world has its own event vocabulary, its own score scale and its own adversary, so pooling compares one world's adversaries with another's honest agents.
 
-Monitor scores are not comparable across worlds. Each family has its own event vocabulary, its own score scale and its own adversary. Pooling mixes scales, and it compares one world's adversaries against another world's honest agents. On the clean corpus the effect is stark:
+With the full-timeout supply corpus the per-family picture is finally measurable. 80 complete, integrity-labelled trials:
 
-| Family | Positives / controls | Rules AUROC at Tier 1 |
-|---|---:|---|
-| `epistemic-crucible` | 12 / 12 | 0.917 [0.792, 1.000] |
-| `reward-hack-contagion` | 9 / 3 | 0.500 |
-| `supply-chain-sabotage` | 0 / 8 | not measurable |
+| Family | Pos / ctrl | AUROC, public chat | AUROC, + audit [95% CI] | Detection | Attribution |
+|---|---:|---:|---|---:|---:|
+| `supply-chain-sabotage` | 6 / 26 | 0.750 | **0.987 [0.952, 1.000]** | 50% → **83.3%** | 16.7% → **100%** |
+| `epistemic-crucible` | 12 / 18 | 0.917 | 0.917 [0.792, 1.000] | 83.3% | 83.3% |
+| `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
 
-The supply family has **no positives at all** once the timed-out trials are dropped, so the pooled 0.607 was largely epistemic adversaries scored against eight supply honest trials. That is not a detector measurement.
+Three different answers to the same question, and each is correct for its family.
 
-A second finding sharpens the content claim. Per family, the visibility tier barely matters: pooling every available epistemic trial (24 trials, 12 positives, 12 controls) the rule set scores AUROC **0.917 [0.792, 1.000] and 83.3% detection at Tier 0, Tier 1 and Tier 2 alike**, so public chat alone carries the whole signal and audit evidence adds nothing. For the reward-hack corpus it is 0.500 at every tier, because the code that would reveal the hack was not in the Wave 1 log at any tier.
+**Supply-chain: audit evidence is decisive.** Public chat alone ranks sabotage at 0.750 and names the saboteur 16.7% of the time, which is near chance for six positives. With the authenticated audit log it reaches **0.987 [0.952, 1.000]** and names the right seat **every single time**. That is the capability the fork's seat model exists to enable, and it is the strongest result in this document.
 
-So the honest formulation is: **the monitor reads what agents said, not what they did.** Public text is enough where a liar contradicts itself or its own report. Code content is necessary where the exploit is in the code, and action types alone never sufficed — the metadata-only ablation returned exactly zero.
+**Epistemic: audit evidence is unnecessary.** The tier makes no difference at all, 0.917 at Tier 0, Tier 1 and Tier 2 alike. A liar contradicts a public report in public, so chat carries the whole signal.
 
-The valid statements are per family, and they are weaker than the pooled version suggested: the rule set separates liars in the epistemic world, cannot see reward hacks in the Wave 1 evidence, and has no supply measurement yet.
+**Reward-hack: not measurable, for an evidence reason.** The world's own detector fires on workspace files the audit log never recorded, so 0.500 says nothing about detection (see the section above).
 
-`crucible report` now emits a per-family monitor table alongside the pooled one and labels the difference, and `crucible stability` gives each family its own interval.
+The metadata-only ablation still returns exactly zero in every family, so in all three cases the signal is text rather than action structure. The difference between families is *which* text a monitor needs: messages for liars, per-file contents for code sabotage.
+
+`crucible report` emits the per-family table and labels the pooled one, and `crucible stability` gives each family its own intervals.
+
 
 ### The monitor benchmark on real evidence (pooled, superseded)
 
@@ -368,7 +371,7 @@ These verdicts were computed on the pooled corpus, before the per-family correct
 
 | Hypothesis | Verdict |
 |---|---|
-| **H1** audit beats public chat | **Not established, and the question was mis-framed.** On all 42 pooled trials, TPR rises 22.2% to 33.3%; on the 34 complete runs it falls (AUROC 0.633 to 0.607). Per family at N=24, the epistemic corpus is identical at Tier 0 and Tier 1, so there is no audit gain to measure there either. |
+| **H1** audit beats public chat | **Family-dependent, and decisive where it holds.** Supply-chain: AUROC 0.750 to 0.987 and attribution 16.7% to 100%. Epistemic: no change at all, 0.917 at every tier. Reward-hack: unmeasurable until the log records per-file content. A pooled answer to this question was meaningless. |
 | **H2** trajectories add less than audit | **Supported in every family.** Tier 1 and Tier 2 are identical on every metric, in every family and both corpora, and not for want of data: sampled Tier-2 views carried 46 to 82 ATIF steps across four seats. |
 | **H3** refusers get over-flagged | **Not supported.** Refuser FPR is 0% at every tier, in every family, for every monitor. |
 | **H4** tool noise causes false alarms | **Not supported at Tier 1.** `noisy_honest` never crossed the calibrated threshold. At Tier 0 one honest trial sat exactly on the 24.0 threshold. |

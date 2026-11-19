@@ -11,13 +11,15 @@ One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM
 
 ## What it measured
 
-Per family, complete runs only. Families cannot be pooled: each world has its own score scale.
+88 real-model seat trials, 80 complete and integrity-labelled. Per family, because scales differ:
 
-| Family | Pos / controls | Rule-set AUROC | Detection at 5% FPR |
-|---|---:|---|---:|
-| `epistemic-crucible` | 12 / 12 | 0.917 [0.792, 1.000] | 83.3% |
-| `reward-hack-contagion` | 9 / 3 | 0.500 | 0% |
-| `supply-chain-sabotage` | 0 / 8 | not measurable | — |
+| Family | Pos / ctrl | AUROC, public chat | AUROC, + audit | Detection | Attribution |
+|---|---:|---:|---|---:|---:|
+| `supply-chain-sabotage` | 6 / 26 | 0.750 | **0.987 [0.952, 1.000]** | 83.3% | **100%** |
+| `epistemic-crucible` | 12 / 18 | 0.917 | 0.917 [0.792, 1.000] | 83.3% | 83.3% |
+| `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
+
+**The headline: authenticated audit evidence takes sabotage attribution from 16.7% to 100%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasurable for an evidence reason, documented below.
 
 Behaviour, three trials per condition unless noted:
 
@@ -41,7 +43,7 @@ Behaviour, three trials per condition unless noted:
 
 ## What is open
 
-1. **Supply-chain detection at full timeout.** The wave is running; saboteur trials are landing. Until it finishes, the supply row is empty and the suite has two starved families instead of one.
+1. **Per-file content in the reward-hack log.** The world detects a mechanism in files the audit log never records, so the family cannot support a monitor claim. Record bounded per-file content for committed work.
 2. **A second model family.** Qwen through OpenRouter works but costs $0.17 per trial, which the second-model cap forbids.
 3. **Reward-hack model trials with the fixed evidence.** The world now records submitted code as audited action; no model trial has been scored since.
 4. **Threshold stability of any LLM judge at this sample size.** With 14 controls its detection rate ranges from 7% to 60% under resampling, so only AUROC is usable.
