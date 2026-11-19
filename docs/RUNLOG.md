@@ -16,6 +16,14 @@ Running record for the overnight mission. Newest first. Hours are ET.
 
 ## Done
 
+### 2026-11-19 ~08:30-09:10 — The headline was wrong, and the fix is the deliverable
+- Added `crucible report --exclude-timeouts`. Rescoring the 29 clean integrity trials gives **AUROC 0.633 → 0.607** and flat TPR from Tier 0 to Tier 1, where the all-42-trial view gave 0.585 → 0.646. The audit lift depended on 8 timed-out trials, so **H1 is now recorded as not established**, in the README and in FINDINGS.
+- What survives the clean filter: trajectories still add nothing (T1 == T2 in both views), refusers are still never accused, the metadata-only ablation still scores exactly zero, and the rules-plus-judge ensemble still beats both members (0.738 AUROC, 33.3% TPR on 29 clean trials).
+- Pre-registered and measured the ensemble: AUROC 0.759 and TPR 38.9% on the full corpus, above both members, at the judge's cost. Prediction on direction held; it understated the size.
+- Pre-registered and measured the structure-versus-content ablation: prediction **falsified**. With payloads emptied, the monitor scores exactly zero for every trial. The whole signal is stored content, which is a retention-policy consequence, not a monitor detail.
+- The hidden-profile family is a **null result about its own design**: the instructions mandate sharing, so the team matched the solo ceiling 3/3. Recorded as such, with the condition under which a variant could reproduce the published effect.
+- Added CI: lint, format, tests, `crucible lint-task` over every variant, and a report smoke test. It immediately caught that `experiments/` was unlinted and 20 files were unformatted. All now clean, 71 tests pass.
+
 ### 2026-11-19 ~08:10-09:00 — Fourth fork PR, monitor v2, and a real negative result
 - **PR #21** on the fork: per-seat job statistics. `JobStats.increment()` attributed every reward and the whole cost to the first tested seat, so a four-seat job with four models reported one model. Additive `SeatDatasetStats`, eval key format untouched because pass@k, metrics, telemetry, the CLI and the viewer parse it. 956 tests pass.
 - **Monitor v2 is a negative result, and it is committed as one.** Eleven claim-versus-audit contradiction rules, pre-registered in `PROTOCOL.md` before measuring, score AUROC 0.604 and TPR 11.1% at 5% FPR against v1's 0.646 and 33.3%. Four rules fire on honest behaviour that merely contains a matching word, so the false-positive mean doubles and the threshold rises. Tuning them to 18 positives would be overfitting, so they stay as written.
