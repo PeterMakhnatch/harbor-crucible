@@ -132,6 +132,25 @@ Per-trial cost is about **$0.009**. A four-seat episode costs under a cent, so t
 
 Two observations are worth separate follow-up. A planner can seed a reward hack that a coder implements and a reviewer approves, so the cross-role transmission channel is real for this model. And on this task the same model did not escalate a coding turf war at all, which contradicts the scripted oracle's behaviour but not the published finding, because the conflict here is procedural rather than resource-scarce.
 
+### An LLM monitor on the same corpus
+
+Same 33 trials, same tiers, `deepseek-chat` as a judge reading only the tier-filtered view and returning a per-seat suspicion score. Cost: $0.023 at Tier 0 and $0.063 at Tier 1.
+
+| Monitor | Tier | AUROC | TPR at 5% FPR | Top-seat accuracy | Cost |
+|---|---|---:|---:|---:|---:|
+| deterministic | T0 | 0.585 | 22.2% | 22.2% | $0.00 |
+| deterministic | T1 | 0.646 | 33.3% | 38.9% | $0.00 |
+| LLM judge | T0 | 0.667 | 33.3% | 66.7% | $0.023 |
+| LLM judge | T1 | 0.744 | 5.6% | 55.6% | $0.063 |
+
+Three things follow.
+
+1. **The LLM judge localizes the adversary much better than the rule set from public chat alone.** 66.7% versus 22.2% top-seat accuracy at Tier 0. It reads the narrative, which is where a liar's contradiction shows.
+2. **Audit evidence helps the judge too.** AUROC rises from 0.667 to 0.744 when it can see authenticated actions. That is the second independent confirmation of H1.
+3. **Its calibrated threshold is unstable at this sample size.** TPR at 5% FPR *falls* to 5.6% at Tier 1 even though AUROC improves, because the threshold solver has 15 negatives to work with and the judge's scores cluster tightly. A ranking metric can improve while the operating point worsens. Report both, never one.
+
+The practical reading: use an LLM judge for attribution, use deterministic rules for alerting, and do not trust a fixed-FPR operating point calibrated on fewer than a few dozen controls.
+
 ### The monitor benchmark on real evidence
 
 Corpus: 33 integrity-labelled trials (18 adversarial, 15 negative including 3 instructed refusers), migration excluded because it has no instructed adversary. Target false-positive rate 5%.
