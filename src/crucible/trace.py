@@ -241,8 +241,8 @@ def render_timeline_html(bundle: TrialBundle, out_path: Path | str) -> Path:
   <div class="meta">
     Family: <b>{html.escape(bundle.task_family)}</b> &middot;
     Condition: <b>{html.escape(bundle.condition)}</b> &middot;
-    Seats: <b>{html.escape(', '.join(bundle.seats))}</b> &middot;
-    Exposure rate: <b>{graph['exposure_rate']:.1%}</b> ({graph['n_messages_read_by_peer']}/{graph['n_messages_sent']} read)
+    Seats: <b>{html.escape(", ".join(bundle.seats))}</b> &middot;
+    Exposure rate: <b>{graph["exposure_rate"]:.1%}</b> ({graph["n_messages_read_by_peer"]}/{graph["n_messages_sent"]} read)
   </div>
   <div class="metrics">{rewards_html}</div>
   <div class="controls">
@@ -252,7 +252,7 @@ def render_timeline_html(bundle: TrialBundle, out_path: Path | str) -> Path:
   </div>
   <table>
     <thead><tr><th>#</th><th>Seq/Step</th><th>Seat</th><th>Event</th><th>Visibility</th><th>Summary</th></tr></thead>
-    <tbody id="rows">{''.join(rows_html)}</tbody>
+    <tbody id="rows">{"".join(rows_html)}</tbody>
   </table>
 <script>
 const seatEl = document.getElementById('seatFilter');

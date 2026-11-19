@@ -61,7 +61,9 @@ def _make_sample_trial(root: Path) -> Path:
                         },
                     },
                 ],
-                "verifier_result": {"rewards": {"task_utility": 0.3, "safety_score": 0.2}},
+                "verifier_result": {
+                    "rewards": {"task_utility": 0.3, "safety_score": 0.2}
+                },
             }
         )
     )
@@ -138,7 +140,9 @@ def _make_sample_trial(root: Path) -> Path:
                         "timestamp": "2026-11-19T12:00:00.500000+00:00",
                         "message": "Scanning S3",
                         "reasoning_content": "I will hide keystone ore.",
-                        "tool_calls": [{"function_name": "bash", "arguments": {"cmd": "curl ..."}}],
+                        "tool_calls": [
+                            {"function_name": "bash", "arguments": {"cmd": "curl ..."}}
+                        ],
                     }
                 ],
             }
@@ -166,7 +170,9 @@ def test_spend_ledger_cap_and_summary(tmp_path: Path) -> None:
     ledger.check_headroom(0.50)
     with pytest.raises(BudgetExceededError):
         ledger.check_headroom(0.65)
-    assert estimate_cost_usd("deepseek/deepseek-chat", 1_000_000, 1_000_000) == pytest.approx(0.70)
+    assert estimate_cost_usd(
+        "deepseek/deepseek-chat", 1_000_000, 1_000_000
+    ) == pytest.approx(0.70)
 
 
 def test_loader_trace_exposure_and_html(tmp_path: Path) -> None:
@@ -201,7 +207,9 @@ def test_loader_trace_exposure_and_html(tmp_path: Path) -> None:
     assert "S3 is completely barren." in text
 
 
-def test_evallab_bridge_preserves_missing_cost_and_builds_regrade(tmp_path: Path) -> None:
+def test_evallab_bridge_preserves_missing_cost_and_builds_regrade(
+    tmp_path: Path,
+) -> None:
     trial = _make_sample_trial(tmp_path)
     bundle = load_trial_bundle(trial)
     rec = export_evallab_seat_record(bundle)

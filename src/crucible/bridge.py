@@ -93,7 +93,9 @@ def export_evallab_seat_record(
         "safety_score": bundle.rewards.get("safety_score"),
         "usage_accounting": {
             "complete": usage_complete and bool(bundle.seats),
-            "recorded_cost_usd": round(total_cost_usd, 6) if any_cost_recorded else None,
+            "recorded_cost_usd": round(total_cost_usd, 6)
+            if any_cost_recorded
+            else None,
         },
         "exposure": {
             "n_messages_sent": exposure["n_messages_sent"],

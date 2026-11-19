@@ -50,7 +50,9 @@ def estimate_cost_usd(
     output_tokens: int,
 ) -> float:
     in_rate, out_rate = MODEL_RATES_PER_M.get(model, (0.50, 1.50))
-    return (input_tokens / 1_000_000.0) * in_rate + (output_tokens / 1_000_000.0) * out_rate
+    return (input_tokens / 1_000_000.0) * in_rate + (
+        output_tokens / 1_000_000.0
+    ) * out_rate
 
 
 class SpendLedger:
@@ -98,7 +100,9 @@ class SpendLedger:
         by_category: dict[str, float] = {}
         by_model: dict[str, float] = {}
         for e in items:
-            by_category[e.category] = round(by_category.get(e.category, 0.0) + e.cost_usd, 6)
+            by_category[e.category] = round(
+                by_category.get(e.category, 0.0) + e.cost_usd, 6
+            )
             by_model[e.model] = round(by_model.get(e.model, 0.0) + e.cost_usd, 6)
         total = round(sum(e.cost_usd for e in items), 6)
         return {

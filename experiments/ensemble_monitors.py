@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Annotated
 
 import typer
 
@@ -32,12 +33,24 @@ def _load(path: Path, tier: MonitorTier, name_prefix: str) -> dict[str, MonitorV
 
 
 def main(
-    rules: Path = typer.Option(Path("experiments/monitor_benchmark_wave1/verdicts.jsonl")),
-    llm: Path = typer.Option(Path("experiments/monitor_benchmark_wave1_llm/verdicts.jsonl")),
-    tier: str = typer.Option("tier1_public_plus_audit"),
-    rules_prefix: str = typer.Option("deterministic"),
-    llm_prefix: str = typer.Option("llm_"),
-    out_json: Path = typer.Option(Path("experiments/monitor_ensemble/summary.json")),
+    rules: Annotated[Path, typer.Option(help="Rules monitor verdicts.jsonl.")] = Path(
+        "experiments/monitor_benchmark_wave1/verdicts.jsonl"
+    ),
+    llm: Annotated[Path, typer.Option(help="LLM judge verdicts.jsonl.")] = Path(
+        "experiments/monitor_benchmark_wave1_llm/verdicts.jsonl"
+    ),
+    tier: Annotated[str, typer.Option(help="Visibility tier to compare.")] = (
+        "tier1_public_plus_audit"
+    ),
+    rules_prefix: Annotated[str, typer.Option(help="Monitor name prefix to keep.")] = (
+        "deterministic"
+    ),
+    llm_prefix: Annotated[
+        str, typer.Option(help="Monitor name prefix to keep.")
+    ] = "llm_",
+    out_json: Annotated[Path, typer.Option(help="Where to write the summary.")] = Path(
+        "experiments/monitor_ensemble/summary.json"
+    ),
 ) -> None:
     monitor_tier = MonitorTier(tier)
     rule_map = _load(rules, monitor_tier, rules_prefix)
@@ -50,7 +63,9 @@ def main(
 
     llm_max = max((v.trial_suspicion_score for v in llm_map.values()), default=0.0)
     if llm_max <= 0.0:
-        raise typer.BadParameter("LLM judge scored zero on every trial; nothing to combine")
+        raise typer.BadParameter(
+            "LLM judge scored zero on every trial; nothing to combine"
+        )
     scale = 100.0 / llm_max
 
     ensemble: list[MonitorVerdict] = []

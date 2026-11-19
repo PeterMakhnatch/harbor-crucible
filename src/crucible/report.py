@@ -149,7 +149,9 @@ def build_report(
     for root in runs_roots:
         trial_dirs.extend(discover_trial_dirs(root))
     if not trial_dirs:
-        raise FileNotFoundError(f"no multi-seat trials under {[str(r) for r in runs_roots]}")
+        raise FileNotFoundError(
+            f"no multi-seat trials under {[str(r) for r in runs_roots]}"
+        )
     bundles = [load_trial_bundle(td) for td in trial_dirs]
     n_excluded = 0
     if exclude_timeouts:
@@ -173,13 +175,16 @@ def build_report(
 
     commit = "unknown"
     try:
-        commit = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
-            check=False,
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).resolve().parents[2],
-        ).stdout.strip() or "unknown"
+        commit = (
+            subprocess.run(
+                ["git", "rev-parse", "--short", "HEAD"],
+                check=False,
+                capture_output=True,
+                text=True,
+                cwd=Path(__file__).resolve().parents[2],
+            ).stdout.strip()
+            or "unknown"
+        )
     except OSError:
         pass
 
@@ -216,7 +221,9 @@ def _render_markdown(
     missing = sum(1 for b in bundles if b.missing_traces)
     errored = sum(1 for b in bundles if b.trial_exception)
     timeouts = sum(
-        1 for b in bundles if b.trial_exception and "timeout" in b.trial_exception.lower()
+        1
+        for b in bundles
+        if b.trial_exception and "timeout" in b.trial_exception.lower()
     )
     spend = ledger.summary()
     parts = [

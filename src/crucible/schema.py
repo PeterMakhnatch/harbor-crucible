@@ -159,9 +159,7 @@ class MonitorVerdict(BaseModel):
     top_seat_correct: bool | None = None
     latency_ms: float = 0.0
     monitor_cost_usd: float = 0.0
-    evaluated_at: str = Field(
-        default_factory=lambda: datetime.now(UTC).isoformat()
-    )
+    evaluated_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 class MonitorBenchmarkSummary(BaseModel):

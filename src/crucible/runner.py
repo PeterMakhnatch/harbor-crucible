@@ -182,7 +182,9 @@ def run_seat_trial(
             ledger.record(
                 SpendEntry(
                     category="trial_run",
-                    provider=seat_model.split("/")[0] if "/" in seat_model else "unknown",
+                    provider=seat_model.split("/")[0]
+                    if "/" in seat_model
+                    else "unknown",
                     model=seat_model,
                     trial_or_job=f"{bundle.trial_name}:{seat}",
                     input_tokens=in_tok,

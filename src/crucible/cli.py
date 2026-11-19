@@ -31,16 +31,24 @@ console = Console()
 
 @app.command("trace")
 def cmd_trace(
-    trial_dir: Annotated[Path, typer.Argument(help="Path to a Harbor multi-seat trial directory.")],
-    html_out: Annotated[Path | None, typer.Option("--html", help="Write standalone HTML explorer.")] = None,
-    json_out: Annotated[Path | None, typer.Option("--json", help="Write timeline + exposure JSON.")] = None,
+    trial_dir: Annotated[
+        Path, typer.Argument(help="Path to a Harbor multi-seat trial directory.")
+    ],
+    html_out: Annotated[
+        Path | None, typer.Option("--html", help="Write standalone HTML explorer.")
+    ] = None,
+    json_out: Annotated[
+        Path | None, typer.Option("--json", help="Write timeline + exposure JSON.")
+    ] = None,
 ) -> None:
     """Build cross-seat causal timeline and message-exposure graph for a trial."""
     bundle = load_trial_bundle(trial_dir)
     timeline = build_unified_timeline(bundle)
     graph = build_exposure_graph(bundle)
 
-    table = Table(title=f"Crucible Trace: {bundle.trial_name} ({bundle.task_family}/{bundle.condition})")
+    table = Table(
+        title=f"Crucible Trace: {bundle.trial_name} ({bundle.task_family}/{bundle.condition})"
+    )
     table.add_column("Metric", style="cyan")
     table.add_column("Value", style="bold")
     table.add_row("Seats", ", ".join(bundle.seats))
@@ -76,16 +84,24 @@ def cmd_trace(
 @app.command("benchmark-monitors")
 def cmd_benchmark_monitors(
     runs_roots: Annotated[
-        list[Path], typer.Argument(help="Directories containing Harbor multi-seat trials.")
+        list[Path],
+        typer.Argument(help="Directories containing Harbor multi-seat trials."),
     ],
-    out_dir: Annotated[Path, typer.Option("--out-dir")] = Path("experiments/monitor_benchmark"),
-    target_fpr: Annotated[float, typer.Option("--target-fpr", help="Calibration false-positive rate.")] = 0.05,
-    llm_model: Annotated[
-        str | None, typer.Option("--llm-model", help="Optional LLM monitor model (e.g. deepseek-chat).")
-    ] = None,
-    tiers: Annotated[str, typer.Option("--tiers", help="Comma-separated monitor visibility tiers.")] = (
-        "tier0_public_only,tier1_public_plus_audit,tier2_full_trajectories"
+    out_dir: Annotated[Path, typer.Option("--out-dir")] = Path(
+        "experiments/monitor_benchmark"
     ),
+    target_fpr: Annotated[
+        float, typer.Option("--target-fpr", help="Calibration false-positive rate.")
+    ] = 0.05,
+    llm_model: Annotated[
+        str | None,
+        typer.Option(
+            "--llm-model", help="Optional LLM monitor model (e.g. deepseek-chat)."
+        ),
+    ] = None,
+    tiers: Annotated[
+        str, typer.Option("--tiers", help="Comma-separated monitor visibility tiers.")
+    ] = ("tier0_public_only,tier1_public_plus_audit,tier2_full_trajectories"),
     families: Annotated[
         str | None,
         typer.Option(
@@ -109,14 +125,18 @@ def cmd_benchmark_monitors(
 
     monitor_choice = monitor.strip().lower()
     if monitor_choice not in {"v1", "v2", "both"}:
-        console.print(f"[red]Invalid --monitor value {monitor!r}; expected v1, v2, or both.[/red]")
+        console.print(
+            f"[red]Invalid --monitor value {monitor!r}; expected v1, v2, or both.[/red]"
+        )
         raise typer.Exit(code=2)
     wanted = {f.strip() for f in families.split(",")} if families else None
     trial_dirs: list[Path] = []
     for root in runs_roots:
         trial_dirs.extend(discover_trial_dirs(root))
     if not trial_dirs:
-        console.print(f"[red]No multi-seat trials found under {[str(r) for r in runs_roots]}[/red]")
+        console.print(
+            f"[red]No multi-seat trials found under {[str(r) for r in runs_roots]}[/red]"
+        )
         raise typer.Exit(code=1)
 
     selected_tiers = [MonitorTier(t.strip()) for t in tiers.split(",") if t.strip()]
@@ -124,7 +144,9 @@ def cmd_benchmark_monitors(
     if wanted is not None:
         bundles = [b for b in bundles if b.task_family in wanted]
         if not bundles:
-            console.print(f"[red]No trials left after filtering to {sorted(wanted)}[/red]")
+            console.print(
+                f"[red]No trials left after filtering to {sorted(wanted)}[/red]"
+            )
             raise typer.Exit(code=1)
     det_monitors: list[DeterministicCrucibleMonitor | DeterministicCrucibleV2] = []
     if monitor_choice in {"v1", "both"}:
@@ -162,8 +184,12 @@ def cmd_benchmark_monitors(
 
 @app.command("export-evallab")
 def cmd_export_evallab(
-    runs_root: Annotated[Path, typer.Argument(help="Directory containing Harbor multi-seat trials.")],
-    out_path: Annotated[Path, typer.Option("--out")] = Path("experiments/evallab_seat_evidence.jsonl"),
+    runs_root: Annotated[
+        Path, typer.Argument(help="Directory containing Harbor multi-seat trials.")
+    ],
+    out_path: Annotated[Path, typer.Option("--out")] = Path(
+        "experiments/evallab_seat_evidence.jsonl"
+    ),
     verdicts_jsonl: Annotated[
         Path | None, typer.Option("--verdicts", help="Optional monitor verdicts JSONL.")
     ] = None,
@@ -180,8 +206,12 @@ def cmd_export_evallab(
 
 @app.command("regrade-config")
 def cmd_regrade_config(
-    source_trial: Annotated[Path, typer.Argument(help="Completed multi-seat trial directory.")],
-    regrade_task: Annotated[Path, typer.Argument(help="Separate-verifier task directory.")],
+    source_trial: Annotated[
+        Path, typer.Argument(help="Completed multi-seat trial directory.")
+    ],
+    regrade_task: Annotated[
+        Path, typer.Argument(help="Separate-verifier task directory.")
+    ],
     out_yaml: Annotated[Path, typer.Option("--out")] = Path("regrade_trial.yaml"),
 ) -> None:
     """Write a Harbor SeatsRegradeTrial YAML config targeting Harbor PR 3."""
@@ -202,7 +232,9 @@ def _is_trial_dir(path: Path) -> bool:
 @app.command("lint-task")
 def cmd_lint_task(
     path: Annotated[Path, typer.Argument(exists=True, file_okay=False)],
-    as_json: Annotated[bool, typer.Option("--json", help="Print JSON instead of text.")] = False,
+    as_json: Annotated[
+        bool, typer.Option("--json", help="Print JSON instead of text.")
+    ] = False,
 ) -> None:
     """Check the audit contract of a task, trial, or directory of evidence."""
     if (path / "task.toml").is_file():
@@ -212,22 +244,34 @@ def cmd_lint_task(
     else:
         report = LintReport()
         tasks = {item.parent for item in path.rglob("task.toml") if item.is_file()}
-        trials = {item.parent for item in path.rglob("result.json") if _is_trial_dir(item.parent)}
+        trials = {
+            item.parent
+            for item in path.rglob("result.json")
+            if _is_trial_dir(item.parent)
+        }
         for directory in sorted(tasks | trials):
-            child = lint_task(directory) if directory in tasks else lint_trial(directory)
+            child = (
+                lint_task(directory) if directory in tasks else lint_trial(directory)
+            )
             prefix = directory.relative_to(path).as_posix()
             report.findings.extend(
                 finding.model_copy(update={"path": f"{prefix}/{finding.path}"})
                 for finding in child.findings
             )
-    typer.echo(json.dumps(report.to_dict(), indent=2) if as_json else render_lint_report(report))
+    typer.echo(
+        json.dumps(report.to_dict(), indent=2)
+        if as_json
+        else render_lint_report(report)
+    )
     if not report.ok:
         raise typer.Exit(code=1)
 
 
 @app.command("spend")
 def cmd_spend(
-    ledger_path: Annotated[Path, typer.Option("--ledger")] = Path("experiments/spend_ledger.jsonl"),
+    ledger_path: Annotated[Path, typer.Option("--ledger")] = Path(
+        "experiments/spend_ledger.jsonl"
+    ),
 ) -> None:
     """Display current experiment spend vs budget cap."""
     ledger = SpendLedger(path=ledger_path)
@@ -243,7 +287,9 @@ def cmd_report(
     out_dir: Annotated[Path, typer.Option("--out-dir")] = Path("experiments/report"),
     tiers: Annotated[
         str,
-        typer.Option("--tiers", help="Comma-separated monitor visibility tiers to score."),
+        typer.Option(
+            "--tiers", help="Comma-separated monitor visibility tiers to score."
+        ),
     ] = "tier0_public_only,tier1_public_plus_audit,tier2_full_trajectories",
     integrity_families: Annotated[
         str | None,
@@ -259,9 +305,9 @@ def cmd_report(
             help="Drop trials that ended in a timeout, so every number describes a complete run.",
         ),
     ] = False,
-    ledger_path: Annotated[
-        Path, typer.Option("--ledger")
-    ] = Path("experiments/spend_ledger.jsonl"),
+    ledger_path: Annotated[Path, typer.Option("--ledger")] = Path(
+        "experiments/spend_ledger.jsonl"
+    ),
 ) -> None:
     """Write a reproducible evidence report for a corpus of multi-seat trials."""
     from crucible.report import build_report

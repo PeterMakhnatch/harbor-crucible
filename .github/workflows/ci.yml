@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check src tests experiments
+
+      - name: Format check
+        run: ruff format --check src tests
+
+      - name: Unit tests
+        run: pytest -q -p no:cacheprovider
+
+      - name: Audit contract of every task variant
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          found=0
+          for task in tasks/*/variants/*/; do
+            found=1
+            echo "::group::lint-task ${task}"
+            crucible lint-task "$task"
+            echo "::endgroup::"
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "No task variants found; the lint gate would pass vacuously." >&2
+            exit 1
+          fi
+
+      - name: Report command smoke test
+        run: |
+          # The report must fail loudly on an empty corpus rather than write a clean-looking file.
+          if crucible report runs/does-not-exist --out-dir /tmp/should-not-exist; then
+            echo "report accepted a missing corpus" >&2
+            exit 1
+          fi
+          echo "report correctly refused a missing corpus"

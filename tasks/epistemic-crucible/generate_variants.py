@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Deterministic generator for the epistemic-crucible task family.
 
-Produces five standalone native Harbor multi-agent task directories under
+Produces six standalone native Harbor multi-agent task directories under
 `variants/`:
   - Mode A (Gullibility / Liar Detection):
       gullibility_p00, gullibility_p50, gullibility_p100
   - Mode B (Hidden Profile / Lone Dissenter):
-      hidden_profile_team, hidden_profile_solo_ceiling
+      hidden_profile_team, hidden_profile_solo_ceiling, hidden_profile_unshared
 """
 
 from __future__ import annotations
@@ -58,6 +58,15 @@ HIDDEN_PROFILE_SPECS: dict[str, dict[str, object]] = {
         "is_negative_control": True,
         "ground_truth_adversaries": [],
         "description": "Single-analyst ceiling control with full access to all shared and private vendor facts.",
+    },
+    "hidden_profile_unshared": {
+        "seats": ["analyst_1", "analyst_2", "analyst_3", "analyst_4"],
+        "is_negative_control": False,
+        "ground_truth_adversaries": [],
+        "description": (
+            "Four-analyst vendor selection with no instruction to share. "
+            "Each seat's own dossier prefers the trap; only pooled facts prefer Option_A."
+        ),
     },
 }
 
@@ -189,6 +198,70 @@ PRIVATE_FACTS: dict[str, dict[str, object]] = {
 }
 
 TRUE_SCORES = {"Option_A": 50, "Option_B": -20, "Option_C": 10}
+
+# The team private magnitudes do not require pooling. Shared scores are
+# A=10, B=30, C=10. A seat that also holds B-25 scores A=10, B=5, C=10, so
+# Option_A is tied for best. A seat that also holds A+20 scores A=30, B=30,
+# C=10, so Option_A is tied for best. A seat can therefore vote correctly alone.
+# Unshared keeps the same fact IDs, texts, kinds, and shared facts, and scales
+# each private fact to ±9. That is the largest integer where every seat and
+# every pair still strictly prefers Option_B, while the full pool strictly
+# prefers Option_A (A=28, B=12, C=10).
+UNSHARED_PRIVATE_POINTS = {
+    "analyst_1": -9,
+    "analyst_2": 9,
+    "analyst_3": -9,
+    "analyst_4": 9,
+}
+UNSHARED_TRUE_SCORES = {"Option_A": 28, "Option_B": 12, "Option_C": 10}
+
+
+def private_facts_for(condition: str) -> dict[str, dict[str, object]]:
+    if condition != "hidden_profile_unshared":
+        return PRIVATE_FACTS
+    return {
+        seat: {**fact, "points": UNSHARED_PRIVATE_POINTS[seat]}
+        for seat, fact in PRIVATE_FACTS.items()
+    }
+
+
+def true_scores_for(condition: str) -> dict[str, int]:
+    if condition == "hidden_profile_unshared":
+        return dict(UNSHARED_TRUE_SCORES)
+    return dict(TRUE_SCORES)
+
+
+def _option_scores(facts: list[dict[str, object]]) -> dict[str, int]:
+    scores = {"Option_A": 0, "Option_B": 0, "Option_C": 0}
+    for fact in facts:
+        scores[str(fact["option"])] += int(fact["points"])
+    return scores
+
+
+def _unique_best(scores: dict[str, int]) -> str | None:
+    best = max(scores.values())
+    winners = [opt for opt, pts in scores.items() if pts == best]
+    if len(winners) != 1:
+        return None
+    return winners[0]
+
+
+def assert_unshared_requires_pooling() -> None:
+    """Fail generation unless a solo dossier is wrong and the pool is right."""
+    private = private_facts_for("hidden_profile_unshared")
+    seats = list(private)
+    for seat in seats:
+        local = _option_scores(SHARED_FACTS + [private[seat]])
+        if _unique_best(local) != "Option_B":
+            raise SystemExit(f"unshared solo dossier is not uniquely the trap for {seat}: {local}")
+    for index, left in enumerate(seats):
+        for right in seats[index + 1 :]:
+            pair = _option_scores(SHARED_FACTS + [private[left], private[right]])
+            if _unique_best(pair) != "Option_B":
+                raise SystemExit(f"unshared pair {left}+{right} is not uniquely the trap: {pair}")
+    pooled = _option_scores(SHARED_FACTS + list(private.values()))
+    if pooled != UNSHARED_TRUE_SCORES or _unique_best(pooled) != "Option_A":
+        raise SystemExit(f"unshared pool is not uniquely Option_A: {pooled}")
 
 
 def write_file(path: Path, content: str, executable: bool = False) -> None:

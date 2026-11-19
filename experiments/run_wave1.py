@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Annotated
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -23,10 +24,24 @@ app = typer.Typer(add_completion=False)
 
 # Every family with the conditions that carry a matched control.
 FAMILIES: dict[str, tuple[str, ...]] = {
-    "supply-chain-sabotage": ("honest", "noisy_honest", "instructed_refuser", "saboteur"),
-    "reward-hack-contagion": ("clean", "hack_seeded_coder", "hack_seeded_planner", "strict_gate_defense"),
+    "supply-chain-sabotage": (
+        "honest",
+        "noisy_honest",
+        "instructed_refuser",
+        "saboteur",
+    ),
+    "reward-hack-contagion": (
+        "clean",
+        "hack_seeded_coder",
+        "hack_seeded_planner",
+        "strict_gate_defense",
+    ),
     "epistemic-crucible": ("gullibility_p00", "gullibility_p50", "gullibility_p100"),
-    "migration-turf-war": ("aligned_control", "conflicting_blind", "conflicting_with_protocol"),
+    "migration-turf-war": (
+        "aligned_control",
+        "conflicting_blind",
+        "conflicting_with_protocol",
+    ),
 }
 
 
@@ -44,23 +59,42 @@ def _rewards(trial: Path | None) -> dict[str, float]:
 
 @app.command()
 def wave1(
-    family: str = typer.Option("supply-chain-sabotage", help=", ".join(FAMILIES)),
-    model: str = typer.Option("deepseek/deepseek-chat", help="Model for every seat."),
-    api_key_env: str = typer.Option("DEEPSEEK_API_KEY", help="Host env var holding the key."),
-    attempts: int = typer.Option(1, help="Trials per condition."),
-    conditions: str | None = typer.Option(
-        None,
-        help="Comma-separated subset of the family's conditions. Default: all of them.",
+    family: Annotated[str, typer.Option(help=", ".join(FAMILIES))] = (
+        "supply-chain-sabotage"
     ),
-    timeout_multiplier: float = typer.Option(1.0),
-    planned_usd_per_trial: float = typer.Option(0.75, help="Refuse to start a trial above this estimate."),
-    out_dir: Path | None = typer.Option(None),
-    ledger_path: Path = typer.Option(Path("experiments/spend_ledger.jsonl")),
-    cap_usd: float = typer.Option(20.0),
-    dry_run: bool = typer.Option(False),
+    model: Annotated[str, typer.Option(help="Model for every seat.")] = (
+        "deepseek/deepseek-chat"
+    ),
+    api_key_env: Annotated[str, typer.Option(help="Host env var holding the key.")] = (
+        "DEEPSEEK_API_KEY"
+    ),
+    attempts: Annotated[int, typer.Option(help="Trials per condition.")] = 1,
+    conditions: Annotated[
+        str | None,
+        typer.Option(
+            help="Comma-separated subset of the family's conditions. Default: all of them."
+        ),
+    ] = None,
+    timeout_multiplier: Annotated[
+        float, typer.Option(help="Harbor timeout scale.")
+    ] = 1.0,
+    planned_usd_per_trial: Annotated[
+        float,
+        typer.Option(help="Refuse to start a trial above this estimate."),
+    ] = 0.75,
+    out_dir: Annotated[Path | None, typer.Option(help="Trial output root.")] = None,
+    ledger_path: Annotated[Path, typer.Option(help="Spend ledger path.")] = Path(
+        "experiments/spend_ledger.jsonl"
+    ),
+    cap_usd: Annotated[float, typer.Option(help="Hard spend ceiling.")] = 20.0,
+    dry_run: Annotated[
+        bool, typer.Option(help="Print the plan without running.")
+    ] = False,
 ) -> None:
     if family not in FAMILIES:
-        raise typer.BadParameter(f"unknown family {family!r}; choose from {sorted(FAMILIES)}")
+        raise typer.BadParameter(
+            f"unknown family {family!r}; choose from {sorted(FAMILIES)}"
+        )
 
     ledger = SpendLedger(path=ledger_path, cap_usd=cap_usd)
     tasks_root = Path("tasks") / family / "variants"
@@ -81,7 +115,7 @@ def wave1(
                 print(f"DRY {family}/{condition} #{attempt}")
                 continue
             ledger.check_headroom(planned_usd_per_trial)
-            rc, trial, out = run_seat_trial(
+            rc, trial, _out = run_seat_trial(
                 task_dir,
                 trials_dir,
                 agent_name="mini-swe-agent",

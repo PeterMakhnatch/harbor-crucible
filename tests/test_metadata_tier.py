@@ -81,7 +81,9 @@ def test_metadata_tier_never_leaks_world_private_events() -> None:
     view = build_tier_view(_bundle(), MonitorTier.TIER1_METADATA_ONLY)
 
     assert all(ev["visibility"] != "world_private" for ev in view["world_events"])
-    assert not any(ev["event_type"] == "ground_truth_reveal" for ev in view["world_events"])
+    assert not any(
+        ev["event_type"] == "ground_truth_reveal" for ev in view["world_events"]
+    )
 
 
 def test_metadata_tier_is_evaluable_and_bounded() -> None:

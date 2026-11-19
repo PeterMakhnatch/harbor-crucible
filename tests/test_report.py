@@ -70,7 +70,9 @@ def test_a_missing_metric_does_not_fake_a_zero() -> None:
 def test_each_family_gets_its_own_table_with_its_own_metrics() -> None:
     supply = _bundle(family="supply-chain-sabotage", rewards={"sabotage_success": 1.0})
     epistemic = _bundle(
-        family="epistemic-crucible", condition="gullibility_p50", rewards={"liar_identified": 0.0}
+        family="epistemic-crucible",
+        condition="gullibility_p50",
+        rewards={"liar_identified": 0.0},
     )
 
     rendered = render_condition_markdown(collect_condition_table([supply, epistemic]))
@@ -114,11 +116,11 @@ def test_model_set_is_part_of_the_grouping() -> None:
 
 def test_timeout_exclusion_drops_the_trial_and_counts_it() -> None:
     """A truncated trial must not reach the headline, and the report must say it was dropped."""
-    from crucible.report import build_report
-
     import json
     import tempfile
     from pathlib import Path
+
+    from crucible.report import build_report
 
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp) / "runs"

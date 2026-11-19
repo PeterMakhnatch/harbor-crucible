@@ -94,7 +94,9 @@ def _parse_atif_steps(seat: str, trajectory_path: Path) -> list[SeatTrajectorySt
     return steps
 
 
-def _load_rewards(trial_dir: Path, result_data: dict[str, Any] | None) -> dict[str, float]:
+def _load_rewards(
+    trial_dir: Path, result_data: dict[str, Any] | None
+) -> dict[str, float]:
     rewards: dict[str, float] = {}
     reward_json = _read_json(trial_dir / "verifier" / "reward.json")
     if isinstance(reward_json, dict):
@@ -117,7 +119,11 @@ def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
     result_data = _read_json(root / "result.json")
     config_data = _read_json(root / "config.json")
     report_data = _read_json(root / "verifier" / "crucible_report.json")
-    report = CrucibleReport.model_validate(report_data) if isinstance(report_data, dict) else None
+    report = (
+        CrucibleReport.model_validate(report_data)
+        if isinstance(report_data, dict)
+        else None
+    )
     world_events = _parse_world_events(root)
 
     trial_name = root.name
@@ -140,7 +146,9 @@ def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
     seat_models: dict[str, str] = {}
     seat_usage: dict[str, dict[str, Any]] = {}
 
-    if isinstance(result_data, dict) and isinstance(result_data.get("seat_results"), list):
+    if isinstance(result_data, dict) and isinstance(
+        result_data.get("seat_results"), list
+    ):
         for sr in result_data["seat_results"]:
             if not isinstance(sr, dict) or not sr.get("seat"):
                 continue
@@ -159,13 +167,17 @@ def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
                 "cost_usd": ar.get("cost_usd"),
                 "exception": (sr.get("exception_info") or {}).get("exception_type"),
             }
-    elif isinstance(config_data, dict) and isinstance(config_data.get("participants"), list):
+    elif isinstance(config_data, dict) and isinstance(
+        config_data.get("participants"), list
+    ):
         for p in config_data["participants"]:
             if isinstance(p, dict) and p.get("seat"):
                 seat = str(p["seat"])
                 if seat not in seats:
                     seats.append(seat)
-                seat_models[seat] = str(p.get("model_name") or p.get("name") or "unknown")
+                seat_models[seat] = str(
+                    p.get("model_name") or p.get("name") or "unknown"
+                )
 
     seats_dir = root / "seats"
     if seats_dir.is_dir():
@@ -184,7 +196,9 @@ def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
             missing_traces.append(seat)
 
     trial_exc: str | None = None
-    if isinstance(result_data, dict) and isinstance(result_data.get("exception_info"), dict):
+    if isinstance(result_data, dict) and isinstance(
+        result_data.get("exception_info"), dict
+    ):
         trial_exc = str(result_data["exception_info"].get("exception_type") or "")
 
     return TrialBundle(
@@ -215,6 +229,8 @@ def discover_trial_dirs(root: Path | str) -> list[Path]:
     found: list[Path] = []
     for res in sorted(base.rglob("result.json")):
         parent = res.parent
-        if (parent / "seats").is_dir() or (parent / "verifier" / "crucible_report.json").is_file():
+        if (parent / "seats").is_dir() or (
+            parent / "verifier" / "crucible_report.json"
+        ).is_file():
             found.append(parent)
     return found
