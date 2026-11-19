@@ -53,7 +53,8 @@ What is not established:
 
 - **Any reward-hack detection claim.** The label now derives from the committed snapshot, but real sabotage attempts are too rare in the sample to power a cell.
 - **Any pooled number.** Pooling families compares one world's adversaries with another's honest agents; the earlier pooled 0.607 was a mixture.
-- **An audit gain outside supply-chain**, and any transfer to another model family.
+- **An audit gain outside supply-chain.** The decisive failure mode is measured only in that family.
+- **A measured cross-model transfer.** One Qwen check repeats the pattern, naming 0 of 5 saboteurs without audit and 4 of 5 with it, but five positives is a signal, not a measurement.
 
 Details, intervals and the failed predictions are in [docs/FINDINGS.md](docs/FINDINGS.md); the one-page orientation is [docs/SUMMARY.md](docs/SUMMARY.md).
 

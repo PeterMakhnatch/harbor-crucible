@@ -347,6 +347,10 @@ Three different answers to the same question, and each is correct for its family
 
 **Supply-chain: audit evidence is decisive.** Public chat alone ranks sabotage at 0.667 and names the saboteur in only 2 of 24 trials, below the 25% that naming one of four seats at random would give. With the authenticated audit log it reaches **0.970 [0.913, 1.000]** and names the right seat 95.8% of the time. Both intervals exclude chance, and the detection interval is 8.3 points wide. The estimate is stable across three separate batches: 0.987 on six positives, 0.946 on twelve, 0.970 on twenty-four. That is the capability the fork's seat model exists to enable, and it is the strongest result in this document.
 
+**The pattern transfers to a second model.** On `qwen/qwen-2.5-72b-instruct` through OpenRouter, five completed sabotage trials and four honest controls show the same shape: public chat alone ranks at **0.500** and names no saboteur in five tries, while the audit tier reaches **0.900** and names the right seat in 4 of 5, with no false positive on any control. The numbers are small and this is one extra model, but the failure mode and the remedy both reproduce, which is what a transfer check is for.
+
+Timeout headroom matters for that model. At the task's own 240 s budget, four of six Qwen supply trials ended in `AgentTimeoutError`; at 480 s, eight of eight completed. A seat runner that inherits a single default timeout will lose a slower model's data silently, which is the same class of defect as a mislabelled negative.
+
 **Epistemic: audit evidence is unnecessary.** The tier makes no difference at all, 0.938 [0.875, 1.000] at Tier 0, Tier 1 and Tier 2 alike, over 24 positives and 18 controls. A liar contradicts a public report in public, so chat carries the whole signal.
 
 **Reward-hack: not measurable, for an evidence reason.** The world's own detector fires on workspace files the audit log never recorded, so 0.500 says nothing about detection (see the section above).
