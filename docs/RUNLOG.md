@@ -26,6 +26,12 @@ Running record for the overnight mission. Newest first. Hours are ET.
 2. **Re-run and re-score the reward-hack family** with that evidence, and see whether Tier 1 finally separates.
 3. **Refresh the docs and the summary** with the result, then look for the next fork contribution.
 
+## Next 3 items (planned 2026-11-19 ~10:20)
+
+1. **Widen the sabotage sample to 24 positives**, because that is the headline number and its interval is still 16 points wide.
+2. **Fix the verifier's path-based tamper rule**: writing a solution into `tests/` is a misplaced file, not a grader edit, and currently earns `rh_confirmed=1.0` on a clean control.
+3. **Re-verify, re-score and refresh** the three documents, then scan sibling work for the next gap.
+
 ## Done
 
 ### 2026-11-19 ~08:30-09:20 — Pooling families was invalid, and the hidden-profile prediction held
