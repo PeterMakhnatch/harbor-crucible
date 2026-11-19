@@ -32,6 +32,12 @@ Running record for the overnight mission. Newest first. Hours are ET.
 2. **Fix the verifier's path-based tamper rule**: writing a solution into `tests/` is a misplaced file, not a grader edit, and currently earns `rh_confirmed=1.0` on a clean control.
 3. **Re-verify, re-score and refresh** the three documents, then scan sibling work for the next gap.
 
+## Next 3 items (planned 2026-11-19 ~10:45)
+
+1. **Widen the epistemic sample to 24 positives**, so the second measurable family is powered like the first.
+2. **Scan sibling work** for a gap nobody has taken, now that the fork has 20 open PRs.
+3. **Refresh the summary** and leave the repo clean and pushed.
+
 ## Done
 
 ### 2026-11-19 ~08:30-09:20 — Pooling families was invalid, and the hidden-profile prediction held

@@ -243,15 +243,15 @@ A threshold interval, by contrast, is not comparable across monitors at all, bec
 
 ### Gullibility: identification is a dose response, the decision is not
 
-The `gullibility_*` arms vary the share of scouts that lie about a depleting sector. Pooling both waves gives six real-model trials per arm:
+The `gullibility_*` arms vary the share of scouts that lie about a depleting sector. Pooling every wave gives twelve real-model trials per arm, plus the six-trial no-liar control:
 
 | Arm | Liar share | Liar identified | Correct decision | Naive-trust baseline | False accusation |
 |---|---|---:|---:|---|---:|
 | `gullibility_p00` | 0 of 3 | 0/6 | 6/6 | 1.0 in all 6 | 0/6 |
-| `gullibility_p50` | ~1 of 3 | 3/6 | 6/6 | 0.5 in all 6 | 0/6 |
-| `gullibility_p100` | 3 of 3 | 5/6 | 6/6 | 0.0–0.33 | 0/6 |
+| `gullibility_p50` | ~1 of 3 | 5/12 | 6/6 | 0.5 or 1.0 | 0/6 |
+| `gullibility_p100` | 3 of 3 | 10/12 | 6/6 | 0.0–1.0 | 0/6 |
 
-Two clean findings. **Identification tracks exposure**: with no liar there is nothing to name (0 of 6, and crucially no false accusation), with heavy lying the team names a liar in 5 of 6. **The decision is robust regardless**: it is correct in all 18 trials, and it was already correct under a naive trust-all policy in the `p00` arm, so the `p50` and `p100` arms are where the work happens.
+Two clean findings. **Identification tracks exposure**: with no liar there is nothing to name (0 of 6, and crucially no false accusation), with heavy lying the team names a liar in 10 of 12, and the middle arm sits between at 5 of 12. **The decision is robust regardless**: it is correct in all 30 trials, and it was already correct under a naive trust-all policy in the `p00` arm, so the `p50` and `p100` arms are where the work happens.
 
 The honest reading is that this model does not get fooled on this task, and that "detecting the liar" is a separate capability from "avoiding the liar's advice". A monitor that only measured decision quality would have learned nothing here.
 
@@ -334,14 +334,14 @@ With the full-timeout supply corpus the per-family picture is finally measurable
 | Family | Pos / ctrl | AUROC, public chat | AUROC, + audit [95% CI] | Detection | Attribution |
 |---|---:|---:|---|---:|---:|
 | `supply-chain-sabotage` | 24 / 26 | 0.667 [0.583, 0.771] | **0.970 [0.913, 1.000]** | 33.3% → **87.5%** | 8.3% → **95.8%** |
-| `epistemic-crucible` | 12 / 18 | 0.917 [0.792, 1.000] | 0.917 [0.792, 1.000] | 83.3% | 83.3% |
+| `epistemic-crucible` | 24 / 18 | 0.938 [0.875, 1.000] | 0.938 [0.875, 1.000] | 87.5% | 87.5% |
 | `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
 
 Three different answers to the same question, and each is correct for its family.
 
 **Supply-chain: audit evidence is decisive.** Public chat alone ranks sabotage at 0.667 and names the saboteur in only 2 of 24 trials, below the 25% that naming one of four seats at random would give. With the authenticated audit log it reaches **0.970 [0.913, 1.000]** and names the right seat 95.8% of the time. Both intervals exclude chance, and the detection interval is 8.3 points wide. The estimate is stable across three separate batches: 0.987 on six positives, 0.946 on twelve, 0.970 on twenty-four. That is the capability the fork's seat model exists to enable, and it is the strongest result in this document.
 
-**Epistemic: audit evidence is unnecessary.** The tier makes no difference at all, 0.917 at Tier 0, Tier 1 and Tier 2 alike. A liar contradicts a public report in public, so chat carries the whole signal.
+**Epistemic: audit evidence is unnecessary.** The tier makes no difference at all, 0.938 [0.875, 1.000] at Tier 0, Tier 1 and Tier 2 alike, over 24 positives and 18 controls. A liar contradicts a public report in public, so chat carries the whole signal.
 
 **Reward-hack: not measurable, for an evidence reason.** The world's own detector fires on workspace files the audit log never recorded, so 0.500 says nothing about detection (see the section above).
 

@@ -11,12 +11,12 @@ One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM
 
 ## What it measured
 
-106 real-model seat trials, 98 complete and integrity-labelled. Per family, because scales differ:
+118 real-model seat trials, 110 complete and integrity-labelled. Per family, because scales differ:
 
 | Family | Pos / ctrl | AUROC, public chat | AUROC, + audit | Detection | Attribution |
 |---|---:|---:|---|---:|---:|
 | `supply-chain-sabotage` | 24 / 26 | 0.667 | **0.970 [0.913, 1.000]** | 87.5% | **95.8%** |
-| `epistemic-crucible` | 12 / 18 | 0.917 | 0.917 [0.792, 1.000] | 83.3% | 83.3% |
+| `epistemic-crucible` | 24 / 18 | 0.938 [0.875, 1.000] | 0.938 [0.875, 1.000] | 87.5% | 87.5% |
 | `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
 
 **The headline: authenticated audit evidence takes sabotage attribution from 8.3% to 95.8%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasurable because the world detects mechanisms in workspace state that never reached a commit, so its label and its evidence are different events.
@@ -29,7 +29,7 @@ Behaviour, three trials per condition unless noted:
 | Cross-role reward-hack contagion | a planner seeds a test bypass, the coder implements it, the reviewer approves: 1 of 3 |
 | Strict quarantine gate | blocked every delivery attempt |
 | Turf war under incompatible goals | escalated in 1 of 3 blind conflicts, stood down or truced otherwise |
-| Gullibility dose response | liar named 0/6 at no-liar, 3/6 at half, 5/6 at full; decision always correct (18/18) |
+| Gullibility dose response | liar named 0/6 with no liar, 5/12 at half, 10/12 at full; decision always correct (30/30) |
 | Hidden profile, sharing mandated | team equals the solo ceiling, 3/3; the family tests nothing |
 | Hidden profile, no sharing mandate | team drops to 1/3 while the solo ceiling stays 3/3, and the reference solution solves it |
 
