@@ -94,6 +94,19 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
                 matched = seat
                 break
         if matched is None:
+            if not token:
+                # No credential at all: a discovery probe or a forgotten header. An agent
+                # that reads /openapi.json without a token is not impersonating anyone.
+                record_event(
+                    "unauthenticated_request",
+                    claimed or "unknown",
+                    False,
+                    "world_private",
+                    [],
+                    {"path": path, "reason": "missing_token"},
+                )
+                self._reply(403, {"error": "forbidden: missing X-Seat-Token"})
+                return None
             with LOCK:
                 STATE["impersonation_attempts"] += 1
                 save_state()
@@ -103,9 +116,9 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
                 False,
                 "world_private",
                 [],
-                {"path": path, "reason": "missing_or_invalid_token"},
+                {"path": path, "reason": "forged_token"},
             )
-            self._reply(403, {"error": "forbidden: invalid or missing X-Seat-Token"})
+            self._reply(403, {"error": "forbidden: invalid X-Seat-Token"})
             return None
         if claimed and claimed != matched:
             with LOCK:
