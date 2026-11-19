@@ -97,7 +97,7 @@ A cross-uid `/proc/<pid>/exe` comparison raises `PermissionError` under a non-ro
 - the other seats' models never appear in `stats.evals`;
 - the trial's whole token and cost total is attributed to one group.
 
-A four-seat job with four different models reports one model's statistics. `result.json` already carries `seat_results` with per-seat `agent_info`, usage and exceptions, so the truth is present and unused. A fix is open as PR #20 on the fork (additive `seat_stats`, existing key format untouched).
+A four-seat job with four different models reports one model's statistics. `result.json` already carries `seat_results` with per-seat `agent_info`, usage and exceptions, so the truth is present and unused. A fix is open as PR #21 on the fork (additive `seat_stats`, existing key format untouched).
 
 ---
 

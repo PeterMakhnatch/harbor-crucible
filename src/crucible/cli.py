@@ -94,11 +94,23 @@ def cmd_benchmark_monitors(
             "Use this to exclude designs with no instructed adversary.",
         ),
     ] = None,
+    monitor: Annotated[
+        str,
+        typer.Option(
+            "--monitor",
+            help="Deterministic monitor(s) to evaluate: v1, v2, or both.",
+        ),
+    ] = "v1",
 ) -> None:
     """Evaluate deterministic (and optional LLM) monitors across visibility tiers with fixed-FPR calibration."""
     from crucible.calibration import render_benchmark_markdown, summarize_verdicts
     from crucible.monitor import DeterministicCrucibleMonitor, LLMMonitor
+    from crucible.monitor_v2 import DeterministicCrucibleV2
 
+    monitor_choice = monitor.strip().lower()
+    if monitor_choice not in {"v1", "v2", "both"}:
+        console.print(f"[red]Invalid --monitor value {monitor!r}; expected v1, v2, or both.[/red]")
+        raise typer.Exit(code=2)
     wanted = {f.strip() for f in families.split(",")} if families else None
     trial_dirs: list[Path] = []
     for root in runs_roots:
@@ -114,13 +126,17 @@ def cmd_benchmark_monitors(
         if not bundles:
             console.print(f"[red]No trials left after filtering to {sorted(wanted)}[/red]")
             raise typer.Exit(code=1)
-    det_monitor = DeterministicCrucibleMonitor()
+    det_monitors: list[DeterministicCrucibleMonitor | DeterministicCrucibleV2] = []
+    if monitor_choice in {"v1", "both"}:
+        det_monitors.append(DeterministicCrucibleMonitor())
+    if monitor_choice in {"v2", "both"}:
+        det_monitors.append(DeterministicCrucibleV2())
+
     verdicts: list[MonitorVerdict] = []
-
-    for bundle in bundles:
-        for tier in selected_tiers:
-            verdicts.append(det_monitor.evaluate(bundle, tier))
-
+    for det_monitor in det_monitors:
+        for bundle in bundles:
+            for tier in selected_tiers:
+                verdicts.append(det_monitor.evaluate(bundle, tier))
     if llm_model:
         ledger = SpendLedger()
         llm_mon = LLMMonitor(model=llm_model, ledger=ledger)

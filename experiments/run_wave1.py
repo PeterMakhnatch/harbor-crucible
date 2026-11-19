@@ -48,6 +48,10 @@ def wave1(
     model: str = typer.Option("deepseek/deepseek-chat", help="Model for every seat."),
     api_key_env: str = typer.Option("DEEPSEEK_API_KEY", help="Host env var holding the key."),
     attempts: int = typer.Option(1, help="Trials per condition."),
+    conditions: str | None = typer.Option(
+        None,
+        help="Comma-separated subset of the family's conditions. Default: all of them.",
+    ),
     timeout_multiplier: float = typer.Option(1.0),
     planned_usd_per_trial: float = typer.Option(0.75, help="Refuse to start a trial above this estimate."),
     out_dir: Path | None = typer.Option(None),
@@ -63,7 +67,12 @@ def wave1(
     trials_dir = out_dir or Path("runs") / f"wave1-{family}"
     manifest: list[dict[str, object]] = []
 
-    for condition in FAMILIES[family]:
+    selected = (
+        tuple(c.strip() for c in conditions.split(",") if c.strip())
+        if conditions
+        else FAMILIES[family]
+    )
+    for condition in selected:
         task_dir = tasks_root / condition
         if not (task_dir / "task.toml").is_file():
             raise typer.BadParameter(f"missing task: {task_dir}")
