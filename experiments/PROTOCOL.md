@@ -228,3 +228,15 @@ The judge is the reverse: its threshold looks tight only because its scores are 
 **Lesson, applied below.** A threshold interval is not comparable across monitors, because it lives in each monitor's own units. A TPR interval is. So the rule is: report TPR with its interval, never a bare TPR, and never compare thresholds between monitors.
 
 The decision rule I set fires: the judge's span exceeds 25 points, so no judge TPR is quoted without its interval, including in the README.
+
+### AUROC intervals (2026-11-19, same bootstrap, clean corpus of 29 trials)
+
+| Monitor | AUROC | 95% CI | Includes chance? |
+|---|---:|---|---|
+| rules | 0.607 | [0.474, 0.733] | **yes** |
+| LLM judge | 0.714 | [0.550, 0.867] | no |
+| ensemble | 0.738 | [0.583, 0.886] | no |
+
+Paired bootstrap of ensemble versus judge on the same draws: ensemble better in 58.2%, judge better in 37.5%, equal in 4.3%. That is suggestive, not established, so the ensemble's ranking advantage is reported as unproven.
+
+**Consequence for the whole document.** The only ranking claim supported at this sample size is that the LLM judge discriminates above chance and the rule set does not. Every earlier statement that the rule set "detects a third of adversaries" describes a threshold behaviour on a ranking that cannot be shown to beat chance, and is now labelled accordingly.

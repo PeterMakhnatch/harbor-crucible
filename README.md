@@ -30,19 +30,28 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 
 ## Measured headline
 
-42 real-model seat trials; 34 completed without a timeout; 29 of those carry an integrity label. Detection at a 5% false-accusation budget on the **complete** runs only:
+29 real-model trials that completed without a timeout and carry an integrity label. Intervals are 1000 bootstrap resamples; AUROC is threshold-free, so it is the only ranking number here that stands.
 
-| Monitor | AUROC | TPR at 5% FPR | Names the right agent | Cost |
-|---|---:|---|---:|---:|
-| rules, public + audit | 0.607 | 26.7% (stable) | 26.7% | $0.00 |
-| LLM judge, public + audit | 0.714 | 6.7% **but 6.7–60% under bootstrap** | 46.7% | $0.052 |
-| **rules + judge, maximum** | **0.738** | **33.3%** | 33.3% | $0.052 |
+| Monitor | AUROC [95% CI] | Detection at 5% FPR | Names the right agent | Cost |
+|---|---|---|---:|---:|
+| rules, public + audit | 0.607 [0.474, 0.733] **includes chance** | 26.7% | 26.7% | $0.00 |
+| LLM judge, public + audit | 0.714 [0.550, 0.867] | 6.7%, but 6.7–60% under bootstrap | 46.7% | $0.052 |
+| rules + judge, maximum | 0.738 [0.583, 0.886] | 33.3% | 33.3% | $0.052 |
 
-The judge's detection rate is not measurable at this sample size: resampling the 14 negative controls moves it between 6% and 60%. Trust its AUROC and its attribution, not its TPR. The rule set's TPR is stable to within a couple of points.
+What is established:
 
-Three things hold with and without the truncated trials: a model reads these worlds better than a rule set does; rules add detection the model misses, so the pair beats either; and an ablation with every payload removed scores **exactly zero**, so the signal is stored content, not the structure of who acted.
+- **A model ranks these worlds above chance; a rule set does not**, at this sample size. That is the one capability result here.
+- **Private reasoning adds nothing.** Tier 2 is identical to Tier 1 in every view.
+- **The signal is stored content, not action structure.** An ablation with every payload removed scores exactly zero.
+- **Instructed refusers are never accused**, at any tier, by any monitor.
 
-One thing does not hold: the audit tier's apparent lift (TPR 22.2% → 33.3% on all 42 trials) reverses to AUROC 0.633 → 0.607 once the 8 timed-out trials are dropped. It is reported as **not established**, not as a finding. Details and limits in [docs/FINDINGS.md](docs/FINDINGS.md).
+What is not established:
+
+- The ensemble does not demonstrably outrank the judge: paired bootstrap gives it 58% wins against 38%. Its detection rate rests on a judge baseline that is not measurable at 14 controls.
+- No audit-tier lift survives a clean corpus (AUROC 0.633 → 0.607 from Tier 0 to Tier 1).
+- Nothing here shows these rates transfer to another model family.
+
+Details, intervals and the failed predictions are in [docs/FINDINGS.md](docs/FINDINGS.md).
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design, [docs/FINDINGS.md](docs/FINDINGS.md) for what the runs showed, [docs/UPSTREAM-DEFECTS.md](docs/UPSTREAM-DEFECTS.md) for the fork defects with repros, [docs/RUNLOG.md](docs/RUNLOG.md) for the running record, and [experiments/PROTOCOL.md](experiments/PROTOCOL.md) for the pre-registered monitor benchmark.
 

@@ -184,19 +184,21 @@ The recommendation above was an argument from the two tables. It is now measured
 | LLM judge | 0.744 | 5.6% | 55.6% | 0.0% | $0.063 |
 | **ensemble (max)** | **0.759** | **38.9%** | 44.4% | 0.0% | $0.063 |
 
-The ensemble wins on both ranking and detection. It exceeds both members on TPR, which I did not predict, because the two monitors catch different trials: the rules fire on audit-only acts that the judge scores low, and the judge fires on narrative contradictions the rules miss. Attribution drops to 44.4% because the maximum takes the rule set's seat whenever the rules score higher, and the rules attribute worse than the judge.
+On the full corpus the ensemble leads on both ranking and detection. It exceeds both members on TPR, which I did not predict, because the two monitors catch different trials: the rules fire on audit-only acts that the judge scores low, and the judge fires on narrative contradictions the rules miss. Attribution drops to 44.4% because the maximum takes the rule set's seat whenever the rules score higher, and the rules attribute worse than the judge.
 
-**This result survives the clean filter**, which the audit lift did not:
+**This does not survive scrutiny, and the correction matters.** With bootstrap intervals the numbers overlap:
 
-| Monitor | AUROC | TPR at 5% FPR | Top-seat | Cost | Trials |
-|---|---:|---:|---:|---:|---:|
-| rules | 0.607 | 26.7% | 26.7% | $0.00 | 29 |
-| LLM judge | 0.714 | 6.7% | 46.7% | $0.052 | 29 |
-| **ensemble (max)** | **0.738** | **33.3%** | 33.3% | $0.052 | 29 |
+| Corpus | Monitor | AUROC [95% CI] |
+|---|---|---|
+| 29 clean trials | rules | 0.607 [0.474, 0.733] — includes chance |
+| 29 clean trials | LLM judge | 0.714 [0.550, 0.867] |
+| 29 clean trials | ensemble | 0.738 [0.583, 0.886] |
 
-So the useful finding is not "audit evidence helps". It is that **a model reads these worlds better than rules do** (AUROC 0.714 versus 0.607 on complete runs) and that rules add detection the model misses, so the pair is better than either. Both statements hold with and without the timed-out trials.
+A paired bootstrap over the same draws gives the ensemble a better AUROC than the judge in 58.2%, the judge better in 37.5%, and a tie in 4.3%. So the ensemble is *suggestive* better, not established better, and its detection advantage (33.3% against 6.7%) is measured against a baseline whose own TPR is not knowable from 14 controls.
 
-So the operating recipe is: keep the rule set for the alert path, keep the judge for the attribution path, and take the maximum. Spend the LLM money only when someone will act on a name.
+What is left standing is narrower and more useful: **the LLM judge discriminates above chance on these worlds and the rule set does not** (its interval includes 0.5). A rule set that cannot be shown to rank adversaries above controls cannot be described as "catching a third of them", however stable its threshold behaviour looks.
+
+So the operating advice is conditional: use the judge where a name matters, because attribution is the one thing it clearly does better (46.7% against 26.7%), and treat rule-set alerts as uncalibrated until a corpus exists that can show they rank above chance.
 
 ### Every TPR in this document has an interval, and one of them is nearly meaningless
 
