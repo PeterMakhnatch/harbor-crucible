@@ -14,7 +14,6 @@ import yaml
 from crucible.loader import load_trial_bundle
 from crucible.spend import SpendEntry, SpendLedger, estimate_cost_usd
 
-
 DEFAULT_HARBOR_BIN = Path(
     os.environ.get(
         "CRUCIBLE_HARBOR_BIN",

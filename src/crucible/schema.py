@@ -4,7 +4,7 @@ unified causal timelines, and calibrated multi-tier monitor evaluations.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
 
@@ -156,7 +156,7 @@ class MonitorVerdict(BaseModel):
     latency_ms: float = 0.0
     monitor_cost_usd: float = 0.0
     evaluated_at: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
 
 

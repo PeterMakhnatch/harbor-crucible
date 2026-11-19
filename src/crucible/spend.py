@@ -2,20 +2,18 @@
 
 from __future__ import annotations
 
-import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
-
 
 DEFAULT_BUDGET_CAP_USD = 20.0
 DEFAULT_LEDGER_PATH = Path("experiments/spend_ledger.jsonl")
 
 
 class SpendEntry(BaseModel):
-    ts: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    ts: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
     category: str  # "trial_run" | "llm_monitor" | "infra"
     provider: str
     model: str

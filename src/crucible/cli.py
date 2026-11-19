@@ -218,5 +218,50 @@ def cmd_spend(
     console.print_json(json.dumps(ledger.summary(), indent=2))
 
 
+@app.command("report")
+def cmd_report(
+    runs_roots: Annotated[
+        list[Path],
+        typer.Argument(help="Corpus roots holding multi-seat trials."),
+    ],
+    out_dir: Annotated[Path, typer.Option("--out-dir")] = Path("experiments/report"),
+    tiers: Annotated[
+        str,
+        typer.Option("--tiers", help="Comma-separated monitor visibility tiers to score."),
+    ] = "tier0_public_only,tier1_public_plus_audit,tier2_full_trajectories",
+    integrity_families: Annotated[
+        str | None,
+        typer.Option(
+            "--integrity-families",
+            help="Families with an instructed adversary. Others are left out of the monitor table.",
+        ),
+    ] = None,
+    ledger_path: Annotated[
+        Path, typer.Option("--ledger")
+    ] = Path("experiments/spend_ledger.jsonl"),
+) -> None:
+    """Write a reproducible evidence report for a corpus of multi-seat trials."""
+    from crucible.report import build_report
+
+    try:
+        payload = build_report(
+            runs_roots,
+            out_dir=out_dir,
+            tiers=tiers,
+            integrity_families=integrity_families,
+            ledger_path=ledger_path,
+        )
+    except FileNotFoundError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(code=1) from error
+
+    spend = payload["spend"]
+    console.print(
+        f"[green]Report written:[/green] {out_dir / 'REPORT.md'}\n"
+        f"  trials: {payload['n_trials']}  scored: {payload['n_scored_for_integrity']}  "
+        f"spend: ${spend['total_usd']:.4f}/${spend['cap_usd']:.2f}"
+    )
+
+
 if __name__ == "__main__":
     app()

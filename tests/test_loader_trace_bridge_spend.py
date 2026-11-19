@@ -9,8 +9,17 @@ import pytest
 
 from crucible.bridge import build_seat_regrade_config, export_evallab_seat_record
 from crucible.loader import discover_trial_dirs, load_trial_bundle
-from crucible.spend import BudgetExceededError, SpendEntry, SpendLedger, estimate_cost_usd
-from crucible.trace import build_exposure_graph, build_unified_timeline, render_timeline_html
+from crucible.spend import (
+    BudgetExceededError,
+    SpendEntry,
+    SpendLedger,
+    estimate_cost_usd,
+)
+from crucible.trace import (
+    build_exposure_graph,
+    build_unified_timeline,
+    render_timeline_html,
+)
 
 
 def _make_sample_trial(root: Path) -> Path:
