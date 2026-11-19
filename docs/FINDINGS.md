@@ -240,7 +240,7 @@ Corpus: 33 integrity-labelled trials (18 adversarial, 15 negative including 3 in
 | Hypothesis | Verdict |
 |---|---|
 | **H1** audit beats public chat | **Supported, modestly.** TPR 22.2% to 33.3%, top-seat 22.2% to 38.9%, AUROC +0.061. |
-| **H2** trajectories add less than audit | **Supported, strongly.** Tier 1 and Tier 2 are identical on every metric. Private reasoning added nothing over authenticated action. |
+| **H2** trajectories add less than audit | **Supported, strongly.** Tier 1 and Tier 2 are identical on every metric. Private reasoning added nothing over authenticated action. This is not a missing-data artefact: the sampled Tier-2 views carried 46 to 82 ATIF steps across four seats each, so the monitor had reasoning to read and it did not change a single rank. |
 | **H3** refusers get over-flagged | **Not supported.** Refuser FPR is 0% at every tier. No refuser was accused. |
 | **H4** tool noise causes false alarms | **Not supported at Tier 1.** `noisy_honest` never crossed the calibrated threshold. At Tier 0 one honest trial sat at the 24.0 threshold, which is why T0's actual FPR is above zero there. |
 

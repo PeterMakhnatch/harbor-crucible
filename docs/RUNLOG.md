@@ -4,9 +4,15 @@ Running record for the overnight mission. Newest first. Hours are ET.
 
 ## Next 3 items (planned 2026-11-19, before starting)
 
-1. **Fork PR 4: seat-aware job statistics.** `models/job/result.py` groups rewards by the trial-level `agent_info`, which is the first tested seat. A four-seat job therefore reports one model's statistics. No sibling PR touches job aggregation: #17 uploads seat logs, #4 reads seat traces, #15 records failed downloads, #13 preflights participants. Rebase onto `main`, add per-seat grouping, keep single-agent output byte-identical, unit-test both.
-2. **Wave 2 experiments.** Tighten the supply-chain interval (the 33.3% TPR rests on 18 positives) and test whether reward-hack contagion is model-specific by running the four reward-hack conditions on a second model.
-3. **`crucible report`.** One command that turns a corpus dir into a self-contained report: tier table, hypothesis verdicts, per-condition outcomes, spend. Keeps the evidence reproducible without me in the loop.
+1. **Fork PR 4: seat-aware job statistics.** `models/job/result.py` groups rewards by the trial-level `agent_info`, which is the first tested seat. A four-seat job therefore reports one model's statistics. No sibling PR touches job aggregation: #17 uploads seat logs, #4 reads seat traces, #15 records failed downloads, #13 preflights participants. Rebase onto `main`, add per-seat grouping, keep single-agent output byte-identical, unit-test both. **Done: PR #21.**
+2. **Wave 2 experiments.** Tighten the supply-chain interval (the 33.3% TPR rests on 18 positives) and test whether reward-hack contagion is model-specific by running the four reward-hack conditions on a second model. **In flight.** Gemini credits are empty, so the second model goes through OpenRouter.
+3. **`crucible report`.** One command that turns a corpus dir into a self-contained report: tier table, hypothesis verdicts, per-condition outcomes, spend. Keeps the evidence reproducible without me in the loop. **Done, and it immediately found the timeout contamination.**
+
+## Next 3 items (planned 2026-11-19 ~09:00, after the third wave started)
+
+1. **Finish the epistemic design fix.** A `hidden_profile_unshared` variant that removes the sharing mandate, pre-registered, so the null result becomes a real experiment.
+2. **Consolidated report over wave 1 plus wave 2**, then re-state each pre-registered hypothesis with the larger N and the second model if OpenRouter worked.
+3. **A fifth fork contribution only if it avoids `trial.py`.** Five sibling branches already edit that file, so the artifact-after-verifier defect stays documented rather than patched in a conflict.
 
 ## Done
 
