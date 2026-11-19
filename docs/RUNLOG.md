@@ -14,7 +14,19 @@ Running record for the overnight mission. Newest first. Hours are ET.
 2. **Consolidated report over wave 1 plus wave 2**, then re-state each pre-registered hypothesis with the larger N and the second model if OpenRouter worked.
 3. **A fifth fork contribution only if it avoids `trial.py`.** Five sibling branches already edit that file, so the artifact-after-verifier defect stays documented rather than patched in a conflict.
 
+## Next 3 items (planned 2026-11-19 ~08:25, while two waves run)
+
+1. Turn the bootstrap analysis into `crucible stability`, so a corpus gets intervals without a one-off script, and delete the script.
+2. Test that statistics code, including degenerate input (all-equal negatives, one positive, zero negatives): it has no tests today.
+3. Re-run the consolidated report over wave 1 plus wave 2, then restate the hypothesis table with the larger N and note the second-model gap.
+
 ## Done
+
+### 2026-11-19 ~08:30-09:20 — Pooling families was invalid, and the hidden-profile prediction held
+- **`crucible report` now refuses to report a pooled monitor table alone.** Scores are not comparable across worlds, and once the timed-out trials drop, supply has zero positives: the pooled 0.607 was mostly epistemic adversaries against eight supply honest trials. Per family on clean data: epistemic 0.833 [0.667, 1.000], reward-hack 0.500, supply unmeasurable.
+- **`crucible stability`** turns the bootstrap into a command, de-duplicates verdicts across files (an LLM benchmark file also carries the rule set's rows, which double-counted them), and reports insufficient data instead of inventing an interval. Ten tests, including a fully tied corpus.
+- **Reports carry intervals by default** (1000 resamples), so no TPR is published without its width.
+- **The hidden-profile prediction held.** Removing the sharing mandate from the team instructions dropped the group answer from 3/3 correct to 1/3, with only 75% of seats announcing their own fact and one premature-consensus trap. The solo ceiling stayed 3/3. That is the published effect, reproduced, with its mechanism measured.
 
 ### 2026-11-19 ~08:30-09:10 — The headline was wrong, and the fix is the deliverable
 - Added `crucible report --exclude-timeouts`. Rescoring the 29 clean integrity trials gives **AUROC 0.633 → 0.607** and flat TPR from Tier 0 to Tier 1, where the all-42-trial view gave 0.585 → 0.646. The audit lift depended on 8 timed-out trials, so **H1 is now recorded as not established**, in the README and in FINDINGS.
