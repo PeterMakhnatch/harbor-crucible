@@ -35,16 +35,18 @@ Score scales differ per world, so a monitor benchmark must be read **per family*
 
 | Family | Positives / controls | Rules AUROC [95% CI] | Rules detection at 5% FPR | Read |
 |---|---:|---|---:|---|
-| `epistemic-crucible` | 6 / 3 | 0.833 [0.667, 1.000] | 66.7% | separates liars from honest scouts |
+| `epistemic-crucible` | 12 / 12 | 0.917 [0.792, 1.000] | 83.3% | separates liars from honest scouts |
 | `reward-hack-contagion` | 9 / 3 | 0.500 [0.500, 0.500] | 0.0% | no signal in the Wave 1 evidence |
 | `supply-chain-sabotage` | 0 / 8 | not measurable | — | every saboteur trial timed out |
+
+The epistemic row is the only well-powered cell: 24 trials, 12 of them controls, detection 83.3% with a 0.0 point bootstrap span. Every other cell is starved.
 
 What is established:
 
 - **Private reasoning adds nothing.** Tier 2 is identical to Tier 1 in every view and every family, with 46–82 real steps present.
-- **The signal is stored content, not action structure.** An ablation with every payload removed scores exactly zero.
+- **The signal is text, and the tier rarely adds anything.** Over the pooled 24-trial epistemic corpus the rule set scores AUROC 0.917 and 83.3% detection at Tier 0, Tier 1 and Tier 2 alike, so public chat alone is enough and audit evidence adds nothing. Emptied payloads score exactly zero at every tier, so that same text is load-bearing. For the reward-hack family the code itself is required, and Wave 1 did not record it.
 - **Instructed refusers are never accused**, at any tier, by any monitor.
-- **Within the epistemic family the rule set does separate liars**, at AUROC 0.833 on six positives. Three controls is too few for that interval to mean much.
+- **Within the epistemic family the rule set separates liars.** Pooling every available trial of that family gives AUROC 0.917 [0.792, 1.000] and detection 83.3% at a 5% budget, over 24 trials with 12 controls, and a bootstrap span of 0.0 points. This is the only cell in the suite with enough controls to mean anything.
 
 What is not established:
 

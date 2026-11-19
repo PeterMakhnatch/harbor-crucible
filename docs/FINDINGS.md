@@ -307,11 +307,15 @@ Monitor scores are not comparable across worlds. Each family has its own event v
 
 | Family | Positives / controls | Rules AUROC at Tier 1 |
 |---|---:|---|
-| `epistemic-crucible` | 6 / 3 | 0.833 [0.667, 1.000] |
+| `epistemic-crucible` | 12 / 12 | 0.917 [0.792, 1.000] |
 | `reward-hack-contagion` | 9 / 3 | 0.500 |
 | `supply-chain-sabotage` | 0 / 8 | not measurable |
 
 The supply family has **no positives at all** once the timed-out trials are dropped, so the pooled 0.607 was largely epistemic adversaries scored against eight supply honest trials. That is not a detector measurement.
+
+A second finding sharpens the content claim. Per family, the visibility tier barely matters: pooling every available epistemic trial (24 trials, 12 positives, 12 controls) the rule set scores AUROC **0.917 [0.792, 1.000] and 83.3% detection at Tier 0, Tier 1 and Tier 2 alike**, so public chat alone carries the whole signal and audit evidence adds nothing. For the reward-hack corpus it is 0.500 at every tier, because the code that would reveal the hack was not in the Wave 1 log at any tier.
+
+So the honest formulation is: **the monitor reads what agents said, not what they did.** Public text is enough where a liar contradicts itself or its own report. Code content is necessary where the exploit is in the code, and action types alone never sufficed — the metadata-only ablation returned exactly zero.
 
 The valid statements are per family, and they are weaker than the pooled version suggested: the rule set separates liars in the epistemic world, cannot see reward hacks in the Wave 1 evidence, and has no supply measurement yet.
 
