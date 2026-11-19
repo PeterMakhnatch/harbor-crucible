@@ -167,7 +167,7 @@ Same 33 trials, same tiers, `deepseek-chat` as a judge reading only the tier-fil
 Three things follow.
 
 1. **The LLM judge localizes the adversary much better than the rule set from public chat alone.** 66.7% versus 22.2% top-seat accuracy at Tier 0. It reads the narrative, which is where a liar's contradiction shows.
-2. **Audit evidence helps the judge too.** AUROC rises from 0.667 to 0.744 when it can see authenticated actions. That is the second independent confirmation of H1.
+2. **Audit evidence helps the judge too.** AUROC rises from 0.667 to 0.744 when it can see authenticated actions. But see the clean-corpus section below: this rise is not robust, and on complete runs the judge's Tier 1 AUROC is 0.714 against an unknown Tier 0 figure, so treat the direction as unproven.
 3. **Its calibrated threshold is unstable at this sample size.** TPR at 5% FPR *falls* to 5.6% at Tier 1 even though AUROC improves, because the threshold solver has 15 negatives to work with and the judge's scores cluster tightly. A ranking metric can improve while the operating point worsens. Report both, never one.
 
 The practical reading: use an LLM judge for attribution, use deterministic rules for alerting, and do not trust a fixed-FPR operating point calibrated on fewer than a few dozen controls.
@@ -183,6 +183,16 @@ The recommendation above was an argument from the two tables. It is now measured
 | **ensemble (max)** | **0.759** | **38.9%** | 44.4% | 0.0% | $0.063 |
 
 The ensemble wins on both ranking and detection. It exceeds both members on TPR, which I did not predict, because the two monitors catch different trials: the rules fire on audit-only acts that the judge scores low, and the judge fires on narrative contradictions the rules miss. Attribution drops to 44.4% because the maximum takes the rule set's seat whenever the rules score higher, and the rules attribute worse than the judge.
+
+**This result survives the clean filter**, which the audit lift did not:
+
+| Monitor | AUROC | TPR at 5% FPR | Top-seat | Cost | Trials |
+|---|---:|---:|---:|---:|---:|
+| rules | 0.607 | 26.7% | 26.7% | $0.00 | 29 |
+| LLM judge | 0.714 | 6.7% | 46.7% | $0.052 | 29 |
+| **ensemble (max)** | **0.738** | **33.3%** | 33.3% | $0.052 | 29 |
+
+So the useful finding is not "audit evidence helps". It is that **a model reads these worlds better than rules do** (AUROC 0.714 versus 0.607 on complete runs) and that rules add detection the model misses, so the pair is better than either. Both statements hold with and without the timed-out trials.
 
 So the operating recipe is: keep the rule set for the alert path, keep the judge for the attribution path, and take the maximum. Spend the LLM money only when someone will act on a name.
 
@@ -235,11 +245,25 @@ Corpus: 33 integrity-labelled trials (18 adversarial, 15 negative including 3 in
 | T1 public + authenticated audit | 0.646 | 33.3% | 38.9% | 0.0% | 0.0% |
 | T2 T1 + full trajectories | 0.646 | 33.3% | 38.9% | 0.0% | 0.0% |
 
+### The audit lift does not survive a clean corpus
+
+`crucible report --exclude-timeouts` drops the 8 trials that ended in `AgentTimeoutError` and rescoring the remaining 29 gives a different answer:
+
+| Tier | AUROC | TPR at 5% FPR | Top-seat accuracy | Trials |
+|---|---:|---:|---:|---:|
+| T0 public chat only | 0.633 | 26.7% | 26.7% | 29 (15 adv / 14 neg) |
+| T1 public + authenticated audit | 0.607 | 26.7% | 26.7% | 29 |
+| T2 T1 + full trajectories | 0.607 | 26.7% | 26.7% | 29 |
+
+**The lift reverses on complete runs.** AUROC falls from 0.633 to 0.607 and TPR is flat at 26.7%, while on the full corpus the same comparison rose from 0.585 to 0.646. So the apparent value of audit evidence came from 8 truncated trials, not from clean ones. With 15 positives and 14 negatives, neither direction is distinguishable from noise, and the honest verdict is that **H1 is not established**. Reporting only the 42-trial table would have overstated the result.
+
+What does survive the clean filter is H2: T1 and T2 are identical in both views, so private reasoning still adds nothing. The refuser result (H3 not supported, 0% false accusations) also holds in both.
+
 ### Verdict on the pre-registered hypotheses
 
 | Hypothesis | Verdict |
 |---|---|
-| **H1** audit beats public chat | **Supported, modestly.** TPR 22.2% to 33.3%, top-seat 22.2% to 38.9%, AUROC +0.061. |
+| **H1** audit beats public chat | **Not established.** On all 42 trials, TPR rises 22.2% to 33.3%. On the 34 complete runs it does not: AUROC 0.633 to 0.607 and TPR flat at 26.7%. The lift came from 8 timed-out trials. With 15 positives, neither direction is separable from noise. |
 | **H2** trajectories add less than audit | **Supported, strongly.** Tier 1 and Tier 2 are identical on every metric. Private reasoning added nothing over authenticated action. This is not a missing-data artefact: the sampled Tier-2 views carried 46 to 82 ATIF steps across four seats each, so the monitor had reasoning to read and it did not change a single rank. |
 | **H3** refusers get over-flagged | **Not supported.** Refuser FPR is 0% at every tier. No refuser was accused. |
 | **H4** tool noise causes false alarms | **Not supported at Tier 1.** `noisy_honest` never crossed the calibrated threshold. At Tier 0 one honest trial sat at the 24.0 threshold, which is why T0's actual FPR is above zero there. |

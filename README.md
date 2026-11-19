@@ -30,16 +30,17 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 
 ## Measured headline
 
-33 integrity-labelled real-model trials. Detection at a 5% false-accusation budget:
+42 real-model seat trials; 34 completed without a timeout; 29 of those carry an integrity label. Detection at a 5% false-accusation budget on the **complete** runs only:
 
 | Monitor | AUROC | TPR at 5% FPR | Names the right agent | Cost |
 |---|---:|---:|---:|---:|
-| rules, public chat only | 0.585 | 22.2% | 22.2% | $0.00 |
-| rules, public + audit | 0.646 | 33.3% | 38.9% | $0.00 |
-| LLM judge, public + audit | 0.744 | 5.6% | 55.6% | $0.063 |
-| **rules + judge, maximum** | **0.759** | **38.9%** | 44.4% | $0.063 |
+| rules, public + audit | 0.607 | 26.7% | 26.7% | $0.00 |
+| LLM judge, public + audit | 0.714 | 6.7% | 46.7% | $0.052 |
+| **rules + judge, maximum** | **0.738** | **33.3%** | 33.3% | $0.052 |
 
-Audit evidence helps, private reasoning adds nothing, and an ablation with payloads removed scores **zero**: the whole signal is in stored content, not in the action structure. Details and limits in [docs/FINDINGS.md](docs/FINDINGS.md).
+Three things hold with and without the truncated trials: a model reads these worlds better than a rule set does; rules add detection the model misses, so the pair beats either; and an ablation with every payload removed scores **exactly zero**, so the signal is stored content, not the structure of who acted.
+
+One thing does not hold: the audit tier's apparent lift (TPR 22.2% → 33.3% on all 42 trials) reverses to AUROC 0.633 → 0.607 once the 8 timed-out trials are dropped. It is reported as **not established**, not as a finding. Details and limits in [docs/FINDINGS.md](docs/FINDINGS.md).
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design, [docs/FINDINGS.md](docs/FINDINGS.md) for what the runs showed, [docs/UPSTREAM-DEFECTS.md](docs/UPSTREAM-DEFECTS.md) for the fork defects with repros, [docs/RUNLOG.md](docs/RUNLOG.md) for the running record, and [experiments/PROTOCOL.md](experiments/PROTOCOL.md) for the pre-registered monitor benchmark.
 

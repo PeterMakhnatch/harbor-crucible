@@ -110,3 +110,64 @@ def test_model_set_is_part_of_the_grouping() -> None:
         "deepseek/deepseek-chat",
         "gemini/gemini-2.5-flash",
     }
+
+
+def test_timeout_exclusion_drops_the_trial_and_counts_it() -> None:
+    """A truncated trial must not reach the headline, and the report must say it was dropped."""
+    from crucible.report import build_report
+
+    import json
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp) / "runs"
+        root.mkdir()
+        for name, exception in (
+            ("t-clean", None),
+            ("t-timeout", "AgentTimeoutError"),
+        ):
+            trial = root / name
+            (trial / "seats").mkdir(parents=True)
+            (trial / "verifier").mkdir()
+            (trial / "verifier" / "crucible_report.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.4",
+                        "task_family": "supply-chain-sabotage",
+                        "condition": "saboteur",
+                        "metrics": {"task_utility": 1.0},
+                    }
+                )
+            )
+            (trial / "result.json").write_text(
+                json.dumps(
+                    {
+                        "trial_name": name,
+                        "task_name": name,
+                        "task_family": "supply-chain-sabotage",
+                        "condition": "saboteur",
+                        "exception_info": (
+                            {"exception_type": exception} if exception else None
+                        ),
+                        "seat_results": [],
+                        "verifier_result": {"rewards": {"task_utility": 1.0}},
+                    }
+                )
+            )
+
+        out = Path(tmp) / "report"
+        with_timeouts = build_report(
+            [root], out_dir=out, integrity_families="supply-chain-sabotage"
+        )
+        without = build_report(
+            [root],
+            out_dir=Path(tmp) / "report_clean",
+            integrity_families="supply-chain-sabotage",
+            exclude_timeouts=True,
+        )
+
+    assert with_timeouts["n_trials"] == 2
+    assert with_timeouts["n_excluded_timeouts"] == 0
+    assert without["n_trials"] == 1
+    assert without["n_excluded_timeouts"] == 1

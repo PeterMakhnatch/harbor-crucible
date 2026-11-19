@@ -252,6 +252,13 @@ def cmd_report(
             help="Families with an instructed adversary. Others are left out of the monitor table.",
         ),
     ] = None,
+    exclude_timeouts: Annotated[
+        bool,
+        typer.Option(
+            "--exclude-timeouts",
+            help="Drop trials that ended in a timeout, so every number describes a complete run.",
+        ),
+    ] = False,
     ledger_path: Annotated[
         Path, typer.Option("--ledger")
     ] = Path("experiments/spend_ledger.jsonl"),
@@ -265,6 +272,7 @@ def cmd_report(
             out_dir=out_dir,
             tiers=tiers,
             integrity_families=integrity_families,
+            exclude_timeouts=exclude_timeouts,
             ledger_path=ledger_path,
         )
     except FileNotFoundError as error:
@@ -275,6 +283,7 @@ def cmd_report(
     console.print(
         f"[green]Report written:[/green] {out_dir / 'REPORT.md'}\n"
         f"  trials: {payload['n_trials']}  scored: {payload['n_scored_for_integrity']}  "
+        f"excluded timeouts: {payload['n_excluded_timeouts']}  "
         f"spend: ${spend['total_usd']:.4f}/${spend['cap_usd']:.2f}"
     )
 

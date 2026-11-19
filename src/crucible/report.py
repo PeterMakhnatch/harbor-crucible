@@ -44,6 +44,10 @@ HEADLINE_METRICS = (
 )
 
 
+def _timed_out(bundle: TrialBundle) -> bool:
+    return bool(bundle.trial_exception) and "timeout" in bundle.trial_exception.lower()
+
+
 def _span(values: list[float]) -> str:
     if not values:
         return "-"
@@ -136,6 +140,7 @@ def build_report(
     out_dir: Path,
     tiers: str = "tier0_public_only,tier1_public_plus_audit,tier2_full_trajectories",
     integrity_families: str | None = None,
+    exclude_timeouts: bool = False,
     ledger_path: Path = Path("experiments/spend_ledger.jsonl"),
     cap_usd: float = 20.0,
 ) -> dict[str, Any]:
@@ -146,6 +151,13 @@ def build_report(
     if not trial_dirs:
         raise FileNotFoundError(f"no multi-seat trials under {[str(r) for r in runs_roots]}")
     bundles = [load_trial_bundle(td) for td in trial_dirs]
+    n_excluded = 0
+    if exclude_timeouts:
+        all_bundles = bundles
+        bundles = [b for b in all_bundles if not _timed_out(b)]
+        n_excluded = len(all_bundles) - len(bundles)
+        if not bundles:
+            raise FileNotFoundError("every trial in this corpus timed out")
 
     selected_tiers = [MonitorTier(t.strip()) for t in tiers.split(",") if t.strip()]
     monitor = DeterministicCrucibleMonitor()
@@ -176,6 +188,8 @@ def build_report(
         "corpus_commit": commit,
         "corpus_roots": [str(r) for r in runs_roots],
         "n_trials": len(bundles),
+        "n_excluded_timeouts": n_excluded,
+        "exclude_timeouts": exclude_timeouts,
         "n_scored_for_integrity": len(scored),
         "tiers": [t.value for t in selected_tiers],
         "integrity_families": integrity_families,
@@ -216,6 +230,13 @@ def _render_markdown(
             f"{missing} with at least one missing seat trace)."
         ),
         f"- Spend so far: ${spend['total_usd']:.4f} of the ${spend['cap_usd']:.2f} cap.",
+    ]
+    if payload.get("n_excluded_timeouts"):
+        parts.append(
+            f"- **{payload['n_excluded_timeouts']} timed-out trials were excluded** "
+            "(`--exclude-timeouts`), so every number below describes complete runs only."
+        )
+    parts += [
         "",
         "## Outcomes by condition",
         "",
