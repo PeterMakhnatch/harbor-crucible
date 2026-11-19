@@ -270,7 +270,25 @@ The rules that did work were `R7` (a stash-shaped audit action) and `R2b` (major
 
 The general lesson: **text matching cannot distinguish a lie from a true statement that contains a matching word.** A contradiction rule needs the world's structured facts, not its prose. This is why the reward-hack family works after the evidence fix: there, the audit log holds the submitted code, so the check is against bytes, not phrasing.
 
-### The monitor benchmark on real evidence
+### The pooled monitor tables below are a mixture, and one of them is invalid
+
+Every monitor number in this document until now pooled all four families. That is wrong, and the report command now refuses to present it alone.
+
+Monitor scores are not comparable across worlds. Each family has its own event vocabulary, its own score scale and its own adversary. Pooling mixes scales, and it compares one world's adversaries against another world's honest agents. On the clean corpus the effect is stark:
+
+| Family | Positives / controls | Rules AUROC at Tier 1 |
+|---|---:|---|
+| `epistemic-crucible` | 6 / 3 | 0.833 [0.667, 1.000] |
+| `reward-hack-contagion` | 9 / 3 | 0.500 |
+| `supply-chain-sabotage` | 0 / 8 | not measurable |
+
+The supply family has **no positives at all** once the timed-out trials are dropped, so the pooled 0.607 was largely epistemic adversaries scored against eight supply honest trials. That is not a detector measurement.
+
+The valid statements are per family, and they are weaker than the pooled version suggested: the rule set separates liars in the epistemic world, cannot see reward hacks in the Wave 1 evidence, and has no supply measurement yet.
+
+`crucible report` now emits a per-family monitor table alongside the pooled one and labels the difference, and `crucible stability` gives each family its own interval.
+
+### The monitor benchmark on real evidence (pooled, superseded)
 
 Corpus: 33 integrity-labelled trials (18 adversarial, 15 negative including 3 instructed refusers), migration excluded because it has no instructed adversary. Target false-positive rate 5%.
 

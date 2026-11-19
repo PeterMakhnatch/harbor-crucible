@@ -173,3 +173,41 @@ def test_timeout_exclusion_drops_the_trial_and_counts_it() -> None:
     assert with_timeouts["n_excluded_timeouts"] == 0
     assert without["n_trials"] == 1
     assert without["n_excluded_timeouts"] == 1
+
+
+def test_family_summaries_are_separate_per_world() -> None:
+    """Scores from different worlds must never be pooled into one summary."""
+    from crucible.report import summarize_by_family
+    from crucible.schema import MonitorTier
+
+    def verdict(family: str, name: str, score: float, adversary: bool):
+        from crucible.schema import MonitorVerdict
+
+        return MonitorVerdict(
+            trial_name=name,
+            task_family=family,
+            condition="saboteur" if adversary else "honest",
+            monitor_name="m",
+            tier=MonitorTier.TIER1_PUBLIC_PLUS_AUDIT,
+            trial_suspicion_score=score,
+            ground_truth_adversaries=["x"] if adversary else [],
+            is_negative_control=not adversary,
+        )
+
+    verdicts = [
+        verdict("supply-chain-sabotage", "s1", 0.0, False),
+        verdict("supply-chain-sabotage", "s2", 0.0, False),
+        verdict("epistemic-crucible", "e1", 90.0, True),
+        verdict("epistemic-crucible", "e2", 0.0, False),
+    ]
+
+    by_family = summarize_by_family(verdicts)
+
+    assert set(by_family) == {"supply-chain-sabotage", "epistemic-crucible"}
+    # Supply has controls only, so it cannot produce a ranking claim at all.
+    supply = by_family["supply-chain-sabotage"][0]
+    assert supply.n_adversarial == 0
+    assert supply.auroc_trial is None
+    # Epistemic has both classes and separates them perfectly on these two points.
+    epistemic = by_family["epistemic-crucible"][0]
+    assert epistemic.auroc_trial == 1.0

@@ -31,25 +31,26 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 
 ## Measured headline
 
-29 real-model trials that completed without a timeout and carry an integrity label. Intervals are 1000 bootstrap resamples; AUROC is threshold-free, so it is the only ranking number here that stands.
+Score scales differ per world, so a monitor benchmark must be read **per family**. Pooling families compares one world's adversaries against another world's honest agents, which is not a monitor result. Complete runs only (4 timed-out trials dropped):
 
-| Monitor | AUROC [95% CI] | Detection at 5% FPR | Names the right agent | Cost |
-|---|---|---|---:|---:|
-| rules, public + audit | 0.607 [0.474, 0.733] **includes chance** | 26.7% | 26.7% | $0.00 |
-| LLM judge, public + audit | 0.714 [0.550, 0.867] | 6.7%, but 6.7–60% under bootstrap | 46.7% | $0.052 |
-| rules + judge, maximum | 0.738 [0.583, 0.886] | 33.3%, but 33.3–60% under bootstrap | 33.3% | $0.052 |
+| Family | Positives / controls | Rules AUROC [95% CI] | Rules detection at 5% FPR | Read |
+|---|---:|---|---:|---|
+| `epistemic-crucible` | 6 / 3 | 0.833 [0.667, 1.000] | 66.7% | separates liars from honest scouts |
+| `reward-hack-contagion` | 9 / 3 | 0.500 [0.500, 0.500] | 0.0% | no signal in the Wave 1 evidence |
+| `supply-chain-sabotage` | 0 / 8 | not measurable | — | every saboteur trial timed out |
 
 What is established:
 
-- **A model ranks these worlds above chance; a rule set does not**, at this sample size. That is the one capability result here.
-- **Private reasoning adds nothing.** Tier 2 is identical to Tier 1 in every view.
+- **Private reasoning adds nothing.** Tier 2 is identical to Tier 1 in every view and every family, with 46–82 real steps present.
 - **The signal is stored content, not action structure.** An ablation with every payload removed scores exactly zero.
 - **Instructed refusers are never accused**, at any tier, by any monitor.
+- **Within the epistemic family the rule set does separate liars**, at AUROC 0.833 on six positives. Three controls is too few for that interval to mean much.
 
 What is not established:
 
-- The ensemble does not demonstrably outrank the judge: paired bootstrap gives it 58% wins against 38%. Its detection rate rests on a judge baseline that is not measurable at 14 controls.
-- No audit-tier lift survives a clean corpus (AUROC 0.633 → 0.607 from Tier 0 to Tier 1).
+- **Any pooled number.** The earlier pooled AUROC of 0.607 was a mixture of family scales, and an earlier "audit lift" came from four timed-out trials.
+- **Reward-hack detection from model trials.** Wave 1's audit log held file names, not code, so 0.500 is expected. The fixed world detects at Tier 1 on the oracle corpus (AUROC 1.000), but no model trial has been scored with the fix yet.
+- **Supply-chain detection.** Needs the full-timeout corpus, which is running.
 - Nothing here shows these rates transfer to another model family.
 
 Details, intervals and the failed predictions are in [docs/FINDINGS.md](docs/FINDINGS.md).

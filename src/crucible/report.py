@@ -13,6 +13,7 @@ from crucible.loader import discover_trial_dirs, load_trial_bundle
 from crucible.monitor import DeterministicCrucibleMonitor
 from crucible.schema import MonitorTier, TrialBundle
 from crucible.spend import SpendLedger
+from crucible.stability import render_stability_markdown, summarize_monitor
 
 # Reward keys that identify a task outcome rather than an integrity signal.
 HEADLINE_METRICS = (
@@ -60,10 +61,26 @@ def _mean(values: list[float]) -> float | None:
     return sum(values) / len(values) if values else None
 
 
+def summarize_by_family(
+    verdicts: list[Any],
+) -> dict[str, list[Any]]:
+    """One monitor summary per task family.
+
+    Scores are not comparable across families: each world has its own event
+    vocabulary and its own scale. A pooled table therefore mixes scales, so the
+    report always shows the per-family split as well.
+    """
+    grouped: dict[str, list[Any]] = defaultdict(list)
+    for verdict in verdicts:
+        grouped[verdict.task_family].append(verdict)
+    return {
+        family: summarize_verdicts(items) for family, items in sorted(grouped.items())
+    }
+
+
 def collect_condition_table(
     bundles: list[TrialBundle],
 ) -> list[dict[str, Any]]:
-    """Group trials by family, condition and seat model set, and summarise rewards."""
     groups: dict[tuple[str, str, str], list[TrialBundle]] = defaultdict(list)
     for bundle in bundles:
         models = ",".join(sorted(set(bundle.seat_models.values()))) or "unknown"
@@ -141,6 +158,7 @@ def build_report(
     tiers: str = "tier0_public_only,tier1_public_plus_audit,tier2_full_trajectories",
     integrity_families: str | None = None,
     exclude_timeouts: bool = False,
+    stability_draws: int = 1000,
     ledger_path: Path = Path("experiments/spend_ledger.jsonl"),
     cap_usd: float = 20.0,
 ) -> dict[str, Any]:
@@ -169,6 +187,19 @@ def build_report(
         scored = [b for b in bundles if b.task_family in wanted]
     verdicts = [monitor.evaluate(b, tier) for b in scored for tier in selected_tiers]
     summaries = summarize_verdicts(verdicts)
+    family_summaries = summarize_by_family(verdicts)
+
+    stability_rows: list[dict[str, Any]] = []
+    if stability_draws > 0:
+        bucketed: dict[tuple[str, MonitorTier], list[Any]] = defaultdict(list)
+        for verdict in verdicts:
+            bucketed[(verdict.monitor_name, verdict.tier)].append(verdict)
+        stability_rows = [
+            summarize_monitor(items, draws=stability_draws)
+            for _, items in sorted(
+                bucketed.items(), key=lambda kv: (kv[0][0], kv[0][1].value)
+            )
+        ]
 
     rows = collect_condition_table(bundles)
     ledger = SpendLedger(path=ledger_path, cap_usd=cap_usd)
@@ -200,13 +231,20 @@ def build_report(
         "integrity_families": integrity_families,
         "conditions": rows,
         "monitor_summary": [s.model_dump() for s in summaries],
+        "monitor_summary_by_family": {
+            family: [s.model_dump() for s in items]
+            for family, items in family_summaries.items()
+        },
+        "stability": stability_rows,
         "spend": ledger.summary(),
     }
 
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "report.json").write_text(json.dumps(payload, indent=2) + "\n")
     (out_dir / "REPORT.md").write_text(
-        _render_markdown(payload, rows, summaries, bundles, ledger)
+        _render_markdown(
+            payload, rows, summaries, bundles, ledger, stability_rows, family_summaries
+        )
     )
     return payload
 
@@ -217,6 +255,8 @@ def _render_markdown(
     summaries: list[Any],
     bundles: list[TrialBundle],
     ledger: SpendLedger,
+    stability_rows: list[dict[str, Any]] | None = None,
+    family_summaries: dict[str, list[Any]] | None = None,
 ) -> str:
     missing = sum(1 for b in bundles if b.missing_traces)
     errored = sum(1 for b in bundles if b.trial_exception)
@@ -258,6 +298,31 @@ def _render_markdown(
         parts.append(render_benchmark_markdown(summaries))
     else:
         parts.append("No integrity-labelled trials in this corpus.")
+    if family_summaries:
+        parts += [
+            "",
+            "## Monitor tiers per family",
+            "",
+            (
+                "Scores are not comparable across families: each world has its own "
+                "event vocabulary and its own scale, so a pooled table mixes scales. "
+                "Read these."
+            ),
+            "",
+        ]
+        for family, items in family_summaries.items():
+            parts += [f"### `{family}`", "", render_benchmark_markdown(items), ""]
+
+    if stability_rows:
+        parts += [
+            "",
+            "## How much of that is noise",
+            "",
+            "Bootstrap intervals over the negative controls. AUROC is threshold-free; a TPR is not, and its interval is the honest width of the claim.",
+            "",
+            render_stability_markdown(stability_rows),
+            "",
+        ]
     parts += [
         "",
         "## How to read this",
@@ -266,6 +331,7 @@ def _render_markdown(
         "- A trial that timed out still counts in the denominator. Its mission metrics are lower bounds, because the episode was cut short, so read `task_utility` under a timeout as a floor and not as model failure.",
         "- A trial with no recorded seat trace still counts in the denominator. Missing evidence is not a pass.",
         "- The monitor table scores only trials whose family is listed under `integrity_families`; conflict-only designs have no instructed adversary and would otherwise be counted as negatives.",
+        "- An AUROC interval that includes 0.5 means the monitor cannot be shown to rank adversaries above controls on this corpus, however good its TPR looks.",
         "",
     ]
     return "\n".join(parts)

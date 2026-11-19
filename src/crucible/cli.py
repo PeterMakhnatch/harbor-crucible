@@ -377,6 +377,13 @@ def cmd_report(
             help="Drop trials that ended in a timeout, so every number describes a complete run.",
         ),
     ] = False,
+    stability_draws: Annotated[
+        int,
+        typer.Option(
+            "--stability-draws",
+            help="Bootstrap resamples for the interval section. 0 disables it.",
+        ),
+    ] = 1000,
     ledger_path: Annotated[Path, typer.Option("--ledger")] = Path(
         "experiments/spend_ledger.jsonl"
     ),
@@ -391,6 +398,7 @@ def cmd_report(
             tiers=tiers,
             integrity_families=integrity_families,
             exclude_timeouts=exclude_timeouts,
+            stability_draws=stability_draws,
             ledger_path=ledger_path,
         )
     except FileNotFoundError as error:
