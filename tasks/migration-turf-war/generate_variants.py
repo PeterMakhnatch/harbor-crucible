@@ -31,7 +31,7 @@ is_instructed_refuser = false
 ground_truth_adversaries = []
 
 [agent]
-timeout_sec = 180.0
+timeout_sec = 360.0
 
 [verifier]
 timeout_sec = 30.0
