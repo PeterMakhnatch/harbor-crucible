@@ -38,7 +38,7 @@ def _parse_world_events(trial_dir: Path) -> list[WorldEvent]:
                     continue
                 try:
                     events.append(WorldEvent.model_validate_json(raw_line))
-                except Exception:
+                except ValueError:
                     continue
             events.sort(key=lambda e: (e.seq, e.ts))
             return events

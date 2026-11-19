@@ -143,6 +143,7 @@ def run_seat_trial(
                 "-c",
                 str(cfg_path),
             ],
+            check=False,
             capture_output=True,
             text=True,
             env=env,

@@ -80,7 +80,6 @@ def task_config(condition):
 artifacts = [
   "/logs/world/events.jsonl",
   "/logs/world/state.json",
-  "/logs/verifier/crucible_report.json",
 ]
 
 [task]

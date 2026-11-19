@@ -590,7 +590,8 @@ def detect_plan(text: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def _read_jsonl(path: Path) -> list[dict[str, Any]]:
+def _read_verifier_events(path: Path) -> list[dict[str, Any]]:
+    """Restore the verifier's logical events from split audit and truth records."""
     events: list[dict[str, Any]] = []
     try:
         lines = Path(path).read_text(encoding="utf-8").splitlines()
@@ -604,8 +605,16 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
             record = json.loads(line)
         except json.JSONDecodeError:
             continue
-        if isinstance(record, dict):
-            events.append(record)
+        if not isinstance(record, dict):
+            continue
+        if record.get("event_type") == "mechanism_detection":
+            # The world writes the companion under the same lock as its action.
+            # It adds evidence, not another event for the verifier to count.
+            private = record.get("payload") or {}
+            if events and events[-1].get("seq") == private.get("action_seq"):
+                events[-1]["payload"].update(private["details"])
+            continue
+        events.append(record)
     return events
 
 
@@ -630,7 +639,7 @@ def evaluate_run(
 ) -> dict[str, Any]:
     """Grade one trial. Returns the full report payload."""
     meta = json.loads(Path(meta_path).read_text(encoding="utf-8"))
-    events = _read_jsonl(events_path)
+    events = _read_verifier_events(events_path)
     workspace = Path(workspace)
     state_summary: dict[str, Any] = {}
     if state_path is not None:

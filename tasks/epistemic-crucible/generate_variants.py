@@ -362,7 +362,7 @@ def record_event(
             "actor": actor,
             "authenticated": authenticated,
             "visibility": visibility,
-            "recipients": recipients,
+            "recipients": CONFIG["seats"] if visibility == "public" else recipients,
             "payload": payload,
         }
         EVENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -499,7 +499,12 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
             "route_alpha": {name: round_data["route_alpha"][name] for name in attrs},
             "route_beta": {name: round_data["route_beta"][name] for name in attrs},
         }
-        record_event("observation_read", actor, True, "world_private", [actor], payload)
+        with LOCK:
+            event = record_event("observation_read", actor, True, "world_audit", [], {"round": round_num})
+            record_event(
+                "observation_truth", "world", False, "world_private", [actor],
+                {"read_seq": event["seq"], **payload},
+            )
         self._reply(200, payload)
 
     def _handle_reports(self, actor: str, query: str) -> None:
@@ -520,7 +525,7 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
             "message_read",
             actor,
             True,
-            "public",
+            "world_audit",
             [],
             {"channel": "round_reports", "round": round_num, "msg_seqs": seqs},
         )
@@ -554,17 +559,20 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
             "shared_facts": CONFIG["shared_facts"],
             "private_facts": private_list,
         }
-        record_event(
-            "dossier_read",
-            actor,
-            True,
-            "world_private",
-            [actor],
-            {
-                "shared_ids": [f["id"] for f in CONFIG["shared_facts"]],
-                "private_ids": [f["id"] for f in private_list],
-            },
-        )
+        with LOCK:
+            event = record_event("dossier_read", actor, True, "world_audit", [], {})
+            record_event(
+                "dossier_truth",
+                "world",
+                False,
+                "world_private",
+                [actor],
+                {
+                    "read_seq": event["seq"],
+                    "shared_ids": [f["id"] for f in CONFIG["shared_facts"]],
+                    "private_ids": [f["id"] for f in private_list],
+                },
+            )
         self._reply(200, payload)
 
     def _handle_chat_get(self, actor: str) -> None:
@@ -576,7 +584,7 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
             "message_read",
             actor,
             True,
-            "public",
+            "world_audit",
             [],
             {"channel": "public", "msg_seqs": seqs},
         )
@@ -619,7 +627,7 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
                 if actor not in STATE["done"]:
                     STATE["done"].append(actor)
                 save_state()
-            record_event("seat_done", actor, True, "world_private", [], {"seat": actor})
+            record_event("seat_done", actor, True, "world_audit", [], {"seat": actor})
             self._reply(200, {"ok": True, "seat": actor})
         else:
             self._reply(404, {"error": "not found"})
@@ -684,7 +692,7 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
         with LOCK:
             STATE["decisions"][str(round_num)] = item
             save_state()
-            record_event("decision", actor, True, "public", [], item)
+            record_event("decision", actor, True, "world_audit", [], item)
         self._reply(201, item)
 
     def _handle_chat_post(self, actor: str, payload: dict[str, Any]) -> None:
@@ -713,7 +721,7 @@ class EpistemicWorldHandler(BaseHTTPRequestHandler):
         with LOCK:
             STATE["votes"][actor] = item
             save_state()
-            record_event("vote", actor, True, "public", [], item)
+            record_event("vote", actor, True, "world_audit", [], item)
         self._reply(201, item)
 
     def log_message(self, fmt: str, *args: Any) -> None:
@@ -727,7 +735,7 @@ def main() -> None:
     record_event(
         "world_started",
         "world",
-        True,
+        False,
         "world_private",
         [],
         {"mode": CONFIG["mode"], "seats": CONFIG["seats"]},

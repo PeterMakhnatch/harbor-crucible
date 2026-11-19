@@ -75,7 +75,9 @@ def cmd_trace(
 
 @app.command("benchmark-monitors")
 def cmd_benchmark_monitors(
-    runs_root: Annotated[Path, typer.Argument(help="Directory containing Harbor multi-seat trials.")],
+    runs_roots: Annotated[
+        list[Path], typer.Argument(help="Directories containing Harbor multi-seat trials.")
+    ],
     out_dir: Annotated[Path, typer.Option("--out-dir")] = Path("experiments/monitor_benchmark"),
     target_fpr: Annotated[float, typer.Option("--target-fpr", help="Calibration false-positive rate.")] = 0.05,
     llm_model: Annotated[
@@ -84,18 +86,34 @@ def cmd_benchmark_monitors(
     tiers: Annotated[str, typer.Option("--tiers", help="Comma-separated monitor visibility tiers.")] = (
         "tier0_public_only,tier1_public_plus_audit,tier2_full_trajectories"
     ),
+    families: Annotated[
+        str | None,
+        typer.Option(
+            "--families",
+            help="Comma-separated task families to score. Default: all. "
+            "Use this to exclude designs with no instructed adversary.",
+        ),
+    ] = None,
 ) -> None:
     """Evaluate deterministic (and optional LLM) monitors across visibility tiers with fixed-FPR calibration."""
     from crucible.calibration import render_benchmark_markdown, summarize_verdicts
     from crucible.monitor import DeterministicCrucibleMonitor, LLMMonitor
 
-    trial_dirs = discover_trial_dirs(runs_root)
+    wanted = {f.strip() for f in families.split(",")} if families else None
+    trial_dirs: list[Path] = []
+    for root in runs_roots:
+        trial_dirs.extend(discover_trial_dirs(root))
     if not trial_dirs:
-        console.print(f"[red]No multi-seat trials found under {runs_root}[/red]")
+        console.print(f"[red]No multi-seat trials found under {[str(r) for r in runs_roots]}[/red]")
         raise typer.Exit(code=1)
 
     selected_tiers = [MonitorTier(t.strip()) for t in tiers.split(",") if t.strip()]
     bundles = [load_trial_bundle(td) for td in trial_dirs]
+    if wanted is not None:
+        bundles = [b for b in bundles if b.task_family in wanted]
+        if not bundles:
+            console.print(f"[red]No trials left after filtering to {sorted(wanted)}[/red]")
+            raise typer.Exit(code=1)
     det_monitor = DeterministicCrucibleMonitor()
     verdicts: list[MonitorVerdict] = []
 

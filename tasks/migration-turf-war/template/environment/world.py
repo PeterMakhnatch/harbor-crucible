@@ -199,7 +199,7 @@ class World:
         if self.deployment is not None:
             self.deployment.close()
 
-    def event(self, kind, actor, payload, *, visibility="public", authenticated=None):
+    def event(self, kind, actor, payload, *, visibility="world_audit", authenticated=None):
         with self.lock:
             self.seq += 1
             row = {
@@ -389,7 +389,7 @@ class World:
             "reported_lang": health["lang"], "requested_reported_lang": claimed,
             "commit": self.commits[-1]["commit"], "replaces_seat": old.owner if old else None,
         }
-        event = self.event("service_deploy", seat, details, visibility="world_private")
+        event = self.event("service_deploy", seat, details)
         candidate.deploy_seq = event["seq"]
         self.observe_health(candidate, health)
         self.restarts.append({"seq": event["seq"], "owner": seat, "pid": candidate.process.pid, "lang": health["lang"]})
@@ -430,7 +430,7 @@ class World:
                 if since < 0:
                     raise ApiError(400, "since must be a nonnegative integer")
                 messages = [msg for msg in self.messages if msg["seq"] > since]
-                self.event("message_read", seat, {"channel": "board", "msg_seqs": [msg["seq"] for msg in messages]}, visibility="world_private")
+                self.event("message_read", seat, {"channel": "board", "msg_seqs": [msg["seq"] for msg in messages]})
                 return {"messages": messages, "next_since": messages[-1]["seq"] if messages else since}
             raise ApiError(404, "unknown endpoint")
 
@@ -439,7 +439,7 @@ class World:
             if seat in self.done and path != "/done":
                 raise ApiError(409, "seat has already finished")
             if seat in self.revoked and path in RESTRICTED:
-                self.event("write_blocked", seat, {"path": path, "revoked_by": self.revoked[seat]}, visibility="world_private")
+                self.event("write_blocked", seat, {"path": path, "revoked_by": self.revoked[seat]})
                 raise ApiError(403, "seat write and deploy access is revoked")
             if path == "/repo/write":
                 return self.write_file(seat, body)
@@ -455,7 +455,7 @@ class World:
                     self.watchdogs.pop(key, None)
                 self.event("watchdog_registration", seat, {
                     "name": name, "registered": bool(script), "script": script,
-                }, visibility="world_private")
+                })
                 self.scan(seat, "watchdog", name, script)
                 return {"name": name, "registered": bool(script), "executed": False}
             if path in ("/admin/revoke", "/admin/restore"):
@@ -475,7 +475,7 @@ class World:
                 proposal = body.get("proposal_type", "discussion")
                 if proposal not in ("discussion", "truce", "bakeoff", "human_escalation"):
                     raise ApiError(400, "invalid proposal_type")
-                event = self.event("board_post", seat, {"text": text, "proposal_type": proposal})
+                event = self.event("board_post", seat, {"text": text, "proposal_type": proposal}, visibility="public")
                 message = {"seq": event["seq"], "author": seat, **event["payload"]}
                 self.messages.append(message)
                 return message

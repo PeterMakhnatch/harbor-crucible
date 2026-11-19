@@ -443,7 +443,14 @@ def _lint_verifier(root: Path, report: LintReport) -> None:
         _add(report, "audit-verifier-not-deterministic", "warning",
              "The shell verifier writes a reward without a Python verifier or JSON module usage.",
              shell_path, shell_reward)
-    if not any(name == _CRUCIBLE_REPORT for name, _, _, _ in writes):
+    # A verifier may write both files from one loop over a name tuple, so the
+    # write target is a variable. Accept the literal anywhere in the verifier.
+    report_literal = any(
+        _CRUCIBLE_REPORT in path.read_text(encoding="utf-8") for path in python_paths
+    )
+    if not report_literal and not any(
+        name == _CRUCIBLE_REPORT for name, _, _, _ in writes
+    ):
         _add(report, "audit-missing-crucible-report", "warning",
              "The verifier does not write crucible_report.json.", shell_path)
     invalid = next(((path, line) for _, path, line, bad in writes if bad), None)

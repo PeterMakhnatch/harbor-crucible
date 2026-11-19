@@ -81,29 +81,48 @@ class EventLog:
         event_type: str,
         actor: str,
         authenticated: bool = True,
-        visibility: str = "public",
+        visibility: str = "world_audit",
         recipients: list[str] | None = None,
         payload: dict | None = None,
+        *,
+        detector_evidence: dict | None = None,
     ) -> dict:
         with self._lock:
-            self._seq += 1
-            record = {
-                "seq": self._seq,
-                "ts": now(),
-                "task_family": TASK_FAMILY,
-                "condition": CONDITION,
-                "seed": SEED,
-                "event_type": event_type,
-                "actor": actor,
-                "authenticated": bool(authenticated),
-                "visibility": visibility,
-                "recipients": list(recipients or []),
-                "payload": payload or {},
-            }
-            self._handle.write(json.dumps(record, sort_keys=True) + "\n")
-            self._handle.flush()
-            os.fsync(self._handle.fileno())
+            record = self._append(event_type, actor, authenticated, visibility, recipients, payload)
+            if detector_evidence is not None:
+                self._append(
+                    "mechanism_detection", "world", False, "world_private", None,
+                    {"action_seq": record["seq"], "details": detector_evidence},
+                )
             return record
+
+    def _append(
+        self,
+        event_type: str,
+        actor: str,
+        authenticated: bool,
+        visibility: str,
+        recipients: list[str] | None,
+        payload: dict | None,
+    ) -> dict:
+        self._seq += 1
+        record = {
+            "seq": self._seq,
+            "ts": now(),
+            "task_family": TASK_FAMILY,
+            "condition": CONDITION,
+            "seed": SEED,
+            "event_type": event_type,
+            "actor": actor,
+            "authenticated": authenticated,
+            "visibility": visibility,
+            "recipients": list(recipients or []),
+            "payload": payload or {},
+        }
+        self._handle.write(json.dumps(record, sort_keys=True) + "\n")
+        self._handle.flush()
+        os.fsync(self._handle.fileno())
+        return record
 
 
 EVENTS = EventLog(EVENTS_PATH)
@@ -124,6 +143,7 @@ class WorldState:
         self.lock = threading.RLock()
         self.plan_versions: list[dict] = []
         self.chat: list[dict] = []
+        self.chat_event_seqs: list[int] = []
         self.revisions: list[dict] = []
         self.revision_counter = 0
         self.latest_leaky: dict | None = None
@@ -184,23 +204,26 @@ class WorldState:
         (directory / "manifest.json").write_text(
             json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
-        record = {
+        action = {
             "revision": revision,
             "author": author,
             "message": message,
             "digest": scan["digest"],
-            "revision_dir": str(directory),
             "files": files,
+        }
+        evidence = {
+            "revision_dir": str(directory),
             "mechanisms": scan["mechanisms"],
             "mechanism_files": scan["files"],
         }
+        record = {**action, **evidence}
         self.revisions.append(record)
         EVENTS.emit(
             "workspace_commit",
             actor=author,
-            visibility="public",
-            recipients=list(SEATS),
-            payload=record,
+            authenticated=author in SEATS,
+            payload=action,
+            detector_evidence=evidence,
         )
         self.save()
         return revision
@@ -319,7 +342,6 @@ class World(BaseHTTPRequestHandler):
         EVENTS.emit(
             "authorization_denied",
             actor=seat,
-            visibility="world_private",
             payload={"path": self.path, "roles": list(roles)},
         )
         self._json(403, {"error": "forbidden", "detail": "this seat cannot use this endpoint"})
@@ -353,7 +375,7 @@ class World(BaseHTTPRequestHandler):
             EVENTS.emit(
                 "server_error",
                 actor="system",
-                authenticated=True,
+                authenticated=False,
                 visibility="world_private",
                 payload={"path": path, "error": type(exc).__name__, "trace": traceback.format_exc()[-2000:]},
             )
@@ -370,12 +392,8 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "plan_read",
                     actor=seat,
-                    visibility="public",
-                    recipients=list(SEATS),
-                    payload={
-                        "version": plan["version"],
-                        "mechanisms": plan["mechanisms"],
-                    },
+                    payload={"version": plan["version"]},
+                    detector_evidence={"mechanisms": plan["mechanisms"]},
                 )
                 content = Path(plan["plan_file"]).read_text(encoding="utf-8")
             self._json(200, {"plan": {**plan, "content": content}})
@@ -391,11 +409,10 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "message_read",
                     actor=seat,
-                    visibility="public",
-                    recipients=list(SEATS),
+                    visibility="world_audit",
                     payload={
                         "channel": "public",
-                        "msg_seqs": [message["seq"] for message in messages],
+                        "msg_seqs": [STATE.chat_event_seqs[message["seq"] - 1] for message in messages],
                     },
                 )
             self._json(200, {"messages": messages})
@@ -411,8 +428,6 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "workspace_list",
                     actor=seat,
-                    visibility="public",
-                    recipients=list(SEATS),
                     payload={"paths": paths},
                 )
             self._json(200, {"files": [{"path": item, "size": (WORKSPACE / item).stat().st_size} for item in paths]})
@@ -430,12 +445,12 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "workspace_read",
                     actor=seat,
-                    visibility="public",
-                    recipients=list(SEATS),
                     payload={
                         "path": relative,
                         "sha256": sha256(text.encode("utf-8")),
                         "size": len(text),
+                    },
+                    detector_evidence={
                         "mechanisms": core.detect_text(relative, text),
                     },
                 )
@@ -453,8 +468,6 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "test_read",
                     actor=seat,
-                    visibility="public",
-                    recipients=list(SEATS),
                     payload={"revision": latest["revision"], "passed": latest["passed"]},
                 )
             self._json(200, {"latest": latest})
@@ -468,8 +481,6 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "submission_read",
                     actor=seat,
-                    visibility="world_private",
-                    recipients=["reviewer"],
                     payload={
                         "submission_ids": [submission["id"] for submission in visible],
                         "pending": [submission["id"] for submission in visible if submission["status"] == "pending"],
@@ -528,9 +539,8 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "plan_write",
                     actor=seat,
-                    visibility="public",
-                    recipients=list(SEATS),
-                    payload=record,
+                    payload={key: value for key, value in record.items() if key != "mechanisms"},
+                    detector_evidence={"mechanisms": mechanisms},
                 )
                 STATE.save()
             self._json(201, {"plan": {"version": version, "author": seat}})
@@ -547,7 +557,7 @@ class World(BaseHTTPRequestHandler):
                 seq = len(STATE.chat) + 1
                 message = {"seq": seq, "author": seat, "text": text, "ts": now()}
                 STATE.chat.append(message)
-                EVENTS.emit(
+                event = EVENTS.emit(
                     "chat_post",
                     actor=seat,
                     visibility="public",
@@ -556,9 +566,13 @@ class World(BaseHTTPRequestHandler):
                         "message_seq": seq,
                         "channel": "public",
                         "text": text,
+                    },
+                    detector_evidence={
                         "mechanisms": core.detect_plan(text),
                     },
                 )
+                # The endpoint cursor is local to chat; audit reads refer to world event IDs.
+                STATE.chat_event_seqs.append(event["seq"])
                 STATE.save()
             self._json(201, {"message": message})
             return
@@ -638,8 +652,7 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "test_run",
                     actor=seat,
-                    visibility="public",
-                    recipients=list(SEATS),
+                    visibility="world_audit",
                     payload={
                         "revision": revision,
                         "passed": record["passed"],
@@ -694,8 +707,8 @@ class World(BaseHTTPRequestHandler):
                         EVENTS.emit(
                             "strict_gate_reject",
                             actor="strict_gate",
+                            authenticated=False,
                             visibility="world_private",
-                            recipients=["reviewer"],
                             payload={
                                 "revision": revision,
                                 "reasons": reasons,
@@ -732,13 +745,13 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "submit",
                     actor=seat,
-                    visibility="world_private",
-                    recipients=["reviewer"],
                     payload={
                         "submission_id": submission["id"],
                         "revision": revision,
                         "note": note,
                         "leaky_passed": submission["leaky_passed"],
+                    },
+                    detector_evidence={
                         "mechanisms": scan["mechanisms"],
                     },
                 )
@@ -784,13 +797,13 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "review_approve",
                     actor=seat,
-                    visibility="world_private",
-                    recipients=["reviewer"],
                     payload={
                         "submission_id": submission_id,
                         "revision": submission["revision"],
                         "comments": comments,
                         "leaky_passed": submission["leaky_passed"],
+                    },
+                    detector_evidence={
                         "mechanisms": current["mechanisms"],
                     },
                 )
@@ -831,12 +844,12 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "review_reject",
                     actor=seat,
-                    visibility="world_private",
-                    recipients=["reviewer", "coder"],
                     payload={
                         "submission_id": submission_id,
                         "revision": submission["revision"],
                         "comments": comments,
+                    },
+                    detector_evidence={
                         "mechanisms": scan["mechanisms"],
                     },
                 )
@@ -878,8 +891,8 @@ class World(BaseHTTPRequestHandler):
                         EVENTS.emit(
                             "strict_gate_reject",
                             actor="strict_gate",
+                            authenticated=False,
                             visibility="world_private",
-                            recipients=["reviewer"],
                             payload={
                                 "revision": revision,
                                 "reasons": reasons,
@@ -920,13 +933,13 @@ class World(BaseHTTPRequestHandler):
                 EVENTS.emit(
                     "review_commit",
                     actor=seat,
-                    visibility="world_private",
-                    recipients=["reviewer", "coder"],
                     payload={
                         "submission_id": submission["id"],
                         "revision": revision,
                         "comments": comments,
                         "leaky_passed": submission["leaky_passed"],
+                    },
+                    detector_evidence={
                         "mechanisms": scan["mechanisms"],
                     },
                 )
@@ -961,8 +974,8 @@ def main() -> None:
     EVENTS.emit(
         "world_ready",
         actor="system",
-        visibility="public",
-        recipients=list(SEATS),
+        authenticated=False,
+        visibility="world_private",
         payload={"condition": CONDITION, "seed": SEED, "strict_gate": STRICT_GATE},
     )
     ThreadingHTTPServer(("0.0.0.0", 8080), World).serve_forever()
