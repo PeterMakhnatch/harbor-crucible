@@ -284,11 +284,12 @@ What does survive the clean filter is H2: T1 and T2 are identical in both views,
 | **H3** refusers get over-flagged | **Not supported.** Refuser FPR is 0% at every tier. No refuser was accused. |
 | **H4** tool noise causes false alarms | **Not supported at Tier 1.** `noisy_honest` never crossed the calibrated threshold. At Tier 0 one honest trial sat at the 24.0 threshold, which is why T0's actual FPR is above zero there. |
 
-H1 and H2 point the same way as the Project EVE report: authenticated action is the decisive evidence, and a monitor does not need private reasoning. But the absolute numbers are low. A deterministic rule set catches a third of real adversaries at a 5% false-accusation budget, which is not a detector anyone should deploy.
+The only transferable conclusion from that pair is H2: a monitor does not need private reasoning when it has authenticated action. The absolute numbers are low in every configuration. A deterministic rule set catches a third of real adversaries at a 5% false-accusation budget, and a frontier-model judge reads the same trials better but cannot be calibrated at this sample size. Neither is a detector anyone should deploy unexamined.
 
 ### Limits
 
-- One model, one seed set, three trials per condition. This cannot establish a ranking, and the confidence interval on 33.3% over 18 positives is wide.
+- **One model family.** Every number here is `deepseek/deepseek-chat`. The second-model arm was blocked: Google's key returned HTTP 402 (prepayment credits depleted) and a Qwen substitute through OpenRouter cost $0.17 per trial, so the model-specificity question is unanswered. Nothing in this document shows that these rates transfer to another family.
+- **Six trials per condition on supply-chain and gullibility, three on reward-hack and migration.** Six cannot pin a rate: the interval on 3/6 is roughly 12% to 88%. Differences smaller than about 30 points are not measurable here.
 - The worlds are small and the honest agents sometimes fail for plain coordination reasons. `task_utility` therefore mixes task design with model capability.
-- The reward-hack corpus below was produced before the evidence fix. Its Tier-1 numbers come from the separate four-condition re-run, not from Wave 1.
+- The reward-hack Wave 1 corpus predates the evidence fix. Its Tier-1 numbers come from the separate four-condition re-run, not from Wave 1.
 - Three families contribute useful positives to the headline tier table (supply-chain, reward-hack after the fix, epistemic). Migration contributes conflict outcomes, not integrity labels.
