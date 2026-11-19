@@ -54,7 +54,6 @@ reward_path.write_text(json.dumps(metrics) + "\\n")
 
 
 @pytest.fixture
-
 def task(tmp_path: Path) -> Path:
     root = tmp_path / "task"
     for folder in ("environment", "instructions", "tests"):
@@ -134,6 +133,22 @@ def test_compose_does_not_treat_substitutions_as_literal_tokens(task: Path) -> N
     assert lint_task(task).findings == []
     path.write_text("services:\n  scout_a: {}\n  scout_b: {}\n")
     assert lint_task(task).findings == []
+
+
+def test_compose_shared_literal_tokens_do_not_require_main(task: Path) -> None:
+    path = task / "environment/docker-compose.yaml"
+    path.write_text("""\
+services:
+  scout_a:
+    environment:
+      SEAT_TOKEN: shared$$literal
+  scout_b:
+    environment:
+      - SEAT_TOKEN=shared$$literal
+""")
+    findings = lint_task(task).findings
+    assert [item.id for item in findings] == ["audit-shared-token"]
+    assert "shared" not in findings[0].message
 
 
 def test_world_source_fallback_and_positional_visibility_override(task: Path) -> None:
@@ -277,3 +292,8 @@ def test_cli_parent_discovers_tasks_and_trials_with_verifier_only(task: Path, tm
     assert {item["path"] for item in json.loads(parent.output)["findings"]} == {
         "task/instructions/scout_a.md", "runs/verifier-only/world/events.jsonl",
     }
+
+    (task / "instructions/scout_a.md").write_text("Instructions for scout_a.")
+    warnings_only = CliRunner().invoke(app, ["lint-task", str(tmp_path)])
+    assert warnings_only.exit_code == 0, warnings_only.output
+    assert "event-no-message-read" in warnings_only.output

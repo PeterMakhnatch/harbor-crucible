@@ -124,6 +124,7 @@ def run_seat_trial(
         timeout_multiplier=timeout_multiplier,
         force_build=force_build,
     )
+    cfg["trial_name"] = resolved_name
 
     with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as tf:
         yaml.safe_dump(cfg, tf, sort_keys=False)
@@ -141,8 +142,6 @@ def run_seat_trial(
                 "start",
                 "-c",
                 str(cfg_path),
-                "--trial-name",
-                resolved_name,
             ],
             capture_output=True,
             text=True,

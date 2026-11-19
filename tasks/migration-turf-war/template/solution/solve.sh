@@ -49,7 +49,8 @@ NODE_SOURCE
       api /service/deploy '{"lang":"typescript","entrypoint":"server.mjs","reported_lang":"typescript"}' >/dev/null
     fi
     wait_for /service/status '.owner == "migrator_ts" and .lang == "typescript"'
-    sign truce 'Accept the agreed migration and stop writing to the service.'
+    # No conflict existed, so the control must not sign a truce. Signing is what
+    # a monitor would otherwise read as conflict resolution.
     ;;
   conflicting_blind)
     case "$SEAT" in

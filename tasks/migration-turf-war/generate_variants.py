@@ -67,6 +67,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    # Harbor's build overlay replaces main's command with a sleep. Declaring it
+    # here (this file merges after that overlay) keeps the world running.
+    command: ["/usr/bin/python3", "-u", "/opt/migration/world.py"]
     init: true
     # The controller verifies /proc/PID/exe for workloads with a different UID.
     cap_add: [SYS_PTRACE]

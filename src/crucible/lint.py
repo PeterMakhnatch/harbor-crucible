@@ -63,8 +63,12 @@ class LintReport(BaseModel):
         return self.errors == 0
 
     def to_dict(self) -> dict:
-        return {**self.model_dump(mode="json"), "errors": self.errors,
-                "warnings": self.warnings, "ok": self.ok}
+        return {
+            **self.model_dump(mode="json"),
+            "errors": self.errors,
+            "warnings": self.warnings,
+            "ok": self.ok,
+        }
 
 
 def render_lint_report(report: LintReport) -> str:
@@ -98,6 +102,9 @@ def _compose_env(raw: object) -> dict:
     return {}
 
 
+_COMPOSE_EXPANSION = re.compile(r"\$\$|\$(?:\{|[A-Za-z_])")
+
+
 def _lint_compose(root: Path, seats: set[str], report: LintReport) -> None:
     location = "environment/docker-compose.yaml"
     path = root / location
@@ -105,7 +112,7 @@ def _lint_compose(root: Path, seats: set[str], report: LintReport) -> None:
         return
     compose = yaml.safe_load(path.read_text(encoding="utf-8"))
     services = compose.get("services") if isinstance(compose, dict) else None
-    if not isinstance(services, dict) or "main" not in services:
+    if not isinstance(services, dict):
         return
     token_seats: dict[str, set[str]] = defaultdict(set)
     for seat, service in sorted(services.items()):
@@ -116,12 +123,15 @@ def _lint_compose(root: Path, seats: set[str], report: LintReport) -> None:
                   if isinstance(key, str) and (key == "SEAT_TOKEN" or key.startswith("TOKEN_"))]
         if seat not in seats and "SEAT" not in env and (seats or not tokens):
             continue
-        if not tokens:
+        if not tokens and "main" in services:
             _add(report, "audit-no-tokens", "error",
                  f"Seat {seat} has no SEAT_TOKEN or TOKEN_* entry.", location)
         for value in tokens:
-            if type(value) in (str, int, float) and value != "" and "$" not in str(value):
-                token_seats[str(value)].add(seat)
+            if type(value) not in (str, int, float):
+                continue
+            token = str(value)
+            if all(match[0] == "$$" for match in _COMPOSE_EXPANSION.finditer(token)):
+                token_seats[token.replace("$$", "$")].add(seat)
     groups = sorted({tuple(sorted(group)) for group in token_seats.values() if len(group) > 1})
     if groups:
         _add(report, "audit-shared-token", "error",
@@ -243,19 +253,24 @@ def _resolve(node: ast.expr | None, bindings: _Bindings) -> ast.expr | None:
 
 
 def _python_filename(node: ast.expr | None, bindings: _Bindings) -> str:
-    node = _resolve(node, bindings)
-    value = _literal(node)
-    if isinstance(value, str):
-        return Path(value).name
-    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
-        return _python_filename(node.right, bindings)
-    if isinstance(node, ast.Call):
-        name = _name(node.func)
-        if name == "Path" and node.args:
-            return _python_filename(node.args[-1], bindings)
-        if name == "open":
-            target = node.func.value if isinstance(node.func, ast.Attribute) else _argument(node, 0, "file")
-            return _python_filename(target, bindings)
+    seen: set[ast.expr] = set()
+    while (node := _resolve(node, bindings)) is not None and node not in seen:
+        seen.add(node)
+        value = _literal(node)
+        if isinstance(value, str):
+            return Path(value).name
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+            node = node.right
+        elif isinstance(node, ast.Call):
+            name = _name(node.func)
+            if name == "Path" and node.args:
+                node = node.args[-1]
+            elif name == "open":
+                node = node.func.value if isinstance(node.func, ast.Attribute) else _argument(node, 0, "file")
+            else:
+                break
+        else:
+            break
     return ""
 
 
@@ -290,6 +305,10 @@ def _python_non_numeric(node: ast.expr | None, bindings: _Bindings, *, serialize
         if isinstance(value, (ast.Dict, ast.List, ast.Tuple, ast.Set, ast.JoinedStr, ast.Compare)):
             return True
         if isinstance(value, ast.UnaryOp) and isinstance(value.op, ast.Not):
+            return True
+        if isinstance(value, ast.Call) and isinstance(value.func, ast.Name) and (
+            value.func.id == "bool" and "bool" not in bindings
+        ):
             return True
     return False
 
@@ -477,10 +496,15 @@ def lint_events(events: list[WorldEvent], *, seat_count: int | None = None) -> L
              _WORLD_LOG, hint="Label these actions world_audit.")
     bad_dm = []
     for event in events:
-        if event.is_dm or event.visibility == "dm":
-            parts = event.visibility.split(":")
-            if len(parts) != 3 or not all(part and not any(c.isspace() for c in part) for part in parts[1:]) or parts[1] != event.actor:
-                bad_dm.append(event.seq)
+        if not (event.is_dm or event.visibility == "dm"):
+            continue
+        parts = event.visibility.split(":")
+        if (
+            len(parts) != 3
+            or parts[1] != event.actor
+            or not all(part and not any(char.isspace() for char in part) for part in parts[1:])
+        ):
+            bad_dm.append(event.seq)
     if bad_dm:
         _add(report, "event-bad-audience", "error",
              f"{len(bad_dm)} DM event(s) have an invalid audience. First affected seq: {bad_dm[0]}.",
