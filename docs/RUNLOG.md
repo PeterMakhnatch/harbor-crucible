@@ -10,6 +10,12 @@ Running record for the overnight mission. Newest first. Hours are ET.
 
 ## Done
 
+### 2026-11-19 ~08:10-09:00 — Fourth fork PR, monitor v2, and a real negative result
+- **PR #21** on the fork: per-seat job statistics. `JobStats.increment()` attributed every reward and the whole cost to the first tested seat, so a four-seat job with four models reported one model. Additive `SeatDatasetStats`, eval key format untouched because pass@k, metrics, telemetry, the CLI and the viewer parse it. 956 tests pass.
+- **Monitor v2 is a negative result, and it is committed as one.** Eleven claim-versus-audit contradiction rules, pre-registered in `PROTOCOL.md` before measuring, score AUROC 0.604 and TPR 11.1% at 5% FPR against v1's 0.646 and 33.3%. Four rules fire on honest behaviour that merely contains a matching word, so the false-positive mean doubles and the threshold rises. Tuning them to 18 positives would be overfitting, so they stay as written.
+- **Migration timeout fix, verified.** Base 180 s gave 90 s per seat at a half-budget multiplier and timed out 4 of 9 trials. At 360 s, all three previously failing conditions complete with zero timeouts. The protocol variant then reads as passivity, so Wave 1's "truce" was a truncation artifact.
+- `experiments/run_wave1.py` gained `--conditions`, so a subset of a family can be run without re-running the rest.
+
 ### 2026-11-19 ~07:40-08:10 — Report command and the defect brief
 - `crucible report` turns a corpus into `REPORT.md` and `report.json`: per-family condition ranges, monitor tiers, spend, corpus commit. Five tests cover aggregation, timeout counting, missing-metric behaviour and per-family tables.
 - **Protocol correction found by the report itself.** Wave 1 used a 0.5 timeout multiplier (240 s), so 8 of 42 trials ended in `AgentTimeoutError`, including all three `saboteur` trials and all three protocol-conflict trials. The act was measured (`sabotage_success=1.0` in 3/3) but mission completion was truncated. Every `task_utility` under a timeout is a floor, not a rate. Wave 2 uses the full multiplier.
