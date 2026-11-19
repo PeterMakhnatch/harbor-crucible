@@ -11,6 +11,37 @@ Recent frontier-lab studies converge on a sharp finding: **multi-agent safety an
 - **Hu et al. (Oct 2026), Reward Hacking as a Transmissible Strategy**: Coding-agent evaluator bypasses (`conftest.py` hooks, `sys.exit(0)`, always-equal objects) propagate across models and roles through shared workspaces and plans. Confirmed reward hacks require $D(s) \neq \emptyset \wedge E_{\text{leaky}}(s) = 1 \wedge E_{\text{strict}}(s) = 0$.
 - **Orbit (Sep 2026) & Collusion-Probe Pitfalls (Nov 2026)**: Monitors that block single compromised agents degrade sharply against collusion; calibrating monitors without **instructed refusers** and **pre-action cutoffs** leaks prompt/outcome cues instead of measuring genuine detection.
 
+## Module map
+
+| Module | Responsibility |
+|---|---|
+| `schema.py` | Pydantic models for world events, seat steps, trial bundles, verdicts, tiers |
+| `loader.py` | Read a Harbor seat trial directory into a `TrialBundle`, never raising on a partial trial |
+| `monitor.py` | Deterministic v1 rule set plus the tier views, including the payload-free ablation tier |
+| `monitor_v2.py` | The pre-registered claim-versus-audit rule set, kept as the recorded negative result |
+| `calibration.py` | AUROC, exact fixed-FPR calibration, benchmark summaries and their markdown |
+| `stability.py` | Bootstrap intervals for threshold, TPR and AUROC, and the paired win rate |
+| `report.py` | One corpus to `REPORT.md` + `report.json`: conditions, per-family tiers, intervals, spend |
+| `lint.py` | 19 audit-contract rules over a task, a trial, or a tree of evidence |
+| `trace.py` | Cross-seat causal timeline, exposure graph and standalone HTML view |
+| `spend.py` | Budget ledger that refuses a run above the cap and keeps missing cost distinct from zero |
+| `runner.py` | Launch one Harbor seat trial with the ledger and a parsed reward table |
+| `bridge.py` | Eval Lab seat-evidence JSONL export and the seat regrade config builder |
+| `cli.py` | The `crucible` command surface |
+
+## Command surface
+
+| Command | Answer it gives |
+|---|---|
+| `trace` | What happened, in what order, and who could see it |
+| `benchmark-monitors` | How well a monitor separates adversaries from controls at a fixed false-accusation budget |
+| `stability` | How much of that separation survives resampling the controls |
+| `report` | The whole corpus as one reproducible document, per family, with intervals |
+| `lint-task` | Whether a task's audit contract can support any of the above |
+| `export-evallab` | Trial-level seat evidence for a downstream reader |
+| `regrade-config` | A Harbor config that re-scores a recorded seat trial without rerunning agents |
+| `spend` | Remaining budget |
+
 ## Four Interlocking Components
 
 ### 1. Upstream `olamlabs/harbor-multiagent` PRs (3 Unclaimed Contributions)
