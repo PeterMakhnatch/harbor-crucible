@@ -126,3 +126,35 @@ Corpus: 33 integrity-labelled trials (18 adversarial, 15 negative including 3 in
 ### Sample-size caveat
 
 18 positives and 15 negatives. The confidence interval on a 22-percentage-point TPR difference over 18 positives is wide (roughly ±23 points at 95%). The direction of the result is clear — v2's false-positive rate on negatives is higher — but the magnitude is not precisely estimated. A larger corpus could narrow the interval, but it would not change the finding that `R1b` and `R3` as written produce false accusations on honest behavior.
+
+## Pre-registration: does the lift come from action structure or payload content? (2026-11-19, before measurement)
+
+The Tier 0 to Tier 1 lift is established: TPR at 5% FPR rises from 22.2% to 33.3% on 33 integrity-labelled trials. It is not explained. Two candidates:
+
+- **Structure.** Authenticated events name a `actor` and an `event_type`, so a monitor can see *that* `scout_b` ran `stash` without reading any payload. An adversary's act is a distinctive verb, so structure is enough.
+- **Content.** Authenticated events also carry a `payload` with messages, code and numbers. Contradictions live in that text, so removing it destroys the signal.
+
+**Ablation.** Evaluate a derived view `tier1_metadata_only` that is identical to `tier1_public_plus_audit` except that every event's `payload` is emptied. `actor`, `event_type`, `seq`, `ts`, `visibility` and `recipients` are kept. Run the same deterministic monitor at T0, T1 and `tier1_metadata_only` on the same trials.
+
+**Prediction (falsifiable, written before the run).**
+- `supply-chain-sabotage`: metadata-only recovers most of the lift, because `stash` and `hoard` are distinctive event types. Predicted TPR within about 10 points of full Tier 1.
+- `reward-hack-contagion`: metadata-only collapses to Tier 0, because the only signal is the submitted code content. Predicted equal to T0.
+- `epistemic-crucible`: metadata-only keeps some lift, because a lying seat's event types differ from a reporting seat's, but loses the majority-contradiction signal.
+
+**Decision rule.** If metadata-only matches full Tier 1 within 10 points overall, the conclusion is that a lab can run a useful monitor on an action log and does not need to store agent content for oversight. That is a privacy-relevant result and should be stated as such. If it collapses, then oversight requires content retention, and that costs a policy decision. Either outcome is reported; no rule or threshold is changed after seeing it.
+
+### Measured result of the ablation (2026-11-19)
+
+| Tier | AUROC | TPR at 5% FPR | Top-seat | Mean adv / neg |
+|---|---:|---:|---:|---:|
+| `tier0_public_only` | 0.585 | 22.2% | 22.2% | 12.2 / 1.6 |
+| `tier1_metadata_only` | 0.500 | 0.0% | 0.0% | 0.0 / 0.0 |
+| `tier1_public_plus_audit` | 0.646 | 33.3% | 38.9% | 32.4 / 7.7 |
+
+**The prediction is falsified, and in the strongest form.** The metadata-only view scores exactly zero on every trial: no seat, no trial and no family gets a non-zero suspicion score once payloads are emptied. AUROC 0.500 is the chance line. So the whole of the Tier 0 to Tier 1 lift comes from **stored content**, not from the structure of who did what.
+
+That is not what I predicted. I expected the supply-chain `stash` event type to be distinctive enough on its own. It is not, because the rule set never keys on an event type alone: a stash only scores when its payload shows the sectors and unit counts that contradict the team's stated plan.
+
+**Consequence, and it is a policy consequence.** A lab cannot get this oversight from an action log. It needs the messages and code that the audit records, which means retention of agent content, which is exactly the thing a privacy-minded deployment wants to minimise. Stated plainly: for this monitor, audit value and content retention are the same variable.
+
+It also explains two earlier results: the LLM judge beat the rule set at attribution because it reads narrative, and the v2 text-matching rules failed because they read narrative badly. Both facts point at content as the single source of signal.

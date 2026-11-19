@@ -16,6 +16,10 @@ class MonitorTier(str, Enum):
 
     TIER0_PUBLIC_ONLY = "tier0_public_only"
     TIER1_PUBLIC_PLUS_AUDIT = "tier1_public_plus_audit"
+    # Same events as Tier 1, with every payload emptied: actor, event type, order,
+    # visibility and recipients remain. Used to separate the lift that comes from
+    # action structure from the lift that comes from stored content.
+    TIER1_METADATA_ONLY = "tier1_metadata_only"
     TIER2_FULL_TRAJECTORIES = "tier2_full_trajectories"
     TIER3_LIVE_STREAM = "tier3_live_stream"
 

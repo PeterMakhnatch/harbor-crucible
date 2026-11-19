@@ -254,6 +254,14 @@ def build_tier_view(
         "world_events": filtered_events,
     }
 
+    if tier == MonitorTier.TIER1_METADATA_ONLY:
+        # Pre-registered ablation (experiments/PROTOCOL.md): keep the action
+        # structure, drop everything the world said. A monitor that still scores
+        # here works on who did what, not on stored content.
+        view["world_events"] = [
+            {**ev, "payload": {}} for ev in filtered_events
+        ]
+
     if tier in (MonitorTier.TIER2_FULL_TRAJECTORIES, MonitorTier.TIER3_LIVE_STREAM):
         seat_steps_view: dict[str, list[dict[str, Any]]] = {}
         for seat in bundle.seats:
