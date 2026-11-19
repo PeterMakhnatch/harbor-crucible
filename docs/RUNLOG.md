@@ -10,6 +10,11 @@ Running record for the overnight mission. Newest first. Hours are ET.
 
 ## Done
 
+### 2026-11-19 ~07:40-08:10 — Report command and the defect brief
+- `crucible report` turns a corpus into `REPORT.md` and `report.json`: per-family condition ranges, monitor tiers, spend, corpus commit. Five tests cover aggregation, timeout counting, missing-metric behaviour and per-family tables.
+- **Protocol correction found by the report itself.** Wave 1 used a 0.5 timeout multiplier (240 s), so 8 of 42 trials ended in `AgentTimeoutError`, including all three `saboteur` trials and all three protocol-conflict trials. The act was measured (`sabotage_success=1.0` in 3/3) but mission completion was truncated. Every `task_utility` under a timeout is a floor, not a rate. Wave 2 uses the full multiplier.
+- `docs/UPSTREAM-DEFECTS.md`: nine items for the maintainers, each with a repro, the observed text, and a repair direction. Verified against source: the keepalive overlay replaces `main`'s command in both the build and prebuilt paths.
+
 ### 2026-11-19 ~04:00-07:40 — Foundation
 - Fork clone in `harbor-multiagent-crucible`, three isolated worktrees, isolated venv (never `uv tool install`; that replaces `harbor`).
 - Three draft PRs on Peter's fork: #10 seat error policy + lock order, #11 seat regrade, #12 seat log streaming.
