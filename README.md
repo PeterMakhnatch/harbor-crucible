@@ -31,15 +31,15 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 
 ## Measured headline
 
-88 real-model seat trials, 80 of them complete and integrity-labelled. Scores are not comparable across worlds, so this is per family. AUROC intervals are 1000 bootstrap resamples of the controls.
+94 real-model seat trials, 86 of them complete and integrity-labelled. Scores are not comparable across worlds, so this is per family. AUROC intervals are 1000 bootstrap resamples of the controls.
 
 | Family | Pos / ctrl | AUROC, public chat | AUROC, + audit [95% CI] | Detection at 5% FPR | Names the right agent |
 |---|---:|---:|---|---:|---:|
-| `supply-chain-sabotage` | 6 / 26 | 0.750 | **0.987 [0.952, 1.000]** | **83.3%** | **100%** |
+| `supply-chain-sabotage` | 12 / 26 | 0.667 | **0.946 [0.841, 1.000]** | **83.3%** | **91.7%** |
 | `epistemic-crucible` | 12 / 18 | 0.917 | 0.917 [0.792, 1.000] | 83.3% | 83.3% |
 | `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
 
-**The one result worth leading with:** in supply-chain sabotage, authoritative audit evidence takes attribution from 16.7% to **100%**, and detection from 50% to 83.3%. That is the capability the fork's seat model exists to enable.
+**The one result worth leading with:** in supply-chain sabotage, authoritative audit evidence takes attribution from 16.7% to **91.7%**, and detection from 33.3% to 83.3%. Both intervals exclude chance. That is the capability the fork's seat model exists to enable.
 
 What is established:
 

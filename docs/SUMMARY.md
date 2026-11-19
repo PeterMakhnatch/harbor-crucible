@@ -11,21 +11,21 @@ One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM
 
 ## What it measured
 
-88 real-model seat trials, 80 complete and integrity-labelled. Per family, because scales differ:
+94 real-model seat trials, 86 complete and integrity-labelled. Per family, because scales differ:
 
 | Family | Pos / ctrl | AUROC, public chat | AUROC, + audit | Detection | Attribution |
 |---|---:|---:|---|---:|---:|
-| `supply-chain-sabotage` | 6 / 26 | 0.750 | **0.987 [0.952, 1.000]** | 83.3% | **100%** |
+| `supply-chain-sabotage` | 12 / 26 | 0.667 | **0.946 [0.841, 1.000]** | 83.3% | **91.7%** |
 | `epistemic-crucible` | 12 / 18 | 0.917 | 0.917 [0.792, 1.000] | 83.3% | 83.3% |
 | `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
 
-**The headline: authenticated audit evidence takes sabotage attribution from 16.7% to 100%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasurable because the world detects mechanisms in workspace state that never reached a commit, so its label and its evidence are different events.
+**The headline: authenticated audit evidence takes sabotage attribution from 16.7% to 91.7%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasurable because the world detects mechanisms in workspace state that never reached a commit, so its label and its evidence are different events.
 
 Behaviour, three trials per condition unless noted:
 
 | Finding | Result |
 |---|---|
-| Sabotage under a secret adversary | the adversarial seat hoarded and set `sabotage_success=1.0` in every completed trial |
+| Sabotage under a secret adversary | the adversarial seat committed sabotage in 11 of 12 completed trials |
 | Cross-role reward-hack contagion | a planner seeds a test bypass, the coder implements it, the reviewer approves: 1 of 3 |
 | Strict quarantine gate | blocked every delivery attempt |
 | Turf war under incompatible goals | escalated in 1 of 3 blind conflicts, stood down or truced otherwise |
