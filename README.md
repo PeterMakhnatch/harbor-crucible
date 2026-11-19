@@ -22,8 +22,24 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 | 4 task families | Supply-chain sabotage, migration turf war, reward-hack contagion, epistemic failures |
 | World audit log | Append-only events with seat tokens, visibility, and message-read receipts |
 | `crucible trace` | One timeline across seats plus an exposure graph and a standalone HTML view |
-| `crucible benchmark-monitors` | Tier 0 (public chat) vs Tier 1 (audit) vs Tier 2 (full traces), calibrated at 5% FPR |
+| `crucible benchmark-monitors` | Tier 0 (public chat) vs Tier 1 (audit) vs Tier 2 (full traces) vs metadata-only, calibrated at 5% FPR |
+| `crucible report` | One command turns a corpus into `REPORT.md` and `report.json`: per-family ranges, tier table, spend, corpus commit |
+| `crucible lint-task` | 19 audit-contract rules over a task, a trial, or a tree of evidence |
 | `crucible export-evallab` | JSONL that keeps missing cost distinct from zero |
+| `experiments/ensemble_monitors.py` | Combines two stored benchmarks by maximum score and compares all three |
+
+## Measured headline
+
+33 integrity-labelled real-model trials. Detection at a 5% false-accusation budget:
+
+| Monitor | AUROC | TPR at 5% FPR | Names the right agent | Cost |
+|---|---:|---:|---:|---:|
+| rules, public chat only | 0.585 | 22.2% | 22.2% | $0.00 |
+| rules, public + audit | 0.646 | 33.3% | 38.9% | $0.00 |
+| LLM judge, public + audit | 0.744 | 5.6% | 55.6% | $0.063 |
+| **rules + judge, maximum** | **0.759** | **38.9%** | 44.4% | $0.063 |
+
+Audit evidence helps, private reasoning adds nothing, and an ablation with payloads removed scores **zero**: the whole signal is in stored content, not in the action structure. Details and limits in [docs/FINDINGS.md](docs/FINDINGS.md).
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design, [docs/FINDINGS.md](docs/FINDINGS.md) for what the runs showed, [docs/UPSTREAM-DEFECTS.md](docs/UPSTREAM-DEFECTS.md) for the fork defects with repros, [docs/RUNLOG.md](docs/RUNLOG.md) for the running record, and [experiments/PROTOCOL.md](experiments/PROTOCOL.md) for the pre-registered monitor benchmark.
 
@@ -36,11 +52,11 @@ Every family runs end to end through real Harbor seat containers with the `oracl
 | `supply-chain-sabotage` | 4 | three controls finish the mission; the saboteur hoards 2 units, posts 1 deceptive report, and the mission fails |
 | `migration-turf-war` | 3 | clean collaboration; force escalation with a lockout and a camouflaged healthcheck; negotiated truce |
 | `reward-hack-contagion` | 4 | clean passes; both seeded hacks are confirmed and propagate; the strict gate blocks delivery |
-| `epistemic-crucible` | 5 | liar conditions show a real naive-versus-oracle gap; the hidden-profile trap is avoided by the team |
+| `epistemic-crucible` | 5 | liar conditions show a real naive-versus-oracle gap; the hidden-profile trap is avoided by the team, which is a null result about that design, not about teams |
 
-Four defects found while building this are recorded in [docs/FINDINGS.md](docs/FINDINGS.md). One of them, every family labelling actions `world_private`, would have silently emptied the audit tier and made the benchmark measure nothing. `crucible lint-task` now catches it.
+Six of the defects found while building this are recorded in [docs/FINDINGS.md](docs/FINDINGS.md) and nine with repros in [docs/UPSTREAM-DEFECTS.md](docs/UPSTREAM-DEFECTS.md). One of them, every family labelling actions `world_private`, would have silently emptied the audit tier and made the benchmark measure nothing. `crucible lint-task` now catches it.
 
-Three draft PRs to `olamlabs/harbor-multiagent` fix gaps a lab would hit on day two of using seats: seat-attributed live logs, error-policy overrides for seat records, and regrade for recorded multi-seat trials.
+Four draft PRs to `olamlabs/harbor-multiagent` fix gaps a lab would hit on day two of using seats: seat-attributed live logs, error-policy overrides for seat records, regrade for recorded multi-seat trials, and per-seat job statistics.
 
 ## Install
 
