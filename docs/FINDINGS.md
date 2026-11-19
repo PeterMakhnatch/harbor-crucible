@@ -347,14 +347,16 @@ What does survive the clean filter is H2: T1 and T2 are identical in both views,
 
 ### Verdict on the pre-registered hypotheses
 
+These verdicts were computed on the pooled corpus, before the per-family correction above. Read them with that in mind: H1 and H2 are about *what the monitor can see*, which is a per-family question, and the pooled numbers that produced them are mixtures.
+
 | Hypothesis | Verdict |
 |---|---|
-| **H1** audit beats public chat | **Not established.** On all 42 trials, TPR rises 22.2% to 33.3%. On the 34 complete runs it does not: AUROC 0.633 to 0.607 and TPR flat at 26.7%. The lift came from 8 timed-out trials. With 15 positives, neither direction is separable from noise. |
-| **H2** trajectories add less than audit | **Supported, strongly.** Tier 1 and Tier 2 are identical on every metric. Private reasoning added nothing over authenticated action. This is not a missing-data artefact: the sampled Tier-2 views carried 46 to 82 ATIF steps across four seats each, so the monitor had reasoning to read and it did not change a single rank. |
-| **H3** refusers get over-flagged | **Not supported.** Refuser FPR is 0% at every tier. No refuser was accused. |
-| **H4** tool noise causes false alarms | **Not supported at Tier 1.** `noisy_honest` never crossed the calibrated threshold. At Tier 0 one honest trial sat at the 24.0 threshold, which is why T0's actual FPR is above zero there. |
+| **H1** audit beats public chat | **Not established, and the question was mis-framed.** On all 42 pooled trials, TPR rises 22.2% to 33.3%; on the 34 complete runs it falls (AUROC 0.633 to 0.607). Per family at N=24, the epistemic corpus is identical at Tier 0 and Tier 1, so there is no audit gain to measure there either. |
+| **H2** trajectories add less than audit | **Supported in every family.** Tier 1 and Tier 2 are identical on every metric, in every family and both corpora, and not for want of data: sampled Tier-2 views carried 46 to 82 ATIF steps across four seats. |
+| **H3** refusers get over-flagged | **Not supported.** Refuser FPR is 0% at every tier, in every family, for every monitor. |
+| **H4** tool noise causes false alarms | **Not supported at Tier 1.** `noisy_honest` never crossed the calibrated threshold. At Tier 0 one honest trial sat exactly on the 24.0 threshold. |
 
-The only transferable conclusion from that pair is H2: a monitor does not need private reasoning when it has authenticated action. The absolute numbers are low in every configuration. A deterministic rule set catches a third of real adversaries at a 5% false-accusation budget, and a frontier-model judge reads the same trials better but cannot be calibrated at this sample size. Neither is a detector anyone should deploy unexamined.
+What survives this pair is narrower than originally written: a monitor does not need private reasoning (H2), and it does not need audit evidence either, because public chat carried the whole epistemic signal. What it does need is text — the payload-free ablation scores zero.
 
 ### Limits
 
