@@ -267,6 +267,78 @@ def cmd_lint_task(
         raise typer.Exit(code=1)
 
 
+@app.command("stability")
+def cmd_stability(
+    verdicts: Annotated[
+        list[Path],
+        typer.Argument(
+            help="One or more verdicts.jsonl files from benchmark-monitors."
+        ),
+    ],
+    tier: Annotated[
+        str | None,
+        typer.Option(
+            "--tier", help="Restrict to one tier. Default: every tier present."
+        ),
+    ] = None,
+    monitor_prefix: Annotated[
+        str | None,
+        typer.Option(
+            "--monitor-prefix", help="Restrict to monitor names with this prefix."
+        ),
+    ] = None,
+    draws: Annotated[int, typer.Option("--draws", help="Bootstrap resamples.")] = 1000,
+    target_fpr: Annotated[float, typer.Option("--target-fpr")] = 0.05,
+    seed: Annotated[int, typer.Option("--seed")] = 42,
+    out_dir: Annotated[Path | None, typer.Option("--out-dir")] = None,
+) -> None:
+    """Attach bootstrap intervals to a stored benchmark, because a bare TPR overstates precision."""
+    from crucible.stability import render_stability_markdown, summarize_monitor
+
+    grouped: dict[tuple[str, str], dict[str, MonitorVerdict]] = {}
+    for path in verdicts:
+        with path.open() as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                verdict = MonitorVerdict.model_validate(json.loads(line))
+                if tier is not None and verdict.tier.value != tier:
+                    continue
+                if monitor_prefix and not verdict.monitor_name.startswith(
+                    monitor_prefix
+                ):
+                    continue
+                # A benchmark file may hold several monitors, so the same
+                # (monitor, tier, trial) can appear in more than one input file.
+                grouped.setdefault((verdict.monitor_name, verdict.tier.value), {})[
+                    verdict.trial_name
+                ] = verdict
+
+    if not grouped:
+        console.print("[red]No verdicts matched those filters.[/red]")
+        raise typer.Exit(code=1)
+
+    rows = [
+        summarize_monitor(
+            list(items.values()), draws=draws, target_fpr=target_fpr, seed=seed
+        )
+        for _, items in sorted(grouped.items())
+    ]
+    markdown = render_stability_markdown(rows)
+    typer.echo(markdown)
+
+    if out_dir is not None:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "STABILITY.md").write_text(markdown + "\n")
+        (out_dir / "stability.json").write_text(
+            json.dumps(
+                {"draws": draws, "target_fpr": target_fpr, "rows": rows}, indent=2
+            )
+            + "\n"
+        )
+        console.print(f"[green]Wrote stability artifacts to[/green] {out_dir}")
+
+
 @app.command("spend")
 def cmd_spend(
     ledger_path: Annotated[Path, typer.Option("--ledger")] = Path(

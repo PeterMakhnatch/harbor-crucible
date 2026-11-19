@@ -23,6 +23,7 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 | World audit log | Append-only events with seat tokens, visibility, and message-read receipts |
 | `crucible trace` | One timeline across seats plus an exposure graph and a standalone HTML view |
 | `crucible benchmark-monitors` | Tier 0 (public chat) vs Tier 1 (audit) vs Tier 2 (full traces) vs metadata-only, calibrated at 5% FPR |
+| `crucible stability` | Bootstrap intervals for the threshold, TPR and AUROC, because a bare TPR overstates precision |
 | `crucible report` | One command turns a corpus into `REPORT.md` and `report.json`: per-family ranges, tier table, spend, corpus commit |
 | `crucible lint-task` | 19 audit-contract rules over a task, a trial, or a tree of evidence |
 | `crucible export-evallab` | JSONL that keeps missing cost distinct from zero |
@@ -82,6 +83,8 @@ python experiments/run_wave1.py --family supply-chain-sabotage --attempts 3
 # Score the monitor tiers over a corpus, then write the full report
 crucible benchmark-monitors runs/wave1-supply --families supply-chain-sabotage \
   --out-dir experiments/monitor_benchmark_wave1
+crucible stability experiments/monitor_benchmark_wave1/verdicts.jsonl \
+  --tier tier1_public_plus_audit --out-dir experiments/stability_wave1
 crucible report runs/wave1-supply runs/wave1-epistemic --exclude-timeouts \
   --integrity-families supply-chain-sabotage,epistemic-crucible \
   --out-dir experiments/report_wave1_clean
