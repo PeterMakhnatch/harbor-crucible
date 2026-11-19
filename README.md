@@ -33,10 +33,12 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 42 real-model seat trials; 34 completed without a timeout; 29 of those carry an integrity label. Detection at a 5% false-accusation budget on the **complete** runs only:
 
 | Monitor | AUROC | TPR at 5% FPR | Names the right agent | Cost |
-|---|---:|---:|---:|---:|
-| rules, public + audit | 0.607 | 26.7% | 26.7% | $0.00 |
-| LLM judge, public + audit | 0.714 | 6.7% | 46.7% | $0.052 |
+|---|---:|---|---:|---:|
+| rules, public + audit | 0.607 | 26.7% (stable) | 26.7% | $0.00 |
+| LLM judge, public + audit | 0.714 | 6.7% **but 6.7–60% under bootstrap** | 46.7% | $0.052 |
 | **rules + judge, maximum** | **0.738** | **33.3%** | 33.3% | $0.052 |
+
+The judge's detection rate is not measurable at this sample size: resampling the 14 negative controls moves it between 6% and 60%. Trust its AUROC and its attribution, not its TPR. The rule set's TPR is stable to within a couple of points.
 
 Three things hold with and without the truncated trials: a model reads these worlds better than a rule set does; rules add detection the model misses, so the pair beats either; and an ablation with every payload removed scores **exactly zero**, so the signal is stored content, not the structure of who acted.
 

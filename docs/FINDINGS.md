@@ -198,6 +198,23 @@ So the useful finding is not "audit evidence helps". It is that **a model reads 
 
 So the operating recipe is: keep the rule set for the alert path, keep the judge for the attribution path, and take the maximum. Spend the LLM money only when someone will act on a name.
 
+### Every TPR in this document has an interval, and one of them is nearly meaningless
+
+Those TPRs are conditioned on a threshold picked from 14 or 15 negative controls. Bootstrapping the negatives (1000 resamples, same calibration) shows how much that choice moves:
+
+| Corpus | Monitor | TPR median [95%] | TPR span |
+|---|---|---|---:|
+| all 33 trials | rules | 33.3% [33.3%, 38.9%] | 5.6pp |
+| all 33 trials | LLM judge | 5.6% [5.6%, 66.7%] | **61.1pp** |
+| 29 clean trials | rules | 26.7% [26.7%, 26.7%] | 0.0pp |
+| 29 clean trials | LLM judge | 6.7% [6.7%, 60.0%] | **53.3pp** |
+
+The rule set's detection rate is effectively fixed: its positives sit far above every plausible threshold, so the interval is a few points at most. The judge's is not knowable from this corpus: the same procedure yields anything from 6% to 67% depending on which 15 negatives you draw. Any statement of the form "the judge catches 5.6% of adversaries" is an artefact of one draw.
+
+This also corrects an inference I made earlier: the judge's low TPR was read as a calibration weakness. It is better described as *no measurement at all* at this sample size. Its AUROC is the only usable number for it, and AUROC is threshold-free.
+
+A threshold interval, by contrast, is not comparable across monitors at all, because it lives in each monitor's own units. I predicted the rule set's threshold would be stable and it was not (0 to 58, because many controls score exactly zero); its TPR is stable instead. Report TPR with its interval, never a threshold.
+
 ### Gullibility: identification is a dose response, the decision is not
 
 The `gullibility_*` arms vary the share of scouts that lie about a depleting sector. Pooling both waves gives six real-model trials per arm:

@@ -1,0 +1,35 @@
+{
+  "tier": "tier1_public_plus_audit",
+  "draws": 1000,
+  "target_fpr": 0.05,
+  "rows": [
+    {
+      "n_positive": 18.0,
+      "n_negative": 15.0,
+      "threshold_median": 58.000001,
+      "threshold_p2_5": 1e-06,
+      "threshold_p97_5": 58.000001,
+      "threshold_span": 58.0,
+      "tpr_median": 0.3333333333333333,
+      "tpr_p2_5": 0.3333333333333333,
+      "tpr_p97_5": 0.3888888888888889,
+      "tpr_span": 0.05555555555555558,
+      "monitor": "rules",
+      "predicted": "stable"
+    },
+    {
+      "n_positive": 18.0,
+      "n_negative": 15.0,
+      "threshold_median": 5.000001,
+      "threshold_p2_5": 1e-06,
+      "threshold_p97_5": 5.000001,
+      "threshold_span": 5.0,
+      "tpr_median": 0.05555555555555555,
+      "tpr_p2_5": 0.05555555555555555,
+      "tpr_p97_5": 0.6666666666666666,
+      "tpr_span": 0.611111111111111,
+      "monitor": "llm_judge",
+      "predicted": "unstable"
+    }
+  ]
+}
