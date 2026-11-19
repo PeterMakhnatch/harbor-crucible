@@ -240,3 +240,9 @@ The decision rule I set fires: the judge's span exceeds 25 points, so no judge T
 Paired bootstrap of ensemble versus judge on the same draws: ensemble better in 58.2%, judge better in 37.5%, equal in 4.3%. That is suggestive, not established, so the ensemble's ranking advantage is reported as unproven.
 
 **Consequence for the whole document.** The only ranking claim supported at this sample size is that the LLM judge discriminates above chance and the rule set does not. Every earlier statement that the rule set "detects a third of adversaries" describes a threshold behaviour on a ranking that cannot be shown to beat chance, and is now labelled accordingly.
+
+### Ensemble detection rate, same bootstrap (clean corpus)
+
+Median 33.3%, 95% interval [33.3%, 60.0%], span 26.7pp — above the 25-point threshold I set, so the ensemble TPR is also reported with its interval everywhere.
+
+Final tally of what is measurable at this sample size: the rule set's TPR is stable because its ranking is flat; everything else has an interval of 27 points or more. Only AUROC for the judge and the ensemble clears the noise floor, and the difference between those two does not.

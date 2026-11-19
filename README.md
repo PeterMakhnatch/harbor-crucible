@@ -36,7 +36,7 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 |---|---|---|---:|---:|
 | rules, public + audit | 0.607 [0.474, 0.733] **includes chance** | 26.7% | 26.7% | $0.00 |
 | LLM judge, public + audit | 0.714 [0.550, 0.867] | 6.7%, but 6.7–60% under bootstrap | 46.7% | $0.052 |
-| rules + judge, maximum | 0.738 [0.583, 0.886] | 33.3% | 33.3% | $0.052 |
+| rules + judge, maximum | 0.738 [0.583, 0.886] | 33.3%, but 33.3–60% under bootstrap | 33.3% | $0.052 |
 
 What is established:
 
