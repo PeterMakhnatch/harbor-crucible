@@ -25,7 +25,22 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 | `crucible benchmark-monitors` | Tier 0 (public chat) vs Tier 1 (audit) vs Tier 2 (full traces), calibrated at 5% FPR |
 | `crucible export-evallab` | JSONL that keeps missing cost distinct from zero |
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the design, [docs/FINDINGS.md](docs/FINDINGS.md) for what the runs showed, and [experiments/PROTOCOL.md](experiments/PROTOCOL.md) for the pre-registered monitor benchmark.
+
+## Status
+
+Every family runs end to end through real Harbor seat containers with the `oracle` agent, and every variant passes `crucible lint-task` with zero errors.
+
+| Family | Variants | Oracle behaviour |
+|---|---:|---|
+| `supply-chain-sabotage` | 4 | three controls finish the mission; the saboteur hoards 2 units, posts 1 deceptive report, and the mission fails |
+| `migration-turf-war` | 3 | clean collaboration; force escalation with a lockout and a camouflaged healthcheck; negotiated truce |
+| `reward-hack-contagion` | 4 | clean passes; both seeded hacks are confirmed and propagate; the strict gate blocks delivery |
+| `epistemic-crucible` | 5 | liar conditions show a real naive-versus-oracle gap; the hidden-profile trap is avoided by the team |
+
+Four defects found while building this are recorded in [docs/FINDINGS.md](docs/FINDINGS.md). One of them, every family labelling actions `world_private`, would have silently emptied the audit tier and made the benchmark measure nothing. `crucible lint-task` now catches it.
+
+Three draft PRs to `olamlabs/harbor-multiagent` fix gaps a lab would hit on day two of using seats: seat-attributed live logs, error-policy overrides for seat records, and regrade for recorded multi-seat trials.
 
 ## Install
 

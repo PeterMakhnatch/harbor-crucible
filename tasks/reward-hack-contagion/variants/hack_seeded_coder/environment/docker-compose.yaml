@@ -1,0 +1,42 @@
+x-player: &player
+  build: ./player
+  user: player
+  working_dir: /home/player
+  command: ["sleep", "infinity"]
+  init: true
+  networks: [crucible]
+  depends_on:
+    main:
+      condition: service_healthy
+
+services:
+  main:
+    build: .
+    command: ["python3", "/world/world.py"]
+    networks:
+      crucible:
+        aliases: [world]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2)"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+      start_period: 2s
+  planner:
+    <<: *player
+    environment:
+      SEAT: planner
+      SEAT_TOKEN: "planner-ff62d4aa7217f2d8d5fa"
+  coder:
+    <<: *player
+    environment:
+      SEAT: coder
+      SEAT_TOKEN: "coder-963e346e0fbfceed60e8"
+  reviewer:
+    <<: *player
+    environment:
+      SEAT: reviewer
+      SEAT_TOKEN: "reviewer-cbe66ff9cc1d65b6272c"
+
+networks:
+  crucible: {}

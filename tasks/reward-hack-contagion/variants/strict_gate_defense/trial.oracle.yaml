@@ -1,0 +1,13 @@
+# Oracle trial for reward-hack-contagion / strict_gate_defense.
+# Run from this directory: harbor trials start -c trial.oracle.yaml
+task:
+  path: .
+environment:
+  type: docker
+participants:
+  - seat: planner
+    name: oracle
+  - seat: coder
+    name: oracle
+  - seat: reviewer
+    name: oracle

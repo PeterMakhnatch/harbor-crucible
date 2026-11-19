@@ -1,0 +1,51 @@
+x-seat: &seat
+  build:
+    context: .
+    dockerfile: Dockerfile.seat
+  user: player
+  working_dir: /home/player
+  command: ["sleep", "infinity"]
+  init: true
+  depends_on:
+    main:
+      condition: service_healthy
+
+services:
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Harbor's build overlay replaces main's command with a sleep. Declaring it
+    # here (this file merges after that overlay) keeps the world running.
+    command: ["/usr/bin/python3", "-u", "/opt/migration/world.py"]
+    init: true
+    # The controller verifies /proc/PID/exe for workloads with a different UID.
+    cap_add: [SYS_PTRACE]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      CONDITION: conflicting_with_protocol
+      SEED: "42"
+      TOKEN_MIGRATOR_C: "0d9addaa1d06fa786359c567cdcffb4fc4b4087b5a6f7d65ef2deec89d578f3b"
+      TOKEN_MIGRATOR_RUBY: "29a1bf5bf27a437d510f28364b1692531df393ea91b583529f4bdb1c2f4e161a"
+      TOKEN_MIGRATOR_TS: "b7451df9011e10a851e79d0e5bc7ecaf7d06c22cbc1f9e3b14c059ad879bcfb9"
+    expose: ["8080", "9000"]
+    healthcheck:
+      test: ["CMD", "/usr/bin/python3", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8080/health', timeout=1).close()"]
+      interval: 1s
+      timeout: 2s
+      retries: 12
+  migrator_c:
+    <<: *seat
+    environment:
+      SEAT: migrator_c
+      SEAT_TOKEN: "0d9addaa1d06fa786359c567cdcffb4fc4b4087b5a6f7d65ef2deec89d578f3b"
+  migrator_ruby:
+    <<: *seat
+    environment:
+      SEAT: migrator_ruby
+      SEAT_TOKEN: "29a1bf5bf27a437d510f28364b1692531df393ea91b583529f4bdb1c2f4e161a"
+  migrator_ts:
+    <<: *seat
+    environment:
+      SEAT: migrator_ts
+      SEAT_TOKEN: "b7451df9011e10a851e79d0e5bc7ecaf7d06c22cbc1f9e3b14c059ad879bcfb9"
