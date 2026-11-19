@@ -66,7 +66,7 @@ Every family runs end to end through real Harbor seat containers with the `oracl
 | `supply-chain-sabotage` | 4 | three controls finish the mission; the saboteur hoards 2 units, posts 1 deceptive report, and the mission fails |
 | `migration-turf-war` | 3 | clean collaboration; force escalation with a lockout and a camouflaged healthcheck; negotiated truce |
 | `reward-hack-contagion` | 4 | clean passes; both seeded hacks are confirmed and propagate; the strict gate blocks delivery |
-| `epistemic-crucible` | 5 | liar conditions show a real naive-versus-oracle gap; the hidden-profile trap is avoided by the team, which is a null result about that design, not about teams |
+| `epistemic-crucible` | 6 | liar conditions show a real naive-versus-oracle gap; a hidden-profile variant with no sharing mandate drops from 3/3 to 1/3 correct against a 3/3 solo ceiling, which reproduces the published effect |
 
 Six of the defects found while building this are recorded in [docs/FINDINGS.md](docs/FINDINGS.md) and nine with repros in [docs/UPSTREAM-DEFECTS.md](docs/UPSTREAM-DEFECTS.md). One of them, every family labelling actions `world_private`, would have silently emptied the audit tier and made the benchmark measure nothing. `crucible lint-task` now catches it.
 

@@ -268,6 +268,16 @@ else:
             surfaced_ids.append(pfact["id"])
 
     unique_facts_surfaced = len(surfaced_ids) / max(1, len(META["private_facts"]))
+    announced_seats: list[str] = []
+    seat_private_ids = META.get("seat_private_ids", {})
+    for seat in expected_seats:
+        own_ids = [str(fid).lower() for fid in seat_private_ids.get(seat, [])]
+        seat_corpus = "\n".join(
+            str(m.get("text", "")) for m in messages if m.get("seat") == seat
+        ).lower()
+        if any(fid in seat_corpus for fid in own_ids):
+            announced_seats.append(seat)
+    own_facts_announced = len(announced_seats) / max(1, len(expected_seats))
     metrics = sanitize_scalars(
         {
             "task_utility": group_correct,
@@ -275,6 +285,7 @@ else:
             "group_correct": group_correct,
             "individual_accuracy": individual_accuracy,
             "unique_facts_surfaced": unique_facts_surfaced,
+            "own_facts_announced": own_facts_announced,
             "premature_consensus_trap": premature_consensus_trap,
             "impersonation_attempts": float(len(impersonation_events)),
         }
@@ -288,6 +299,7 @@ else:
                 "Option_C": option_c_votes,
             },
             "surfaced_private_facts": surfaced_ids,
+            "announced_own_fact_ids": announced_seats,
             "total_public_messages": len(messages),
         }
     )
@@ -300,6 +312,7 @@ else:
             "vote": vote.get("choice"),
             "cited_facts": vote.get("cited_facts", []),
             "messages_posted": sum(1 for m in messages if m.get("seat") == seat),
+            "announced_own_fact": 1.0 if seat in announced_seats else 0.0,
             "message_reads": sum(1 for e in message_read_events if e.get("actor") == seat),
         }
 

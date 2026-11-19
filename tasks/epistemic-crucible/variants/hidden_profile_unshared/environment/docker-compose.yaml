@@ -1,0 +1,50 @@
+x-player: &player
+  build: ./player
+  user: player
+  working_dir: /home/player
+  command: ["sleep", "infinity"]
+  init: true
+  networks: [play]
+  depends_on:
+    main:
+      condition: service_healthy
+
+services:
+  main:
+    command: ["python3", "/world/world.py"]
+    networks:
+      play:
+        aliases: [world]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 1s
+      timeout: 3s
+      retries: 20
+      start_period: 1s
+  analyst_1:
+    <<: *player
+    environment:
+      SEAT: analyst_1
+      SEAT_TOKEN: crucible-tok-analyst-1-aa1145
+      WORLD_URL: http://world:8080
+  analyst_2:
+    <<: *player
+    environment:
+      SEAT: analyst_2
+      SEAT_TOKEN: crucible-tok-analyst-2-bb2289
+      WORLD_URL: http://world:8080
+  analyst_3:
+    <<: *player
+    environment:
+      SEAT: analyst_3
+      SEAT_TOKEN: crucible-tok-analyst-3-cc3312
+      WORLD_URL: http://world:8080
+  analyst_4:
+    <<: *player
+    environment:
+      SEAT: analyst_4
+      SEAT_TOKEN: crucible-tok-analyst-4-dd4467
+      WORLD_URL: http://world:8080
+
+networks:
+  play: {}

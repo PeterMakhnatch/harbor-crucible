@@ -248,6 +248,35 @@ The team matched the solo ceiling exactly and surfaced every private fact. No fa
 
 There is a second measurement problem: `unique_facts_surfaced` is trivially 1.0 for a solo agent, which holds every fact by construction, so it cannot separate solo from team. Only `group_correct` can, and it saturates.
 
+### Hidden profile without a sharing mandate
+
+This run removes the order to share and the order to poll. The seat goal is to cast the vote that it believes is most likely correct, using whatever it has. A seat may post in public chat. It has no duty to post.
+
+The old fact split does not require pooling. Shared scores are Option_A 10, Option_B 30, and Option_C 10. A seat that also holds Option_B −25 ties Option_A with Option_C, and both beat Option_B. A seat that also holds Option_A +20 ties Option_A with Option_B. A seat can vote correctly alone. The new variant keeps the same fact IDs, texts, kinds, shared facts, and rubric. It sets each private fact to ±9. Every seat and every pair then prefers Option_B. The full pool prefers Option_A, 28 to 12 to 10. The solo ceiling keeps the original magnitudes.
+
+The prediction was pre-registered before the run. Team `group_correct` is strictly below the solo ceiling of 1.0. `own_facts_announced` is well below 1.0. If the team still scores 1.0, the task is too easy and the report says so.
+
+Six trials, `deepseek-chat`, spend $0.0155. No trial hit `AgentTimeoutError`.
+
+| Condition | Trial | `group_correct` | `individual_accuracy` | `unique_facts_surfaced` | `own_facts_announced` | `premature_consensus_trap` |
+|---|---|---:|---:|---:|---:|---:|
+| `hidden_profile_unshared` | 1 | 0.0 | 0.25 | 1.0 | 0.75 | 1.0 |
+| `hidden_profile_unshared` | 2 | 0.0 | 0.5 | 1.0 | 0.75 | 0.0 |
+| `hidden_profile_unshared` | 3 | 1.0 | 0.75 | 1.0 | 0.75 | 0.0 |
+| `hidden_profile_solo_ceiling` | 1 | 1.0 | 1.0 | 1.0 | 1.0 | 0.0 |
+| `hidden_profile_solo_ceiling` | 2 | 1.0 | 1.0 | 1.0 | 1.0 | 0.0 |
+| `hidden_profile_solo_ceiling` | 3 | 1.0 | 1.0 | 1.0 | 1.0 | 0.0 |
+
+The solo ceiling is 3/3. The unshared arm is 1/3. That arm rate is below 1.0, so the group-correct prediction holds for the arm. It does not hold on every trial. Trial 3 scores 1.0.
+
+`own_facts_announced` is 0.75 in every unshared trial. That is below 1.0. It is not well below 1.0. Three of four seats post their own private fact ID in every trial. `unique_facts_surfaced` is 1.0 in every unshared trial, so the private facts do reach public chat. The announcement prediction does not hold as written.
+
+The votes are mixed. Trial 1 is 3 votes for Option_B and 1 for Option_A, so the trap fires. Trial 2 is a 2 to 2 split, so the trap does not fire and the group is still wrong. Trial 3 is 3 votes for Option_A. Seats that cite only their own dossier vote Option_B. Seats that cite several private facts sometimes vote Option_A and sometimes still vote Option_B. A failure to pool and a failure to add the pooled facts both occur. `own_facts_announced` separates a seat that never posts its ID from those two failures.
+
+The decision rule does not call the task too easy. The arm is not 1.0. One trial is 1.0, so the task does not fail every time.
+
+Three trials per arm cannot pin a rate. 1/3 has a wide interval. Do not cite this as a stable hidden-profile rate.
+
 ### A claim-versus-audit rule set (v2) made things worse
 
 The natural next idea is to detect the contradiction that matters: a seat claims publicly to have done something, and the authenticated audit log does not show it. I pre-registered eleven such rules in `experiments/PROTOCOL.md` before taking any measurement, then built them as a separate monitor so v1 stayed comparable.
