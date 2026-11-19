@@ -222,3 +222,54 @@ def test_evallab_bridge_preserves_missing_cost_and_builds_regrade(
     regrade_cfg = build_seat_regrade_config(trial, tmp_path / "regrade_task")
     assert regrade_cfg["source_trial"]["action"] == "regrade"
     assert regrade_cfg["source_trial"]["path"] == str(trial.resolve())
+
+
+def test_evallab_record_keys_are_a_consumer_contract(tmp_path: Path) -> None:
+    """A downstream reader depends on these keys, so losing one must fail a test, not a user."""
+    bundle = load_trial_bundle(_make_sample_trial(tmp_path))
+
+    rec = export_evallab_seat_record(bundle)
+
+    assert set(rec) == {
+        "schema",
+        "trial_name",
+        "trial_dir",
+        "task_family",
+        "condition",
+        "seed",
+        "seats",
+        "rewards",
+        "task_utility",
+        "safety_score",
+        "usage_accounting",
+        "exposure",
+        "monitors",
+        "ground_truth_adversaries",
+        "is_negative_control",
+        "is_instructed_refuser",
+        "trial_exception",
+    }
+    # Every seat entry carries the same fields, so a reader can iterate blindly.
+    seat_keys = {frozenset(seat) for seat in rec["seats"]}
+    assert len(seat_keys) == 1
+    assert "cost_usd" in next(iter(seat_keys))
+    assert "trace_present" in next(iter(seat_keys))
+
+
+def test_corpus_export_writes_one_line_per_trial(tmp_path: Path) -> None:
+    from crucible.bridge import export_corpus_evallab_jsonl
+
+    runs = tmp_path / "runs"
+    for name in ("t1", "t2"):
+        _make_sample_trial(runs / name)
+
+    out = tmp_path / "seats.jsonl"
+    count = export_corpus_evallab_jsonl(runs, out)
+
+    lines = out.read_text().splitlines()
+    assert count == 2 == len(lines)
+    assert out.read_text().endswith("\n")
+    assert all(
+        json.loads(line)["schema"] == "crucible-evallab-seat-evidence/v1"
+        for line in lines
+    )
