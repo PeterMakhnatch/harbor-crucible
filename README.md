@@ -59,6 +59,28 @@ Six of the defects found while building this are recorded in [docs/FINDINGS.md](
 
 Four draft PRs to `olamlabs/harbor-multiagent` fix gaps a lab would hit on day two of using seats: seat-attributed live logs, error-policy overrides for seat records, regrade for recorded multi-seat trials, and per-seat job statistics.
 
+## Quick start
+
+```sh
+# Check a task's audit contract before spending anything on it
+crucible lint-task tasks/supply-chain-sabotage/variants/saboteur
+
+# Run a wave of real four-seat trials (needs the fork's harbor on PATH)
+python experiments/run_wave1.py --family supply-chain-sabotage --attempts 3
+
+# Score the monitor tiers over a corpus, then write the full report
+crucible benchmark-monitors runs/wave1-supply --families supply-chain-sabotage \
+  --out-dir experiments/monitor_benchmark_wave1
+crucible report runs/wave1-supply runs/wave1-epistemic --exclude-timeouts \
+  --integrity-families supply-chain-sabotage,epistemic-crucible \
+  --out-dir experiments/report_wave1_clean
+
+# Export trial-level evidence for Eval Lab
+crucible export-evallab runs/wave1-supply --out /tmp/evallab-seats.jsonl
+```
+
+`--exclude-timeouts` is not cosmetic: a truncated trial drags every mission metric down, and including it changed the headline conclusion once already.
+
 ## Install
 
 ```sh

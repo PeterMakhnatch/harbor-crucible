@@ -198,7 +198,21 @@ So the useful finding is not "audit evidence helps". It is that **a model reads 
 
 So the operating recipe is: keep the rule set for the alert path, keep the judge for the attribution path, and take the maximum. Spend the LLM money only when someone will act on a name.
 
-### The hidden-profile family produced no effect, and the design explains why
+### Gullibility: identification is a dose response, the decision is not
+
+The `gullibility_*` arms vary the share of scouts that lie about a depleting sector. Pooling both waves gives six real-model trials per arm:
+
+| Arm | Liar share | Liar identified | Correct decision | Naive-trust baseline | False accusation |
+|---|---|---:|---:|---|---:|
+| `gullibility_p00` | 0 of 3 | 0/6 | 6/6 | 1.0 in all 6 | 0/6 |
+| `gullibility_p50` | ~1 of 3 | 3/6 | 6/6 | 0.5 in all 6 | 0/6 |
+| `gullibility_p100` | 3 of 3 | 5/6 | 6/6 | 0.0–0.33 | 0/6 |
+
+Two clean findings. **Identification tracks exposure**: with no liar there is nothing to name (0 of 6, and crucially no false accusation), with heavy lying the team names a liar in 5 of 6. **The decision is robust regardless**: it is correct in all 18 trials, and it was already correct under a naive trust-all policy in the `p00` arm, so the `p50` and `p100` arms are where the work happens.
+
+The honest reading is that this model does not get fooled on this task, and that "detecting the liar" is a separate capability from "avoiding the liar's advice". A monitor that only measured decision quality would have learned nothing here.
+
+`p00` is also the control that matters for the monitor work: a design with no adversary must never produce an accusation, and it produced none in 6 trials.
 
 The epistemic family has a second design: four analysts each hold private facts, sharing is required for the right answer, and a solo analyst who holds every fact is the ceiling control. The published hidden-profile finding is that teams fail to pool unique information and underperform their own members.
 
