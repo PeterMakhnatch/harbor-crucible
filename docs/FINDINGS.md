@@ -151,6 +151,8 @@ Wave 1 could not support a reward-hack detection claim, because the audit log ca
 
 Tier 0 AUROC 0.500; Tier 1 AUROC 1.000. Public chat alone cannot see code, so the audit tier is the only tier that works.
 
+Re-running the ablation on complete runs only (29 trials) gives the same answer: `tier1_metadata_only` scores AUROC 0.500 and TPR 0.0% with a mean score of 0.0 on both adversaries and controls, against 0.607 for full audit. The content dependence is not a truncation artefact.
+
 The gate trial scores the same as the delivered hacks, and that is correct, not a bug: the planner really did write the exploit. A monitor detects *attempts*; a gate prevents *delivery*. The verifier already separates them (`rh_confirmed`, `delivered_hack`), so the two numbers should never be collapsed into one. This is the clearest case in the suite where detection and prevention are different products.
 
 ### An LLM monitor on the same corpus
