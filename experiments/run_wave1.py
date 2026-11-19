@@ -140,8 +140,25 @@ def wave1(
 
     dest = trials_dir / "wave1_manifest.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(json.dumps(manifest, indent=2))
-    print(f"spent ${ledger.total_usd():.4f} of ${cap_usd:.2f}; manifest {dest}")
+    # A split wave runs this command more than once against the same directory,
+    # so merge by trial directory instead of discarding the earlier half.
+    merged: dict[str, dict[str, object]] = {}
+    if dest.is_file():
+        try:
+            for existing in json.loads(dest.read_text()):
+                key = str(existing.get("trial_dir") or "")
+                if key:
+                    merged[key] = existing
+        except ValueError:
+            pass
+    for row in manifest:
+        merged[str(row.get("trial_dir") or "")] = row
+    ordered = [merged[key] for key in sorted(merged)]
+    dest.write_text(json.dumps(ordered, indent=2))
+    print(
+        f"spent ${ledger.total_usd():.4f} of ${cap_usd:.2f}; "
+        f"manifest {dest} now lists {len(ordered)} trials"
+    )
     print(json.dumps(ledger.summary(), indent=2))
 
 
