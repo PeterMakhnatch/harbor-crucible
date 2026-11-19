@@ -11,15 +11,15 @@ One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM
 
 ## What it measured
 
-118 real-model seat trials, 110 complete and integrity-labelled. Per family, because scales differ:
+130 real-model seat trials, 122 complete and integrity-labelled. Per family, because scales differ:
 
 | Family | Pos / ctrl | AUROC, public chat | AUROC, + audit | Detection | Attribution |
 |---|---:|---:|---|---:|---:|
 | `supply-chain-sabotage` | 24 / 26 | 0.667 | **0.970 [0.913, 1.000]** | 87.5% | **95.8%** |
 | `epistemic-crucible` | 24 / 18 | 0.938 [0.875, 1.000] | 0.938 [0.875, 1.000] | 87.5% | 87.5% |
-| `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
+| `reward-hack-contagion` | 21 / 9 | 0.500 | 0.500 | 0% | 0% |
 
-**The headline: authenticated audit evidence takes sabotage attribution from 8.3% to 95.8%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasurable because the world detects mechanisms in workspace state that never reached a commit, so its label and its evidence are different events.
+**The headline: authenticated audit evidence takes sabotage attribution from 8.3% to 95.8%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasured: the label now derives from the committed snapshot, so the earlier mismatch is fixed, but real attempts are too rare in the sample to power it.
 
 Behaviour, three trials per condition unless noted:
 

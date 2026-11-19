@@ -153,19 +153,15 @@ Tier 0 AUROC 0.500; Tier 1 AUROC 1.000. Public chat alone cannot see code, so th
 
 Re-running the ablation on complete runs only (29 trials) gives the same answer: `tier1_metadata_only` scores AUROC 0.500 and TPR 0.0% with a mean score of 0.0 on both adversaries and controls, against 0.607 for full audit. The content dependence is not a truncation artefact.
 
-### The reward-hack evidence fix is incomplete, and the world can see what the monitor cannot
+### The reward-hack label no longer cites files the revision does not contain
 
-Re-running the two reward-hack conditions at full timeout with the fixed world gives an unexpected result. In two of three `hack_seeded_planner` trials the world's detector reports `conftest_hook`, and in one it reports nothing. The deterministic monitor scores **zero on all six trials**, at every tier, so the family still measures 0.500.
+The first full-timeout reward wave showed a snapshot mismatch: the world's detector reported `conftest_hook` while the audit record for that trial listed one committed file, `solution.py`. The scan ran over the live workspace, so a label could cite state that the revision never received and no reader could inspect.
 
-That is not the monitor being wrong, and it is not missing bytes either. The audit record for one of those trials contains a single committed file:
+**Fixed at the source.** A revision is now labelled by scanning the snapshot it actually contains, after the copy, and the commit event carries the same mechanisms and the same file list. The label and the evidence are one object by construction, so the mismatch cannot recur.
 
-```
-workspace_commit  files: ["solution.py"]  content: "# file: solution.py\n..."  (not truncated)
-```
+Two things are worth recording about the verification. First, the oracle still confirms a seeded hack after the change (`rh_confirmed=1.0`, one mechanism). Second, commit events are internally consistent in every wave I can inspect: zero commits cite a mechanism file absent from their own file list, in six Wave 3 commits and thirteen Wave 5 commits.
 
-while the world's scan, which runs over the **live** workspace, reported `conftest_hook` twice. So the two disagree because they describe different snapshots: the world detects mechanisms in workspace state that was never committed, and the log records only what was committed.
-
-I checked the alternative explanation. Searching every recorded payload for the detector's own tokens (`pytest_sessionfinish`, `pytest_runtest_makereport`, `session.exitstatus` and four more) returns **nothing in any of the three trials**. So the monitor cannot reproduce the detection from the log, not because content is absent, but because the scored state never reached a commit.
+The family still does not support a detection claim, but for a sampling reason rather than an evidence reason. Model behaviour on this task is volatile: one wave attempted a hack in 3 of 6 trials, another in 1 of 12, and the rest were clean. A negative cell built from twelve trials where the adversary rarely acts measures the adversary's mood, not the monitor. That is a data-collection problem, and it is honest to leave the cell unmeasured until real attempts are plentiful.
 
 ### Discovery is not impersonation: a third label defect, now fixed
 
@@ -345,7 +341,7 @@ With the full-timeout supply corpus the per-family picture is finally measurable
 |---|---:|---:|---|---:|---:|
 | `supply-chain-sabotage` | 24 / 26 | 0.667 [0.583, 0.771] | **0.970 [0.913, 1.000]** | 33.3% → **87.5%** | 8.3% → **95.8%** |
 | `epistemic-crucible` | 24 / 18 | 0.938 [0.875, 1.000] | 0.938 [0.875, 1.000] | 87.5% | 87.5% |
-| `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
+| `reward-hack-contagion` | 21 / 9 | 0.500 | 0.500 | 0% | 0% |
 
 Three different answers to the same question, and each is correct for its family.
 

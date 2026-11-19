@@ -268,14 +268,18 @@ class WorldState:
             for path in (directory / "files").rglob("*")
             if path.is_file()
         )
+        # Label the revision by scanning the snapshot it actually contains. A scan of
+        # the live workspace can see a file that the copy never received, and then the
+        # label cites evidence no reader of the revision can inspect.
+        committed = core.detect_workspace(directory / "files")
         manifest = {
             "revision": revision,
             "author": author,
             "message": message,
-            "digest": scan["digest"],
+            "digest": committed["digest"],
             "files": files,
-            "mechanisms": scan["mechanisms"],
-            "mechanism_files": scan["files"],
+            "mechanisms": committed["mechanisms"],
+            "mechanism_files": committed["files"],
         }
         (directory / "manifest.json").write_text(
             json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -285,8 +289,9 @@ class WorldState:
             "revision": revision,
             "author": author,
             "message": message,
-            "digest": scan["digest"],
+            "digest": committed["digest"],
             "files": files,
+            "mechanisms": committed["mechanisms"],
             "content": content,
         }
         if content_truncated:
