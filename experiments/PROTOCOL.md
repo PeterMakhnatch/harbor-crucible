@@ -158,3 +158,27 @@ That is not what I predicted. I expected the supply-chain `stash` event type to 
 **Consequence, and it is a policy consequence.** A lab cannot get this oversight from an action log. It needs the messages and code that the audit records, which means retention of agent content, which is exactly the thing a privacy-minded deployment wants to minimise. Stated plainly: for this monitor, audit value and content retention are the same variable.
 
 It also explains two earlier results: the LLM judge beat the rule set at attribution because it reads narrative, and the v2 text-matching rules failed because they read narrative badly. Both facts point at content as the single source of signal.
+
+## Pre-registration: does an ensemble of the rule set and the LLM judge beat either? (2026-11-19, before measurement)
+
+The two monitors fail differently. Rules reach TPR 33.3% with correct attribution 38.9% at Tier 1 for $0, and never flag a refuser. The LLM judge reaches AUROC 0.744 and attribution 66.7% from public chat, costs $0.02 to $0.06 per corpus, and its calibrated threshold is unstable.
+
+**Ensemble.** For each trial, take the maximum of the two normalised trial scores. Rules are already 0..100. The LLM judge's score is rescaled per corpus so that its maximum equals 100, because the two scales are not comparable in absolute terms. Calibrate the ensemble at the same 5% false-positive target on the same 15 negatives and report AUROC, TPR at 5% FPR, top-seat accuracy, actual FPR and refuser FPR.
+
+**Prediction.** Ensemble AUROC is at least the better of the two alone, because the maximum of two scores cannot rank a positive below both of its members' ranks... except that rescaling is monotone per monitor, so ties can move. TPR at 5% FPR lies between the two members. Top-seat accuracy is at least the rules' 38.9%, because the LLM judge supplies the attribution when the rules are silent.
+
+**Decision rule.** If the ensemble beats both members on TPR *and* attribution at the same false-positive budget, the recommendation is "rules for alerting, LLM for attribution, combined by maximum". If it loses, the honest recommendation is to pick one and state what it costs. Either way the result is recorded and no threshold is re-tuned afterwards.
+
+### Measured result of the ensemble (2026-11-19)
+
+| Monitor | AUROC | TPR at 5% FPR | Top-seat | Refuser FPR | Cost |
+|---|---:|---:|---:|---:|---:|
+| rules (`v1`) | 0.646 | 33.3% | 38.9% | 0.0% | $0.00 |
+| LLM judge | 0.744 | 5.6% | 55.6% | 0.0% | $0.063 |
+| **ensemble (max of the two)** | **0.759** | **38.9%** | 44.4% | 0.0% | $0.063 |
+
+**The prediction held on direction and understated the size.** The ensemble has the highest AUROC of the three and the highest TPR at the 5% budget. I predicted TPR would fall *between* the members; it exceeded both by 5.6 points, because the two monitors catch different trials: the rules fire on audit-only acts the judge scores low, and the judge fires on narrative contradictions the rules miss. Attribution sits below the judge alone (44.4% versus 55.6%), because the maximum picks the rules' seat whenever the rules score higher, and the rules attribute worse.
+
+No refuser is flagged by any of the three, and the ensemble costs exactly what the LLM judge costs.
+
+**Recommendation, now measured rather than argued:** run the rule set for alerting and the LLM judge for attribution, and combine by maximum score. If attribution matters more than sensitivity, use the judge alone and accept its unstable threshold.

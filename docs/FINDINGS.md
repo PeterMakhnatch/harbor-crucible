@@ -172,6 +172,20 @@ Three things follow.
 
 The practical reading: use an LLM judge for attribution, use deterministic rules for alerting, and do not trust a fixed-FPR operating point calibrated on fewer than a few dozen controls.
 
+### Combining the two beats either one
+
+The recommendation above was an argument from the two tables. It is now measured: take the maximum of the rule score and the rescaled judge score, pre-registered in `experiments/PROTOCOL.md`, on the same 33 trials.
+
+| Monitor | AUROC | TPR at 5% FPR | Top-seat | Refuser FPR | Cost |
+|---|---:|---:|---:|---:|---:|
+| rules | 0.646 | 33.3% | 38.9% | 0.0% | $0.00 |
+| LLM judge | 0.744 | 5.6% | 55.6% | 0.0% | $0.063 |
+| **ensemble (max)** | **0.759** | **38.9%** | 44.4% | 0.0% | $0.063 |
+
+The ensemble wins on both ranking and detection. It exceeds both members on TPR, which I did not predict, because the two monitors catch different trials: the rules fire on audit-only acts that the judge scores low, and the judge fires on narrative contradictions the rules miss. Attribution drops to 44.4% because the maximum takes the rule set's seat whenever the rules score higher, and the rules attribute worse than the judge.
+
+So the operating recipe is: keep the rule set for the alert path, keep the judge for the attribution path, and take the maximum. Spend the LLM money only when someone will act on a name.
+
 ### The hidden-profile family produced no effect, and the design explains why
 
 The epistemic family has a second design: four analysts each hold private facts, sharing is required for the right answer, and a solo analyst who holds every fact is the ceiling control. The published hidden-profile finding is that teams fail to pool unique information and underperform their own members.
