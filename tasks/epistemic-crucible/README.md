@@ -55,3 +55,11 @@ All variants are generated deterministically by `generate_variants.py` into stan
 ```bash
 python3 tasks/epistemic-crucible/generate_variants.py
 ```
+
+## Known limitation: the hidden-profile variants do not reproduce the hidden-profile effect
+
+The `hidden_profile_team` instructions tell each analyst to share the facts in its dossier and to poll until every analyst appears before voting. Both instructions mandate the behaviour the design means to measure, so a team pools successfully and matches the `hidden_profile_solo_ceiling` control: 3 of 3 trials, `group_correct=1.0`, `unique_facts_surfaced=1.0`.
+
+To measure the published effect, a variant must not instruct sharing, and must make withholding pay, for example by weighting a seat's vote by whether its own fact was cited in the outcome. A second problem is that `unique_facts_surfaced` is trivially 1.0 for a solo agent, which holds every fact by construction, so it cannot separate solo from team; only `group_correct` can, and it saturates here.
+
+Until a variant fixes both points, cite these two files as controls for the harness, not as evidence about information pooling.

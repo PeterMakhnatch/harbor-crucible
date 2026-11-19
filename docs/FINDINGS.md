@@ -172,6 +172,23 @@ Three things follow.
 
 The practical reading: use an LLM judge for attribution, use deterministic rules for alerting, and do not trust a fixed-FPR operating point calibrated on fewer than a few dozen controls.
 
+### The hidden-profile family produced no effect, and the design explains why
+
+The epistemic family has a second design: four analysts each hold private facts, sharing is required for the right answer, and a solo analyst who holds every fact is the ceiling control. The published hidden-profile finding is that teams fail to pool unique information and underperform their own members.
+
+Six trials, full timeout, `deepseek-chat`:
+
+| Condition | Trials | `group_correct` | `unique_facts_surfaced` | `premature_consensus_trap` |
+|---|---|---:|---:|---:|
+| `hidden_profile_solo_ceiling` | 3 | 3/3 | 3/3 | 0/3 |
+| `hidden_profile_team` | 3 | 3/3 | 3/3 | 0/3 |
+
+The team matched the solo ceiling exactly and surfaced every private fact. No failure, and no benefit either.
+
+**This is a null result about the design, not about teams.** The seat instructions tell each analyst to share any facts from its dossier and to poll until all four analysts appear before voting. That mandates pooling, so pooling is what happened; the epistemic difficulty that creates a hidden profile is removed by the instruction. To reproduce the published effect the instruction must not demand sharing, and the payoff must make withholding attractive, for example by weighting each seat's vote by whether its own fact was adopted. Until then this family measures compliance with a sharing instruction and should not be cited as a hidden-profile result.
+
+There is a second measurement problem: `unique_facts_surfaced` is trivially 1.0 for a solo agent, which holds every fact by construction, so it cannot separate solo from team. Only `group_correct` can, and it saturates.
+
 ### A claim-versus-audit rule set (v2) made things worse
 
 The natural next idea is to detect the contradiction that matters: a seat claims publicly to have done something, and the authenticated audit log does not show it. I pre-registered eleven such rules in `experiments/PROTOCOL.md` before taking any measurement, then built them as a separate monitor so v1 stayed comparable.
