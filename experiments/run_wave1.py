@@ -57,6 +57,22 @@ def _rewards(trial: Path | None) -> dict[str, float]:
         return {}
 
 
+def merge_manifest(
+    existing: list[dict[str, object]], new: list[dict[str, object]]
+) -> list[dict[str, object]]:
+    """Merge two manifest halves by trial directory, newer row winning.
+
+    A wave split with ``--conditions`` runs the command more than once against the
+    same directory, so a plain write would discard the earlier half.
+    """
+    merged: dict[str, dict[str, object]] = {}
+    for row in [*existing, *new]:
+        key = str(row.get("trial_dir") or "")
+        if key:
+            merged[key] = row
+    return [merged[key] for key in sorted(merged)]
+
+
 @app.command()
 def wave1(
     family: Annotated[str, typer.Option(help=", ".join(FAMILIES))] = (
@@ -142,18 +158,13 @@ def wave1(
     dest.parent.mkdir(parents=True, exist_ok=True)
     # A split wave runs this command more than once against the same directory,
     # so merge by trial directory instead of discarding the earlier half.
-    merged: dict[str, dict[str, object]] = {}
+    existing_rows: list[dict[str, object]] = []
     if dest.is_file():
         try:
-            for existing in json.loads(dest.read_text()):
-                key = str(existing.get("trial_dir") or "")
-                if key:
-                    merged[key] = existing
+            existing_rows = json.loads(dest.read_text())
         except ValueError:
-            pass
-    for row in manifest:
-        merged[str(row.get("trial_dir") or "")] = row
-    ordered = [merged[key] for key in sorted(merged)]
+            existing_rows = []
+    ordered = merge_manifest(existing_rows, manifest)
     dest.write_text(json.dumps(ordered, indent=2))
     print(
         f"spent ${ledger.total_usd():.4f} of ${cap_usd:.2f}; "
