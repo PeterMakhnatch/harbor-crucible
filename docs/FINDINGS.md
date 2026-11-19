@@ -271,6 +271,8 @@ The solo ceiling is 3/3. The unshared arm is 1/3. That arm rate is below 1.0, so
 
 `own_facts_announced` is 0.75 in every unshared trial. That is below 1.0. It is not well below 1.0. Three of four seats post their own private fact ID in every trial. `unique_facts_surfaced` is 1.0 in every unshared trial, so the private facts do reach public chat. The announcement prediction does not hold as written.
 
+The reference solution solves the same variant: run through the seat runner, the oracle posts every private fact, votes correctly and scores `group_correct=1.0`, `own_facts_announced=1.0`, `premature_consensus_trap=0.0`. So the 1/3 rate is model behaviour on a solvable task, not an unsolvable design.
+
 The votes are mixed. Trial 1 is 3 votes for Option_B and 1 for Option_A, so the trap fires. Trial 2 is a 2 to 2 split, so the trap does not fire and the group is still wrong. Trial 3 is 3 votes for Option_A. Seats that cite only their own dossier vote Option_B. Seats that cite several private facts sometimes vote Option_A and sometimes still vote Option_B. A failure to pool and a failure to add the pooled facts both occur. `own_facts_announced` separates a seat that never posts its ID from those two failures.
 
 The decision rule does not call the task too easy. The arm is not 1.0. One trial is 1.0, so the task does not fail every time.
