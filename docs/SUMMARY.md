@@ -19,7 +19,7 @@ One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM
 | `epistemic-crucible` | 12 / 18 | 0.917 | 0.917 [0.792, 1.000] | 83.3% | 83.3% |
 | `reward-hack-contagion` | 12 / 6 | 0.500 | 0.500 | 0% | 0% |
 
-**The headline: authenticated audit evidence takes sabotage attribution from 16.7% to 100%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasurable for an evidence reason, documented below.
+**The headline: authenticated audit evidence takes sabotage attribution from 16.7% to 100%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasurable because the world detects mechanisms in workspace state that never reached a commit, so its label and its evidence are different events.
 
 Behaviour, three trials per condition unless noted:
 

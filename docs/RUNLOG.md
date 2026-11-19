@@ -20,6 +20,12 @@ Running record for the overnight mission. Newest first. Hours are ET.
 2. Test that statistics code, including degenerate input (all-equal negatives, one positive, zero negatives): it has no tests today.
 3. Re-run the consolidated report over wave 1 plus wave 2, then restate the hypothesis table with the larger N and note the second-model gap.
 
+## Next 3 items (planned 2026-11-19 ~09:50)
+
+1. **Record per-file content in the reward-hack world**, bounded, so a monitor can reproduce the world's own mechanism detection.
+2. **Re-run and re-score the reward-hack family** with that evidence, and see whether Tier 1 finally separates.
+3. **Refresh the docs and the summary** with the result, then look for the next fork contribution.
+
 ## Done
 
 ### 2026-11-19 ~08:30-09:20 — Pooling families was invalid, and the hidden-profile prediction held

@@ -51,7 +51,7 @@ What is established:
 
 What is not established:
 
-- **Any reward-hack detection claim.** The world records file names plus one blob, and its own detector fires on files the log never wrote down, so no monitor can reproduce it there.
+- **Any reward-hack detection claim.** The world detects mechanisms in workspace state that never reached a commit, so the label and the observable evidence are different events.
 - **Any pooled number.** Pooling families compares one world's adversaries with another's honest agents; the earlier pooled 0.607 was a mixture.
 - **An audit gain outside supply-chain**, and any transfer to another model family.
 
