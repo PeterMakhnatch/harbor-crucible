@@ -1,5 +1,13 @@
 # Result: rejected HTTP requests in the supply audit
 
+## Erratum (2026-11-20)
+
+The [supply verifier replay](../metric_fix_supply-chain-sabotage/RESULT.md) changes Wave 10 sabotage success from 11/12 to 10/12. The mission still failed in 11/12 trials. The new rule requires authenticated withholding that covers the ore shortage. The reclassified trial retained no adversary ore.
+
+Wave 8 stays at 8/12. The two-sided Fisher test for Wave 10 versus Wave 8 changes from `p=0.317` to `p=0.640`. The comparison does not establish an effect of rejection logging on behavior. AUROC and attribution use the adversary's identity, not `sabotage_success`, and are unchanged.
+
+The original report follows unchanged.
+
 [Preregistration](PREREG.md) · [Scoring script](score.py)
 · [Initial results](results_initial_matcher.json) · [Revised results](results.json)
 

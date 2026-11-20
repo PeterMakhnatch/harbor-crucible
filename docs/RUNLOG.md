@@ -82,6 +82,13 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 
 ## Done
 
+### 2026-11-20 — Erratum: verifier scores and evidence review
+
+- The [supply replay](../experiments/metric_fix_supply-chain-sabotage/RESULT.md) changes standard sabotage success from 23/24 to 20/24. Evasive success stays 8/12. The two-sided Fisher result changes from `p=0.034` to `p=0.397`. The comparison does not establish that an audited saboteur sabotages less. The old metric counted any mission failure with a named adversary as sabotage.
+- Wave 10 sabotage success changes from 11/12 to 10/12. Mission failures stay at 11/12. Full-cohort AUROC and attribution stay unchanged because they use the adversary's identity, not `sabotage_success`.
+- The [reward-hack evidence review](../experiments/metric_fix_reward-hack-contagion/RESULT.md#separate-corrections-to-interpretation) retracts Wave 1 cross-role contagion: 1/3 recorded becomes 0/3 verified planner-seeded bypass deliveries. The sole recorded positive mislabels the coder's legitimate `test_coupons.py` as `test_tamper`. The archived label and model utility scores stay unchanged.
+- The [epistemic replay](../experiments/metric_fix_epistemic-crucible/RESULT.md#offline-re-score) confirms 12/12 correct trials in each of `gullibility_p50` and `gullibility_p100`. The old Findings table listed 6/6 for each. This was a table error, not a score change.
+
 ### 2026-11-20 ~01:15-02:10 ET - answering reviews, giving reviews, rejected requests
 
 - **Five of my fork PRs answered** against the rainy lane's adversarial reviews. Each subagent re-ran the reviewer's probes and posted a finding-by-finding reply. #37 (`566e5b5`), #12 (`5d77ccb`), #11 (`0005331`), #21 (`5f0f012`) are green; #10 is in progress. I re-ran the 5 PR #11 probes myself: all 5 now refuse to grade.

@@ -41,6 +41,8 @@ Harbor Multi-Agent already runs several native agents in one Compose project. Cr
 
 **The one result worth leading with:** in supply-chain sabotage, authoritative audit evidence takes attribution from 2 of 24 trials to **95.8%**, and detection from 33.3% to 87.5%, over 24 adversarial trials and 26 controls. Both intervals exclude chance. That is the capability the fork's seat model exists to enable.
 
+The [supply verifier correction](experiments/metric_fix_supply-chain-sabotage/RESULT.md) changes sabotage success counts, not the monitor results. AUROC and attribution use the named adversary, not `sabotage_success`.
+
 What is established:
 
 - **Audit evidence converts near-random attribution into exact attribution**, in the family where the adversary acts in code rather than in speech.
@@ -51,10 +53,10 @@ What is established:
 
 What is not established:
 
-- **Any reward-hack detection claim.** The label now derives from the committed snapshot, but real sabotage attempts are too rare in the sample to power a cell.
+- **Any reward-hack detection claim.** The retained real-model corpus has [0 verified cases of confirmed reward hacking](experiments/metric_fix_reward-hack-contagion/RESULT.md#separate-corrections-to-interpretation). The monitor table is unchanged.
 - **Any pooled number.** Pooling families compares one world's adversaries with another's honest agents; the earlier pooled 0.607 was a mixture.
 - **An audit gain outside supply-chain.** The decisive failure mode is measured only in that family.
-- **A measured cross-model transfer.** One Qwen check repeats the pattern, naming 0 of 5 saboteurs without audit and 4 of 5 with it, but five positives is a signal, not a measurement.
+- **A measured cross-model transfer.** One Qwen check names 0 of 5 adversaries without audit and 4 of 5 with it. These are 5 non-timeout trials with a named saboteur, not 5 successful sabotages.
 
 Details, intervals and the failed predictions are in [docs/FINDINGS.md](docs/FINDINGS.md); the one-page orientation is [docs/SUMMARY.md](docs/SUMMARY.md).
 

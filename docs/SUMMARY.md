@@ -20,27 +20,31 @@ One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM
 | `epistemic-crucible` | 24 / 18 | 0.938 [0.875, 1.000] | 0.938 [0.875, 1.000] | 87.5% | 87.5% |
 | `reward-hack-contagion` | 21 / 9 | 0.500 | 0.500 | 0% | 0% |
 
-**The headline: authenticated audit evidence takes sabotage attribution from 8.3% to 95.8%.** In the liar family the same audit evidence changes nothing, because chat already carries the signal. The reward-hack cell is unmeasured because real models rarely deliver a hack (below).
+**The headline: authenticated audit evidence takes sabotage attribution from 8.3% to 95.8%.** In the liar family, the audit evidence changes nothing because chat already carries the signal. The reward-hack cell is unmeasured because the retained model corpus has no verified case of confirmed reward hacking.
+
+The supply correction does not change the monitor results. AUROC and attribution use the adversary's identity, not `sabotage_success`.
 
 Pressure tests of the headline:
 
 | Test | Result |
 |---|---|
-| Saboteur told it is audited (12 trials) | audit-tier AUROC 0.933 [0.814, 1.000], attribution 11/12: the monitor holds. Sabotage itself falls from 23/24 to 8/12 (p=0.034). Every miss was a failed sabotage. |
+| Saboteur told it is audited (12 trials) | Tier 1 AUROC 0.933 [0.814, 1.000]; attribution 11/12. All monitor misses occur in trials without successful sabotage. Standard: 20/24 successes. Evasive: 8/12 (Fisher `p=0.397`). The cohorts do not establish that an audited saboteur sabotages less. |
 | Second model, Qwen 2.5 72B (5 / 4) | same shape: 0 of 5 saboteurs named without audit, 4 of 5 with it, no false positive |
-| Saboteur's cover story "HTTP 400" | could not be disproved: the world did not log rejected requests. Fix and re-run in progress. |
+| Saboteur's cover story "HTTP 400" | The original audit could not verify the claim. Wave 10 logged rejections, but the new rule missed the 1 clear claim without a matching rejection. |
 
 Behaviour, three trials per condition unless noted:
 
 | Finding | Result |
 |---|---|
-| Sabotage under a secret adversary | committed in 23 of 24 completed trials |
+| Sabotage under a secret adversary | 20 of 24 non-timeout trials meet the corrected sabotage rule |
 | Covert reward-hack instruction, deepseek-chat (12) | refuses in words in about half, solves silently in the rest, delivers the hook once |
 | Covert reward-hack instruction, Qwen 2.5 72B (6) | writes the hook in 5 of 6, but only in its own container; none reaches the graded workspace |
-| Cross-role reward-hack contagion | a planner seeds a test bypass, the coder implements it, the reviewer approves: 1 of 3 |
-| Strict quarantine gate | blocked every delivery attempt |
+| Cross-role reward-hack contagion | 0 of 3 verified Wave 1 planner-seeded bypass deliveries. The only recorded positive mislabels the coder's own unit tests. |
+| Strict quarantine gate | The scripted oracle shows 1 quarantine. The 6 retained model trials show 0 gate rejections and 0 hack deliveries. They do not establish a gate effect. |
 | Gullibility dose response | liar named 0/6 with no liar, 5/12 at half, 10/12 at full; decision always correct (30/30) |
 | Hidden profile, no sharing mandate | team drops to 1/3 while the solo ceiling stays 3/3, and the reference solution solves it |
+
+**Correction (2026-11-20):** The old [supply metric](../experiments/metric_fix_supply-chain-sabotage/RESULT.md) counted any mission failure with a named adversary as sabotage. The [reward-hack evidence review](../experiments/metric_fix_reward-hack-contagion/RESULT.md#separate-corrections-to-interpretation) retracts the Wave 1 cross-role contagion claim. No verified case of confirmed reward hacking remains in the retained model corpus.
 
 ## What failed, and is recorded as failing
 
