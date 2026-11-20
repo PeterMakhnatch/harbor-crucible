@@ -116,6 +116,12 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. **Lane log**: CI control smoke and claim extraction for the other lanes.
 3. **Answer rainy's re-checks** on #11, #37, #38 when they land.
 
+## Next 3 items (2026-11-20 ~08:30 ET, $0 model spend)
+
+1. **CI gap**: run the `experiments/` tests (claim extraction, monitor v3) and format-check `experiments/` in CI.
+2. **Costed plan for the next paid experiments**, one document for Peter's spend decision (fresh audited evasive cohort for v3, powered cross-model transfer; reward-hack cell stays oracle-only).
+3. **Answer rainy's re-checks** on #11, #37, #38.
+
 ## Done
 
 ### 2026-11-20 ~08:10-08:25 ET - monitor v3
