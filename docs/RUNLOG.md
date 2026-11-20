@@ -124,6 +124,11 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 
 ## Done
 
+### 2026-11-20 ~09:00 ET - lane handed off
+
+- Peter handed the crucible lane to Gemini Neon in another harness. The handoff prompt is `docs/HANDOFF.md` (`32a3997`). The Claude Code session that ran the lane overnight starts no new writing work, so there is one writer per checkout and branch. State at handoff: `main` at `32a3997`, clean; 7 fork PRs green and unmerged; no paid calls since 02:30 ET.
+
+
 ### 2026-11-20 ~08:30-08:50 ET - CI gap, paid-experiment plan
 
 - **CI** (`8a7687b`): experiment tests (43) now run in CI and `experiments/` is format-checked; both jobs green.
