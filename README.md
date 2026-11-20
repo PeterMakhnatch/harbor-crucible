@@ -111,6 +111,12 @@ uv pip install --python .venv/bin/python -e ".[dev]"
 
 Oracle runs need a separate Harbor Multi-Agent checkout. Do not `uv tool install` that fork: it replaces the `harbor` command. Point `CRUCIBLE_HARBOR_BIN` at an isolated virtualenv.
 
+The `control-smoke` CI job runs 8 trials with Docker and no model calls. To run the same checks locally, use the isolated Harbor fork:
+
+```sh
+CRUCIBLE_HARBOR_BIN=/path/to/fork/.venv/bin/harbor .venv/bin/python scripts/control_smoke.py
+```
+
 ## License
 
 Apache-2.0. Independent of Olam Labs and upstream Harbor.
