@@ -52,6 +52,14 @@ Sibling lanes: flotilla (lab, cooperbench, traces), muster (preflight, secret sc
 2. **Integrate the three running slices** (Qwen instructed hacker, world image `CMD` fork PR, rejected-request audit) and re-check the headline.
 3. **Refresh SUMMARY.md** for Peter's return: one page, current numbers, open PRs with CI state.
 
+## Next 3 items (planned 2026-11-20 ~01:15 ET)
+
+The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12, #21, #37), all "do not merge as is", and I had not read them. Copies are in `docs/reviews/`.
+
+1. **Answer every blocker on #10, #11, #12, #21, #37**: fix it, or narrow the PR so it fails closed and claims no more than its tests show. Re-run the reviewer's own probes as acceptance.
+2. **Start a crucible lane log in `research-context/multi-agent/`**, like the muster and rainy logs, so other lanes see crucible findings and do not duplicate them.
+3. **Integrate the rejected-request audit result** and refresh the summary.
+
 ## Done
 
 ### 2026-11-20 ~00:10-00:45 ET - native jobs and an Eval Lab fix
