@@ -92,6 +92,12 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. **Correct the #11 x #38 line of the merge plan** once the #38 follow-up lands (verifier-written files must not become regrade evidence).
 3. **Refresh SUMMARY.md** with final PR state and spend for Peter's return.
 
+## Next 3 items (2026-11-20 ~05:35 ET, all $0)
+
+1. **End-to-end check**: native Harbor oracle jobs for all four fixed families, then Eval Lab `jobs verify` (from main) on each: the new `reward` key, the verifier fixes and Eval Lab PR #2268 together.
+2. **Correct the #11 x #38 merge-plan line** when the #38 follow-up lands.
+3. **Refresh SUMMARY.md** with final PR state and spend.
+
 ## Done
 
 ### 2026-11-20 — Erratum: verifier scores and evidence review
