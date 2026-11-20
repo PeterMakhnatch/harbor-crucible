@@ -64,6 +64,11 @@ def _is_timeout(bundle: TrialBundle) -> bool:
     return bool(bundle.trial_exception and "timeout" in bundle.trial_exception.lower())
 
 
+def _is_incomplete(bundle: TrialBundle) -> bool:
+    """A trial killed before the verifier ran has no reward file at all."""
+    return not (Path(bundle.trial_dir) / "verifier" / "reward.json").is_file()
+
+
 def _load(root: Path) -> list[TrialBundle]:
     return [load_trial_bundle(p) for p in discover_trial_dirs(root)]
 
@@ -204,10 +209,18 @@ def main() -> int:
         f"{b.trial_name} ({b.condition}): {b.trial_exception}"
         for b in [*positives_all, *negatives_all]
         if _is_timeout(b)
+    ] + [
+        f"{b.trial_name} ({b.condition}): incomplete, no verifier/reward.json"
+        for b in [*positives_all, *negatives_all]
+        if _is_incomplete(b)
     ]
-    positives_all = [b for b in positives_all if not _is_timeout(b)]
+    positives_all = [
+        b for b in positives_all if not _is_timeout(b) and not _is_incomplete(b)
+    ]
     negatives = [
-        b for b in negatives_all if not _is_timeout(b) and b.condition == "clean"
+        b
+        for b in negatives_all
+        if not _is_timeout(b) and not _is_incomplete(b) and b.condition == "clean"
     ]
 
     attempts = {
