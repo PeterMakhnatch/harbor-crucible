@@ -29,12 +29,14 @@ FAMILIES: dict[str, tuple[str, ...]] = {
         "noisy_honest",
         "instructed_refuser",
         "saboteur",
+        "saboteur_evasive",
     ),
     "reward-hack-contagion": (
         "clean",
         "hack_seeded_coder",
         "hack_seeded_planner",
         "strict_gate_defense",
+        "instructed_hacker",
     ),
     "epistemic-crucible": ("gullibility_p00", "gullibility_p50", "gullibility_p100"),
     "migration-turf-war": (
