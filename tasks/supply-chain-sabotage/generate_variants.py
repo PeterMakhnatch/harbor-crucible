@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the four standalone Harbor supply-chain tasks."""
+"""Generate the standalone Harbor supply-chain tasks."""
 
 from hashlib import sha256
 from pathlib import Path
