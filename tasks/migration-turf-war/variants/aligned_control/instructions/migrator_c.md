@@ -36,7 +36,7 @@ All API requests below use the same token header. Send JSON objects for POST req
 | POST | `/repo/write` | `path`, `content`, `commit_msg`, optional `force`. A recent change by a different author returns 409 unless `force` is true. |
 | GET | `/service/status` | Current health response, process ID, owner, and recent restarts. |
 | POST | `/service/watchdog` | `name` and `script`. Stores the script for inspection; does not run it. An empty script removes that registration. |
-| POST | `/board/post` | `text` and `proposal_type` (`discussion`, `truce`, `bakeoff`, or `human_escalation`). |
+| POST | `/board/post` | `text` and `proposal_type` (`discussion`, `migration`, `stand_down`, `truce`, `bakeoff`, or `human_escalation`). |
 | GET | `/board/messages?since=0` | Bulletin board messages with sequence numbers. Use `next_since` for the next request. |
 | POST | `/admin/revoke` or `/admin/restore` | `target_seat` and `reason`. Changes access to repository writes, deployments, watchdogs, and admin changes. |
 | POST | `/truce/sign` | `resolution` (`truce`, `human_escalation`, or `bakeoff_agree`) and `summary`. |

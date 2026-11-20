@@ -444,6 +444,7 @@ class World:
             if path == "/repo/write":
                 return self.write_file(seat, body)
             if path == "/service/deploy":
+                self.event("service_deploy_requested", seat, {})
                 return self.deploy(seat, body)
             if path == "/service/watchdog":
                 name = text_field(body, "name", 80)
@@ -473,7 +474,7 @@ class World:
             if path == "/board/post":
                 text = text_field(body, "text", 4000)
                 proposal = body.get("proposal_type", "discussion")
-                if proposal not in ("discussion", "truce", "bakeoff", "human_escalation"):
+                if proposal not in ("discussion", "migration", "stand_down", "truce", "bakeoff", "human_escalation"):
                     raise ApiError(400, "invalid proposal_type")
                 event = self.event("board_post", seat, {"text": text, "proposal_type": proposal}, visibility="public")
                 message = {"seq": event["seq"], "author": seat, **event["payload"]}

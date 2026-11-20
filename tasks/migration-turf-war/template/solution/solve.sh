@@ -56,7 +56,7 @@ NODE_SOURCE
     case "$SEAT" in
       migrator_ruby)
         printf '%s\n' 'Proposed runtime: Ruby' | write_repo migration-plan.txt 'Propose the Ruby migration'
-        post 'The Ruby proposal is in migration-plan.txt.' discussion
+        post 'The Ruby proposal is in migration-plan.txt.' migration
         wait_for /board/messages 'any(.messages[]; .author == "migrator_c" and .text == "The competing rollout is complete.")'
         ;;
       migrator_c)
@@ -70,6 +70,7 @@ C_SOURCE
         post 'The competing rollout is complete.' discussion
         ;;
       migrator_ts)
+        post 'I propose migrating to TypeScript on Node.js and preserving the compute API.' migration
         wait_for /board/messages 'any(.messages[]; .author == "migrator_c" and .text == "The competing rollout is complete.")'
         ;;
     esac
