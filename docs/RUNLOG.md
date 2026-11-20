@@ -68,6 +68,18 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. Run muster's scripted control matrix (oracle/nop, local Docker, $0) on crucible's own families: free pass, decorative seat, invalid-instead-of-0.
 3. Answer the rainy lane's re-verification of each PR when it lands.
 
+## Next 3 items (2026-11-20 ~03:00 ET, all $0)
+
+1. **Stack integration check**: merge all seven crucible fork PRs onto fork `main` in a scratch branch, resolve the #11/#21 regrade overlap, run the combined tests, publish a merge order.
+2. **Answer the rainy lane's re-verification** of each PR when it is posted.
+3. **Integrate the control-matrix result** (muster's scripted rosters on crucible families).
+
+## Next 3 items (2026-11-20 ~03:40 ET, all $0)
+
+1. **Verify and integrate the four metric fixes** (supply `sabotage_success`, contagion approved-delivery utility, migration attributable deployment, epistemic evidence-gated diagnostic, team `reward` key everywhere); run the full suite once; correct every published number they change.
+2. **Integrate the seven-PR stack check** (`docs/FORK-MERGE-PLAN.md`).
+3. **Tell the other lanes** through the lane log: muster's "no findings" is silent when a task writes no `reward` key; the shared Docker slot gate.
+
 ## Done
 
 ### 2026-11-20 ~01:15-02:10 ET - answering reviews, giving reviews, rejected requests
