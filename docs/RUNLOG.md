@@ -62,6 +62,15 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 
 ## Done
 
+### 2026-11-20 ~01:15-02:10 ET - answering reviews, giving reviews, rejected requests
+
+- **Five of my fork PRs answered** against the rainy lane's adversarial reviews. Each subagent re-ran the reviewer's probes and posted a finding-by-finding reply. #37 (`566e5b5`), #12 (`5d77ccb`), #11 (`0005331`), #21 (`5f0f012`) are green; #10 is in progress. I re-ran the 5 PR #11 probes myself: all 5 now refuse to grade.
+- **Three unreviewed PRs reviewed** (none had a review): #2 flotilla seat tokens, #14 rainy attribution arms, #15 rainy seat-log completeness. All "merge after fixes". Reports in `docs/reviews/given-pr*.md`. The #15 review found that my #11 regrades seats whose log copy is known to have failed; that fix is in progress.
+- **Merge-order note** on #11 and #21: #21's fail-closed regrade guard must go when #11 lands.
+- **Rejected-request audit** (`ef089ae`, $0.26): the supply world now audits rejected requests; the claim rule added nothing on wave 10 (Tier 1 AUROC 0.987, attribution 12/12) and missed the one clear unbacked claim. Canonical report unchanged.
+- **Crucible lane log** in `research-context/multi-agent/crucible-log-20261120.md`.
+
+
 ### 2026-11-20 ~00:10-00:45 ET - native jobs and an Eval Lab fix
 
 - **Native Harbor jobs** (`run_wave1.py --as-job`, `run_seat_job`): a wave is now a genuine Harbor job dir. Eval Lab's seat inspect/summary/export and seat-aware `jobs verify` read it with no adapter ($0.01 of real calls).
