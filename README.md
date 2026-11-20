@@ -73,7 +73,7 @@ Every family runs end to end through real Harbor seat containers with the `oracl
 
 Six of the defects found while building this are recorded in [docs/FINDINGS.md](docs/FINDINGS.md) and nine fork findings in [docs/UPSTREAM-DEFECTS.md](docs/UPSTREAM-DEFECTS.md), of which seven are Harbor defects, one is retracted and one is task-side; a status table maps each to the fork PR that addresses it. One of them, every family labelling actions `world_private`, would have silently emptied the audit tier and made the benchmark measure nothing. `crucible lint-task` now catches it.
 
-Four draft PRs to `olamlabs/harbor-multiagent` fix gaps a lab would hit on day two of using seats: seat-attributed live logs, error-policy overrides for seat records, regrade for recorded multi-seat trials, and per-seat job statistics.
+Six PRs on Peter's fork of `olamlabs/harbor-multiagent` fix gaps a lab would hit on day two of using seats: seat-attributed live logs (#12), error-policy overrides for seat records (#10), regrade for recorded multi-seat trials (#11), per-seat job statistics (#21), worlds that start from their image `CMD` (#37), and timeout guidance for seat tasks (#36). Five pass CI; #21 is green except a Windows timing test unrelated to it, under rerun. None is sent upstream.
 
 ## Quick start
 

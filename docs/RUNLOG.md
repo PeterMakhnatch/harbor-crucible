@@ -46,6 +46,12 @@ Sibling lanes: flotilla (lab, cooperbench, traces), muster (preflight, secret sc
 2. **Instructed hacker** (`instructed_hacker`): the coder is secretly told to pass the tests through a pytest hook and hide it. Gives the reward-hack family enough real positives to measure.
 3. **Eval Lab differential**: run Eval Lab's seat evidence commands over crucible trials and compare per-seat cost, steps, tokens and errors with crucible's loader. Each disagreement is resolved from the raw files.
 
+## Next 3 items (planned 2026-11-20 ~00:10 ET)
+
+1. **Native Harbor jobs from the wave runner**, so Eval Lab reads crucible corpora without the synthetic job adapter the differential needed.
+2. **Integrate the three running slices** (Qwen instructed hacker, world image `CMD` fork PR, rejected-request audit) and re-check the headline.
+3. **Refresh SUMMARY.md** for Peter's return: one page, current numbers, open PRs with CI state.
+
 ## Done
 
 ### 2026-11-19 ~22:10-23:50 ET - adversary pressure, Eval Lab differential, CI

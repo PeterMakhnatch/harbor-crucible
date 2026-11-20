@@ -12,7 +12,7 @@ A read-only review mapped each defect below to the fork's open PRs. Two of my ow
 
 | # | Defect | Present on fork `main` | Addressed by | Unclaimed |
 |---|---|---|---|---|
-| 1 | Build overlay replaces `main`'s command | yes | in progress: crucible PR (world image `CMD`) | was unclaimed |
+| 1 | Build overlay replaces `main`'s command | yes | #37 (crucible): opt-in `[environment] use_image_command = true` | claimed |
 | 2 | Verifier output declared as artifact is `failed` | yes | none; #2 (flotilla) works around it by writing evidence before collection | **yes** |
 | 3 | Declared artifact paths pre-created | **not reproduced**: Harbor mounts log directories but does not create declared files | n/a | retracted, see the note in the section |
 | 4 | Cross-uid `/proc/<pid>/exe` checks | not a Harbor defect: Harbor never inspects executables; the probe is task code | n/a | task-authoring guidance only |
@@ -20,7 +20,7 @@ A read-only review mapped each defect below to the fork's open PRs. Two of my ow
 | 6 | Seat errors ignore error-policy overrides; lock order | yes | #10 (crucible) | claimed |
 | 7 | Regrade refuses seat tasks | yes | #11 (crucible) | claimed |
 | 8 | Live logs and hooks do not name the seat | yes | #12 (crucible); sidecar transport still passes no output callback | claimed, partial |
-| 9 | Short timeouts bias completion rates | yes, as a measurement risk | #14 (rainy) and #18 (flotilla) report it; in progress: crucible PR to the multi-agent guide | was unclaimed |
+| 9 | Short timeouts bias completion rates | yes, as a measurement risk | #36 (crucible, guide), with evidence in #14 (rainy) and #18 (flotilla) | claimed |
 
 ## 1. Harbor's build overlay replaces `main`'s command, so a world declared only in the Dockerfile never starts
 
