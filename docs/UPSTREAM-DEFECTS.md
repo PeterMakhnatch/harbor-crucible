@@ -6,6 +6,22 @@ Nothing here is a style preference. Each item either produces a wrong measuremen
 
 ---
 
+## Status and ownership (checked 2026-11-19 ~23:30 ET against fork `main` `6aeb609e` and 24 open PRs)
+
+A read-only review mapped each defect below to the fork's open PRs. Two of my own entries did not survive it.
+
+| # | Defect | Present on fork `main` | Addressed by | Unclaimed |
+|---|---|---|---|---|
+| 1 | Build overlay replaces `main`'s command | yes | in progress: crucible PR (world image `CMD`) | was unclaimed |
+| 2 | Verifier output declared as artifact is `failed` | yes | none; #2 (flotilla) works around it by writing evidence before collection | **yes** |
+| 3 | Declared artifact paths pre-created | **not reproduced**: Harbor mounts log directories but does not create declared files | n/a | retracted, see the note in the section |
+| 4 | Cross-uid `/proc/<pid>/exe` checks | not a Harbor defect: Harbor never inspects executables; the probe is task code | n/a | task-authoring guidance only |
+| 5 | Job stats credit the first tested seat | yes | #21 (crucible, per-seat stats), #17 (flotilla, Hub usage by model) | partial |
+| 6 | Seat errors ignore error-policy overrides; lock order | yes | #10 (crucible) | claimed |
+| 7 | Regrade refuses seat tasks | yes | #11 (crucible) | claimed |
+| 8 | Live logs and hooks do not name the seat | yes | #12 (crucible); sidecar transport still passes no output callback | claimed, partial |
+| 9 | Short timeouts bias completion rates | yes, as a measurement risk | #14 (rainy) and #18 (flotilla) report it; in progress: crucible PR to the multi-agent guide | was unclaimed |
+
 ## 1. Harbor's build overlay replaces `main`'s command, so a world declared only in the Dockerfile never starts
 
 **Severity: high. Silent false negative on every seat task that follows the docs.**
@@ -61,7 +77,10 @@ The coverage check itself is correct and well written. The problem is the contra
 
 ---
 
-## 3. Harbor pre-creates declared artifact paths, so exclusive-create in a world always fails
+## 3. (Retracted) Harbor pre-creates declared artifact paths, so exclusive-create in a world always fails
+
+> **Retracted 2026-11-19.** On fork `main`, Harbor creates and mounts the standard log directories and, after play, creates only the host parent of each declared file. It does not create the declared file inside the container. The `FileExistsError` below was real, but the code does not support the explanation. The likely cause is the world process starting twice against a persistent `/logs` mount, for example once from the image and once from a retried start. Until a minimal repro exists, treat this as a task-authoring hazard: open logs in append mode, or truncate once at a single, known start point.
+
 
 **Severity: medium. It breaks a natural, safe file-writing pattern.**
 
@@ -76,6 +95,9 @@ FileExistsError: [Errno 17] File exists: '/logs/world/events.jsonl'
 ---
 
 ## 4. A seat that runs as a different uid breaks every `/proc/<pid>/exe` integrity check
+
+> **Reclassified 2026-11-19.** Harbor itself never inspects executables; the probe that fails is task code (`tasks/migration-turf-war/template/environment/world.py`). The Linux restriction is real and applies to any seat task, so this stays here as authoring guidance, not as a Harbor bug.
+
 
 **Severity: medium. This one fails closed, which is the good direction, but it fails for the wrong reason.**
 
