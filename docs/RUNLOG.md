@@ -98,6 +98,12 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. **Correct the #11 x #38 merge-plan line** when the #38 follow-up lands.
 3. **Refresh SUMMARY.md** with final PR state and spend.
 
+## Next 3 items (2026-11-20 ~06:55 ET, all $0)
+
+1. **Harden #38** against rainy's three non-P1 holes: lexical reserved-path bypass (`//tests/...`, container symlinks), hard-link aliases in regrade, mounted `/logs/artifacts` bytes replayed without a phase.
+2. **Re-verify #14** at `98c16ab7` (rainy's answer to my review).
+3. **Update SUMMARY and the lane log**: rainy's re-check closes #38's P1s.
+
 ## Done
 
 ### 2026-11-20 ~04:50-06:30 ET - review follow-ups, lint gate, end-to-end check
