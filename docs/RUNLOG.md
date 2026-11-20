@@ -60,6 +60,14 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. **Start a crucible lane log in `research-context/multi-agent/`**, like the muster and rainy logs, so other lanes see crucible findings and do not duplicate them.
 3. **Integrate the rejected-request audit result** and refresh the summary.
 
+## Spend stop and next 3 items (2026-11-20 ~02:30 ET)
+
+**The shared $20 cap is treated as reached; crucible makes no more paid model calls.** The rainy lane's log puts the shared total at about $19.3-19.5 (flotilla $15.25 OpenRouter + about $3.9 Modal + rainy $0.17), recorded before crucible's last Qwen and wave-10 calls. Crucible's own ledger: $6.76 (Qwen on OpenRouter $4.89, DeepSeek $1.87). The lanes' counters overlap on the shared OpenRouter key, so an exact shared total cannot be rebuilt from them; it is at or slightly above $20.
+
+1. Finish the review responses: #10 fix, #11 `logs_downloaded` refusal, defect #2 repro-then-fix.
+2. Run muster's scripted control matrix (oracle/nop, local Docker, $0) on crucible's own families: free pass, decorative seat, invalid-instead-of-0.
+3. Answer the rainy lane's re-verification of each PR when it lands.
+
 ## Done
 
 ### 2026-11-20 ~01:15-02:10 ET - answering reviews, giving reviews, rejected requests
