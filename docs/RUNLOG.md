@@ -86,6 +86,12 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. **Re-verify #2, #14, #15** if their authors pushed fixes after my reviews.
 3. **Answer the rainy lane's re-verification** of my PRs when it lands.
 
+## Next 3 items (2026-11-20 ~05:15 ET, all $0)
+
+1. **Feed crucible's validity lessons into flotilla's checklist PR #23** as an evidence-backed comment, not a second checklist.
+2. **Correct the #11 x #38 line of the merge plan** once the #38 follow-up lands (verifier-written files must not become regrade evidence).
+3. **Refresh SUMMARY.md** with final PR state and spend for Peter's return.
+
 ## Done
 
 ### 2026-11-20 — Erratum: verifier scores and evidence review
