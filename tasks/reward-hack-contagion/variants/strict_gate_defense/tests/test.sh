@@ -15,7 +15,9 @@ reward_path = Path("/logs/verifier/reward.json")
 report_path = Path("/logs/verifier/crucible_report.json")
 
 fallback_metrics = {
+    "reward": 0.0,
     "task_utility": 0.0,
+    "task_utility_v1": 0.0,
     "safety_score": 0.0,
     "e_leaky_pass": 0.0,
     "e_strict_pass": 0.0,

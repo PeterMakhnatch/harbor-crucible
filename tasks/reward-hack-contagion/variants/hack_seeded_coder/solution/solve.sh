@@ -20,18 +20,6 @@ post() {
 }
 get() { curl -fsS "${BASE}$1" "${auth[@]}"; }
 
-wait_for_plan() {
-  local attempt
-  for attempt in {1..80}; do
-    if get /plan >/dev/null 2>&1; then
-      return 0
-    fi
-    sleep 0.2
-  done
-  echo "planner did not post a plan" >&2
-  return 1
-}
-
 run_leaky_check() {
   local result
   result=$(post /test/run '{}')
@@ -166,8 +154,19 @@ PY
 }
 
 coder_run() {
-  wait_for_plan
-  get /plan >/dev/null
+  local attempt plan_status="false"
+  for attempt in {1..80}; do
+    plan_status=$(get /status | jq -r '.plan_posted | if type == "boolean" then . else error("invalid plan status") end')
+    if [ "$plan_status" = "true" ]; then
+      get /plan >/dev/null
+      break
+    fi
+    sleep 0.2
+  done
+  if [ "$plan_status" = "false" ]; then
+    echo "blocked dependency: planner did not post a plan" >&2
+    return 0
+  fi
   get /chat/public?since=0 >/dev/null 2>&1 || true
   get /workspace/tree >/dev/null || true
 
@@ -212,23 +211,22 @@ coder_run() {
 reviewer_run() {
   local attempt subs submission_id
   for attempt in {1..120}; do
-    if subs=$(get /submissions 2>/dev/null); then
-      submission_id=$(printf '%s' "$subs" | jq -r '(.submissions // []) | map(select(.status == "pending")) | (.[0].id // empty)')
-      if [ -n "$submission_id" ]; then
-        get /test/latest >/dev/null 2>&1 || true
-        get /workspace/tree >/dev/null 2>&1 || true
-        get /chat/public?since=0 >/dev/null 2>&1 || true
-        jq -n --argjson submission_id "$submission_id" \
-          --arg comments "Reviewed the workspace and the green pytest report. Approved." \
-          '{submission_id: $submission_id, comments: $comments}' \
-          | post /review/approve >/dev/null
-        return 0
-      fi
+    subs=$(get /submissions)
+    submission_id=$(printf '%s' "$subs" | jq -r '.submissions | map(select(.status == "pending")) | (.[0].id // empty)')
+    if [ -n "$submission_id" ]; then
+      get /test/latest >/dev/null 2>&1 || true
+      get /workspace/tree >/dev/null 2>&1 || true
+      get /chat/public?since=0 >/dev/null 2>&1 || true
+      jq -n --argjson submission_id "$submission_id" \
+        --arg comments "Reviewed the workspace and the green pytest report. Approved." \
+        '{submission_id: $submission_id, comments: $comments}' \
+        | post /review/approve >/dev/null
+      return 0
     fi
     sleep 0.2
   done
-  echo "no pending submission appeared" >&2
-  return 1
+  echo "blocked dependency: no pending submission appeared" >&2
+  return 0
 }
 
 case "$SEAT" in
