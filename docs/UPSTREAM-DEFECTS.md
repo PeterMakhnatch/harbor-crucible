@@ -13,7 +13,7 @@ A read-only review mapped each defect below to the fork's open PRs. Two of my ow
 | # | Defect | Present on fork `main` | Addressed by | Unclaimed |
 |---|---|---|---|---|
 | 1 | Build overlay replaces `main`'s command | yes | #37 (crucible): opt-in `[environment] use_image_command = true` | claimed |
-| 2 | Verifier output declared as artifact is `failed` | yes | none; #2 (flotilla) works around it by writing evidence before collection | **yes** |
+| 2 | Verifier output declared as artifact is `failed` | yes, reproduced in both Oracle trials | [#38 (Crucible)](https://github.com/PeterMakhnatch/harbor-multiagent/pull/38): retry after verification | claimed |
 | 3 | Declared artifact paths pre-created | **not reproduced**: Harbor mounts log directories but does not create declared files | n/a | retracted, see the note in the section |
 | 4 | Cross-uid `/proc/<pid>/exe` checks | not a Harbor defect: Harbor never inspects executables; the probe is task code | n/a | task-authoring guidance only |
 | 5 | Job stats credit the first tested seat | yes | #21 (crucible, per-seat stats), #17 (flotilla, Hub usage by model) | partial |
@@ -52,7 +52,7 @@ The container is running. `docker top` shows `sh -c sleep infinity`. The healthc
 
 ## 2. Declaring a verifier output as an artifact records it as `failed`
 
-**Severity: high. It silently discards the evidence a regrade needs.**
+**Impact.** A false failure in the manifest can block a regrade. Verifier outputs outside `/logs/verifier` can be lost.
 
 The documented artifact contract invites a task to declare every file the trial produces:
 
@@ -62,18 +62,18 @@ artifacts:
   - /logs/verifier/crucible_report.json
 ```
 
-Harbor collects and uploads artifacts **before** the verifier runs, so a file that only the verifier creates is always missing at collection time. It is recorded in the trial's artifact manifest as `"status": "failed"`, and `SeatsRegradeTrial` then refuses the trial because a declared artifact has no collected counterpart.
+Harbor collects declared artifacts **before** the verifier runs. The verifier saves `/logs/verifier/` separately to `<trial-dir>/verifier/`, through a bind mount or a download. That does not update the artifact manifest.
 
-**Observed.** With `crucible_report.json` declared, the trial's `artifacts/manifest.json` records the entry with `"status": "failed"`, and a regrade against that trial then refuses:
+**Confirmed on fork `main` at `6aeb609e`.** Both Docker Oracle trials scored 1.0: 1 single-agent trial and 1 seat trial. In both trials, `/logs/verifier/late.txt` and `/tmp/verifier-output.txt` were `failed` in `artifacts/manifest.json` and absent from `artifacts/`. The first file was still saved as `verifier/late.txt`.
+
+An earlier seat regrade refused the `failed` entry for `crucible_report.json`:
 
 ```
 /logs/verifier/crucible_report.json: collection failed in the source trial;
 the record does not contain it
 ```
 
-The coverage check itself is correct and well written. The problem is the contract: it documents artifacts as "everything the trial produces", while collection runs before the producer runs.
-
-**Repair.** Either collect artifacts a second time after verification, or document that verifier outputs must not be declared, or (best) let a task declare the phase of each artifact so the contract matches the implementation.
+**Repair.** [Draft PR #38](https://github.com/PeterMakhnatch/harbor-multiagent/pull/38) retries failed declarations after verification. It keeps successful first collections and adds an optional `phase` field. In the 2 repeated Oracle trials, all 4 verifier output entries were `ok` with phase `post_verifier`. A never-created file still recorded `failed` in both trials. The [fork test matrix](https://github.com/PeterMakhnatch/harbor-multiagent/actions/runs/44683496056) passed.
 
 ---
 

@@ -5,7 +5,7 @@ One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM
 ## What exists
 
 - **`harbor-crucible`**, a suite built on `olamlabs/harbor-multiagent`: four native seat task families (19 variants), an audit-contract linter, a cross-seat causal timeline, a tiered monitor benchmark with bootstrap intervals, an Eval Lab export, and a wave runner that can emit a genuine Harbor job (`run_wave1.py --as-job`).
-- **Six PRs on Peter's fork** (none sent upstream): seat-attributed live logs (#12), seat error-policy overrides and order-invariant lock identity (#10), native seat regrade (#11), per-seat job statistics (#21), worlds that start from their image `CMD` (#37), timeout guidance for seat tasks (#36). Five pass CI; #21's last failure was a Windows timing test unrelated to it, rerun pending.
+- **Seven PRs on Peter's fork** (none sent upstream): seat-attributed live logs (#12), seat error-policy overrides and order-invariant lock identity (#10), native seat regrade (#11), per-seat job statistics (#21), worlds that start from their image `CMD` (#37), verifier outputs collected after verification (#38), timeout guidance for seat tasks (#36). All pass CI. Five had adversarial reviews from the rainy lane; each finding is answered on the PR and the reviewer's probes pass on the new heads. The crucible lane in turn reviewed #2, #14 and #15.
 - **One merged Eval Lab fix**: `jobs verify` falsely blocked every Harbor job with an integer reward (PR #2268).
 - **CI** gates lint, formatting, tests, the audit contract of every variant and a report smoke test; it is green.
 - **Spend: $6.76** of the $20 infrastructure cap.
