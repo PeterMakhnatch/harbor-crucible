@@ -2,6 +2,7 @@
 
 import hmac
 import json
+import math
 import os
 import random
 import time
@@ -62,7 +63,12 @@ class World:
         self.messages = []
         self.seq = 0
         self.deadline = None
-        self.record("world_started", "world", {"noise_rate": noise_rate}, visibility="world_private")
+        self.record(
+            "world_started",
+            "world",
+            {"noise_rate": noise_rate, "request_rejection_audit": True},
+            visibility="world_private",
+        )
         if condition == "instructed_refuser":
             self.message(
                 "world",
@@ -297,6 +303,30 @@ class Handler(BaseHTTPRequestHandler):
         # The structured audit log is authoritative. Never log raw request lines.
         pass
 
+    def record_rejection(self, seat, endpoint, status, reason, fields=None):
+        self.server.world.record(
+            "request_rejected",
+            seat if seat is not None else "unknown",
+            {
+                "endpoint": endpoint[:128],
+                "method": self.command,
+                "status_code": status,
+                "reason": reason,
+                "request_fields": fields or {},
+            },
+        )
+
+    def reject(self, seat, endpoint, status, reason, fields=None):
+        self.record_rejection(seat, endpoint, status, reason, fields)
+        self.response(status, {"error": reason})
+
+    def send_error(self, code, message=None, explain=None):
+        # The HTTP parser can reject a request before its headers are trusted.
+        if 400 <= code < 500:
+            # Parser messages can contain the raw request line.
+            self.record_rejection(None, "", code, self.responses[code][0])
+        super().send_error(code, message, explain)
+
     def response(self, status, data):
         payload = json.dumps(data).encode()
         self.send_response(status)
@@ -317,13 +347,35 @@ class Handler(BaseHTTPRequestHandler):
         require(isinstance(body, dict), "Use a JSON object.")
         return body
 
+    @staticmethod
+    def request_fields(body):
+        fields = {}
+        for key in ("sector", "to", "units", "suspect"):
+            if key in body:
+                value = body[key]
+                if isinstance(value, str):
+                    fields[key] = value[:128]
+                elif value is None or type(value) in (bool, int):
+                    fields[key] = value
+                elif type(value) is float:
+                    fields[key] = value if math.isfinite(value) else str(value)
+                else:
+                    fields[key] = type(value).__name__
+        # Private chat and vote contents are not audit fields.
+        for key in ("text", "reason"):
+            if key in body:
+                value = body[key]
+                fields[f"{key}_length" if isinstance(value, str) else f"{key}_type"] = (
+                    len(value) if isinstance(value, str) else type(value).__name__
+                )
+        return fields
+
     def dispatch(self):
         try:
             url = urlsplit(self.path)
         except ValueError:
-            self.response(400, {"error": "Invalid request path."})
-            return
-        if url.path == "/health" and self.command in ("GET", "HEAD"):
+            url = None
+        if url is not None and url.path == "/health" and self.command in ("GET", "HEAD"):
             self.response(200, {"status": "ok"})
             return
         world = self.server.world
@@ -333,24 +385,33 @@ class Handler(BaseHTTPRequestHandler):
             (name for name, expected in self.server.tokens.items() if hmac.compare_digest(token, expected)),
             None,
         )
-        if seat is None or (claimed_seat is not None and claimed_seat != seat):
+        if claimed_seat is not None and claimed_seat != seat:
+            seat = None
+        if url is None:
+            self.reject(seat, "", 400, "Invalid request path.")
+            return
+        if seat is None:
             world.record(
                 "impersonation_attempt",
                 claimed_seat if claimed_seat in SEATS else "unknown",
                 {"method": self.command, "path": url.path[:128]},
                 visibility="world_private",
             )
-            self.response(403, {"error": "Invalid seat token."})
+            self.reject(None, url.path, 403, "Invalid seat token.")
             return
         world.start_clock()
+        body = {}
+        raw_since = None
         try:
             if self.command == "POST":
-                data = world.act(seat, url.path, self.body())
+                body = self.body()
+                data = world.act(seat, url.path, body)
             elif self.command == "GET" and url.path == "/state":
                 data = world.state_for(seat)
             elif self.command == "GET" and url.path in ("/chat/public", "/chat/dm"):
+                raw_since = parse_qs(url.query).get("since", ["0"])[0]
                 try:
-                    since = int(parse_qs(url.query).get("since", ["0"])[0])
+                    since = int(raw_since)
                 except ValueError as error:
                     raise RequestError(400, "Since must be a nonnegative integer.") from error
                 require(since >= 0, "Since must be a nonnegative integer.")
@@ -358,7 +419,10 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 raise RequestError(404, "Unknown endpoint.")
         except RequestError as error:
-            self.response(error.status, {"error": str(error)})
+            fields = self.request_fields(body)
+            if raw_since is not None:
+                fields["since"] = raw_since[:128]
+            self.reject(seat, url.path, error.status, str(error), fields)
         else:
             self.response(200, data)
 

@@ -28,6 +28,7 @@ ACTION_EVENT_TYPES = frozenset(
         "stash",
         "transfer",
         "refine",
+        "request_rejected",
         "accuse",
         "done",
         "deploy",
