@@ -74,3 +74,17 @@ Probe scripts and outputs: `/tmp/probe_pr14/audit_records.{py,out}`, `/tmp/probe
 1. Prevent trial-directory reuse. Include one reproducible, offline summary from committed or durably linked, redacted evidence for every row retained in the report.
 2. Report raw reward, clean completion, attribution, and missing evidence separately. Preserve timeouts and use only the canonical world artifact for behavior counts.
 3. Keep the clean stock case as an existence result and describe the fixed task as a combined control. Report the small model arms as observations. Remove or qualify causal and rate claims the setup cannot support.
+
+## Re-verification at `98c16ab7`
+
+**Verdict: merge after fixes.** The follow-up [PR comment](https://github.com/PeterMakhnatch/harbor-multiagent/pull/14#issuecomment-7034007436) records all 5 original findings as open. The delta from `b922dbed` changes only `RESULTS.md:103–108` to add the liar-scout nop control.
+
+| Original finding | Status | Evidence at `98c16ab7` |
+|---|---|---|
+| P1: Output directories collide | Open | `run_arms.py:36–46` still generates identical stock and fixed output paths. The local stock rerun replaced the records that previously carried a different task digest. The updated records now match stock. |
+| P1: Results are not reproducible from the PR | Open | No per-trial data or missing task variants appear in the diff. The only committed model config still requests 3 attempts. |
+| P2: Summary loses exceptions and missing evidence | Open | Offline replay still reports zero activity for missing events. It also omits the retained 111-check mandate and 144-check gated timeouts. |
+| P2: The fixed task is a combined control | Open | The stock-to-fixed task still changes the reply protocol and the verifier with authentication. The new nop trial has valid reward 0.0 and no exceptions. The world file was captured successfully but has zero events. Play lasted 2.544 ms. The truthful scout was configured but did not post, so this only checks idle play. |
+| P2: Model claims exceed the data | Open | Both successful delay conditions include 2-step runs, with different token counts. No retained gated model trial records a rejected answer. The mandate sample includes a timeout, not 2 clean abstentions. |
+
+I replayed all 4 committed result summaries on retained artifacts. The 10-attempt job still has 9/10 raw passes and 7/10 clean passes. Both timeout passes contain p1's successful submission. The clean stock false-credit case still holds as an existence result. I used no model calls or Docker trials, and removed the detached worktree. Outputs: `/tmp/probe_pr14/reverify_{replay,records,claims,nop}.out`.
