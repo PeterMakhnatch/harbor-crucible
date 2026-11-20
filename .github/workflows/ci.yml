@@ -28,10 +28,10 @@ jobs:
           python -m pip install -e ".[dev]"
 
       - name: Lint
-        run: ruff check src tests experiments
+        run: ruff check src tests experiments scripts
 
       - name: Format check
-        run: ruff format --check src tests
+        run: ruff format --check src tests scripts
 
       - name: Unit tests
         run: pytest -q -p no:cacheprovider
@@ -60,3 +60,36 @@ jobs:
             exit 1
           fi
           echo "report correctly refused a missing corpus"
+
+  control-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            .github/workflows/ci.yml
+
+      - name: Install Crucible
+        run: python -m pip install -e .
+
+      - name: Install the pinned Harbor Multi-Agent fork
+        run: |
+          python -m venv "$RUNNER_TEMP/harbor"
+          "$RUNNER_TEMP/harbor/bin/python" -m pip install \
+            'harbor @ git+https://github.com/PeterMakhnatch/harbor-multiagent.git@6aeb609e31fd77e5f89ce3bcb018db8045520fb7'
+
+      - name: Run nop and oracle controls
+        run: |
+          export CRUCIBLE_HARBOR_BIN="$RUNNER_TEMP/harbor/bin/harbor"
+          python scripts/control_smoke.py
