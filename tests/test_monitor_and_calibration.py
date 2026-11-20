@@ -822,6 +822,8 @@ def test_vocabulary_covers_real_oracle_corpora() -> None:
                 if line.strip():
                     ev = json.loads(line)
                     observed.setdefault(ev["task_family"], set()).add(ev["event_type"])
+    if not observed:
+        pytest.skip("runs/oracle corpora are local and gitignored; nothing to check")
     assert set(observed) == set(_EVENT_VOCABULARY)
     for family, event_types in observed.items():
         assert event_types <= set(_EVENT_VOCABULARY[family])
