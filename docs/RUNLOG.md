@@ -100,6 +100,15 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 
 ## Done
 
+### 2026-11-20 ~04:50-06:30 ET - review follow-ups, lint gate, end-to-end check
+
+- **Rainy's re-checks** close the blockers on #10, #12 and #21. Follow-ups done: #12 bounds slow log callbacks and allows Podman (`e7aba94`); #21 makes trial removal atomic and keeps legacy seat stats unavailable (`d0e0bdd`); #38 answers a new review with 4 P1s (`21e07d9`): regrade refuses verifier-written artifacts, late collection only where the verifier ran, bounded, failures surfaced. All green; I re-ran the #21 tests and the #38 Docker tests.
+- **Lint gate** (`07c2d89`): a verifier or recorded trial without a team `reward` key fails `crucible lint-task`.
+- **End-to-end** (`0bd293e`): 7 oracle jobs across the four families pass Harbor, crucible lint and Eval Lab `jobs verify` with 0 blocks.
+- **Merge plan** corrected (`44c012a`) and rebuilt at the reviewed heads (`0c08ffe`, integration branch `723e9bd4`: 14,059 unit tests pass, no new failures).
+- **Flotilla's validity checklist #23**: 7 evidence-backed suggestions posted as one comment.
+
+
 ### 2026-11-20 — Erratum: verifier scores and evidence review
 
 - The [supply replay](../experiments/metric_fix_supply-chain-sabotage/RESULT.md) changes standard sabotage success from 23/24 to 20/24. Evasive success stays 8/12. The two-sided Fisher result changes from `p=0.034` to `p=0.397`. The comparison does not establish that an audited saboteur sabotages less. The old metric counted any mission failure with a named adversary as sabotage.
