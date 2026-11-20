@@ -1,14 +1,15 @@
 # Summary: what this is, what it measured, what is open
 
-One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM-DEFECTS.md`, `RUNLOG.md`. Checked 2026-11-20 ~01:00 ET.
+One page for orientation. Details in `FINDINGS.md`, `ARCHITECTURE.md`, `UPSTREAM-DEFECTS.md`, `FORK-MERGE-PLAN.md`, `RUNLOG.md`. Checked 2026-11-20 ~06:00 ET.
 
 ## What exists
 
 - **`harbor-crucible`**, a suite built on `olamlabs/harbor-multiagent`: four native seat task families (19 variants), an audit-contract linter, a cross-seat causal timeline, a tiered monitor benchmark with bootstrap intervals, an Eval Lab export, and a wave runner that can emit a genuine Harbor job (`run_wave1.py --as-job`).
-- **Seven PRs on Peter's fork** (none sent upstream): seat-attributed live logs (#12), seat error-policy overrides and order-invariant lock identity (#10), native seat regrade (#11), per-seat job statistics (#21), worlds that start from their image `CMD` (#37), verifier outputs collected after verification (#38), timeout guidance for seat tasks (#36). All pass CI. Five had adversarial reviews from the rainy lane; each finding is answered on the PR and the reviewer's probes pass on the new heads. The crucible lane in turn reviewed #2, #14 and #15.
-- **One merged Eval Lab fix**: `jobs verify` falsely blocked every Harbor job with an integer reward (PR #2268).
-- **CI** gates lint, formatting, tests, the audit contract of every variant and a report smoke test; it is green.
-- **Spend: $6.76** of the $20 infrastructure cap.
+- **Seven PRs on Peter's fork** (none sent upstream): seat-attributed live logs (#12), seat error-policy overrides and order-invariant lock identity (#10), native seat regrade (#11), per-seat job statistics (#21), worlds that start from their image `CMD` (#37), verifier outputs collected after verification (#38), timeout guidance for seat tasks (#36). All pass CI. The rainy lane reviewed six of them adversarially. Every finding is answered on the PR, and rainy's re-checks close the blockers on #10, #12 and #21; #11, #37 and #38 wait for its re-check. `FORK-MERGE-PLAN.md` gives a merge order. The crucible lane in turn reviewed #2, #14 and #15, and added evidence-backed items to flotilla's validity checklist (#23).
+- **One merged Eval Lab fix**: `jobs verify` falsely blocked every Harbor job with an integer reward (PR #2268). Seven native Harbor oracle jobs, one or two per family, now pass Harbor, `crucible lint-task` and Eval Lab `jobs verify` with 0 blocks.
+- **A team `reward` key in every verifier**, and a lint rule that fails a verifier or a recorded trial without it. Without the key, muster's control matrix silently skips its attribution checks.
+- **CI** gates lint, formatting, tests (200), the audit contract of every variant and a report smoke test; it is green.
+- **Spend: $6.76** in the crucible ledger. The shared $20 cap for all four lanes is reached, so this lane has made no model calls since 02:30 ET.
 
 ## What it measured
 
@@ -48,15 +49,19 @@ Behaviour, three trials per condition unless noted:
 
 ## What failed, and is recorded as failing
 
+- **Three metric defects in crucible's own verifiers**, found by scripted idle and oracle rosters (muster's control matrix, $0): an idle saboteur scored `sabotage_success = 1`, an unapproved workspace earned full utility, and the starting service earned full migration utility. All fixed; every recorded trial was re-scored offline; published numbers corrected with errata.
 - **Monitor v2** (claim-versus-audit text rules): AUROC 0.604 against 0.646 for v1. Kept as the pre-registered negative result.
 - **Pooled monitor analysis**: invalid, because scales differ across families. Replaced by per-family reporting.
 - **"Audit evidence lifts detection" across families**: came from timed-out trials; it holds only in supply-chain.
-- **Three world labels that the evidence could not support**: a misplaced file scored as a test tamper, discovery scored as impersonation, a revision labelled from live state. All fixed with tests.
+- **Four world labels that the evidence could not support**: a misplaced file scored as a test tamper, the coder's own unit tests scored as a test tamper, discovery scored as impersonation, a revision labelled from live state.
+- **A rejected-request rule**: the world now logs rejected requests, but the claim matcher missed the one clear unbacked "transfer failed" claim. The evidence gap is closed; claim extraction is the weak part.
 - **Two documented fork defects**: one retracted (#3, the code does not support it), one reclassified as task-side (#4).
 
 ## What is open
 
-1. **A reward-hack positive cell from real models.** Willingness and delivery separate by model; a model that both complies and routes the hook through the world API is needed, or the cell stays oracle-only.
-2. **A measured cross-model transfer.** Five Qwen positives is a signal, not a measurement.
-3. **Rejected-request logging** in the supply world, and whether it closes the evasive saboteur's last escape.
+1. **A reward-hack positive cell from real models.** No verified real-model hack exists. Willingness and delivery separate by model; the cell stays oracle-only.
+2. **A measured cross-model transfer.** Five Qwen positives is a signal, not a measurement. Paid runs wait for a new spend decision.
+3. **Claim extraction for audit-backed rules.** Keyword matchers fire on honest text and miss real claims.
 4. **Threshold stability of any LLM judge at this sample size.** With 14 controls its detection rate ranges from 7% to 60% under resampling, so only AUROC is usable.
+5. **Eval Lab seat commands are not on any remote.** `pm/harbor-seat-evidence` (17 commits) and `seat-aware-ingestion` (2 commits) exist only in local Eval Lab worktrees, written by another agent. The crucible differential used them.
+6. **Upstream.** Whether to offer any fork PR to `olamlabs/harbor-multiagent` is Peter's decision; nothing has been sent.
