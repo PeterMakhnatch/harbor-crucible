@@ -8,6 +8,10 @@ Running record for the overnight mission. Newest first. Hours are ET.
 2. Resolve open findings on #10, #12, #21, #37 and #38. Send Sol the tested heads. Review Sol's fork changes.
 3. Change message visibility in the stored trial evidence. Preserve the originals and distinguish a changed replay view from a changed team outcome.
 
+At 2:46 PM ET, Peter retired the shared lane-plan folder. This run log is the record for this work. Do not recreate the deleted files.
+
+Visibility protocol, recorded before reading source event rows: use the named source populations, not substitute runs. Keep an identity control. Remove only incoming peer messages for one recipient at a time. Preserve other seats, world facts, order, and recorded actions. Distinguish a send from a fetch and a fetch from model context. Report the first changed input and the next original decision if known. Do not score an unrealized action or team outcome. Pair native controls only on matched settings, and keep full-team silence separate from a one-recipient mute. Report missing coverage separately. Never publish raw messages. Independently regenerate the counts and verify that source files do not change.
+
 ## Next 3 items (planned 2026-11-19, before starting)
 
 1. **Fork PR 4: seat-aware job statistics.** `models/job/result.py` groups rewards by the trial-level `agent_info`, which is the first tested seat. A four-seat job therefore reports one model's statistics. No sibling PR touches job aggregation: #17 uploads seat logs, #4 reads seat traces, #15 records failed downloads, #13 preflights participants. Rebase onto `main`, add per-seat grouping, keep single-agent output byte-identical, unit-test both. **Done: PR #21.**
