@@ -110,6 +110,12 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. **Offline claim-extraction evaluation**: a hand-labelled set of "transfer failed" claims from recorded supply messages; structured extractor vs the keyword matcher, precision and recall.
 3. **Integrate the #38 hardening** when it lands.
 
+## Next 3 items (2026-11-20 ~08:05 ET, $0 model spend)
+
+1. **Exploratory monitor v3**: the structured claim extractor feeds a tier-1 "unbacked failure claim" rule, evaluated beside the frozen monitor with a pre-registered holdout. Frozen monitor unchanged.
+2. **Lane log**: CI control smoke and claim extraction for the other lanes.
+3. **Answer rainy's re-checks** on #11, #37, #38 when they land.
+
 ## Done
 
 ### 2026-11-20 ~07:15-08:00 ET - CI control smoke, claim extraction, #38 hardening
