@@ -80,6 +80,12 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. **Integrate the seven-PR stack check** (`docs/FORK-MERGE-PLAN.md`).
 3. **Tell the other lanes** through the lane log: muster's "no findings" is silent when a task writes no `reward` key; the shared Docker slot gate.
 
+## Next 3 items (2026-11-20 ~04:50 ET, all $0)
+
+1. **Lint gate**: `crucible lint-task` fails a variant whose verifier writes no team `reward` key, so the muster blind spot cannot return.
+2. **Re-verify #2, #14, #15** if their authors pushed fixes after my reviews.
+3. **Answer the rainy lane's re-verification** of my PRs when it lands.
+
 ## Done
 
 ### 2026-11-20 — Erratum: verifier scores and evidence review
