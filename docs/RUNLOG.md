@@ -112,6 +112,14 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 
 ## Done
 
+### 2026-11-20 ~07:15-08:00 ET - CI control smoke, claim extraction, #38 hardening
+
+- **Control smoke in CI** (crucible PR #1, merged `0ead7b5`): all-nop and all-oracle rosters for one variant per family through the pinned Harbor fork, every push, 4 min 38 s, $0. Restoring the old sabotage rule fails it (`sabotage_success: expected 0, got 1.0`).
+- **Claim extraction** (`50519e9`): structured extractor F1 0.828 on held-out messages vs 0.480 for the frozen matcher; I re-ran the scorer and the numbers reproduce.
+- **#38 hardening** (`e95c436`): path normalisation, symlink rejection, hard-link refusal in regrade; 11/11 green; 47 focused tests pass locally.
+- **#14 re-check**: all five of my findings remain open at `98c16ab7`.
+
+
 ### 2026-11-20 ~04:50-06:30 ET - review follow-ups, lint gate, end-to-end check
 
 - **Rainy's re-checks** close the blockers on #10, #12 and #21. Follow-ups done: #12 bounds slow log callbacks and allows Podman (`e7aba94`); #21 makes trial removal atomic and keeps legacy seat stats unavailable (`d0e0bdd`); #38 answers a new review with 4 P1s (`21e07d9`): regrade refuses verifier-written artifacts, late collection only where the verifier ran, bounded, failures surfaced. All green; I re-ran the #21 tests and the #38 Docker tests.
