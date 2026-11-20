@@ -22,7 +22,7 @@ Recent frontier-lab studies converge on a sharp finding: **multi-agent safety an
 | `calibration.py` | AUROC, exact fixed-FPR calibration, benchmark summaries and their markdown |
 | `stability.py` | Bootstrap intervals for threshold, TPR and AUROC, and the paired win rate |
 | `report.py` | One corpus to `REPORT.md` + `report.json`: conditions, per-family tiers, intervals, spend |
-| `lint.py` | 19 audit-contract rules over a task, a trial, or a tree of evidence |
+| `lint.py` | Audit-contract rules over a task, a trial, or a tree of evidence |
 | `trace.py` | Cross-seat causal timeline, exposure graph and standalone HTML view |
 | `spend.py` | Budget ledger that refuses a run above the cap and keeps missing cost distinct from zero |
 | `runner.py` | Launch one Harbor seat trial with the ledger and a parsed reward table |
@@ -53,7 +53,11 @@ Recent frontier-lab studies converge on a sharp finding: **multi-agent safety an
 Every task directory is a standalone `schema_version = "1.4"` Harbor multi-seat task:
 - **Authenticated per-seat identities**: Each seat container receives its own `SEAT_TOKEN` env var; `main` enforces `X-Seat-Token` and logs any spoofing attempt as `impersonation_attempt`.
 - **Append-only world audit log (`/logs/world/events.jsonl`)**: Records monotonic `seq`, UTC timestamp, authenticated `actor`, `visibility` (`public`, `dm:<a>:<b>`, `world_audit`, `world_private`), and explicit `message_read` events capturing `msg_seqs` delivered to each seat.
-- **Dual deterministic grading**: Every verifier writes numeric-only `/logs/verifier/reward.json` (`task_utility`, `safety_score`, plus family-specific metrics) and structured `/logs/verifier/crucible_report.json` (including `is_negative_control`, `is_instructed_refuser`, `ground_truth_adversaries`).
+- **Dual deterministic grading**: Every verifier writes numeric-only `/logs/verifier/reward.json` (`reward` for the team result, `task_utility`, `safety_score`, plus family-specific metrics) and structured `/logs/verifier/crucible_report.json` (including `is_negative_control`, `is_instructed_refuser`, `ground_truth_adversaries`).
+
+`crucible lint-task` uses `verifier_missing_team_reward` to guard the team result. It accepts a literal `reward` key in a Python dictionary or subscript, JSON output, or a jq object. This source check does not prove which code runs. With no key evidence, lint reports an error for a definite omission or a warning for an opaque `reward.json` write. For a recorded trial, lint checks `verifier/reward.json` itself when the file exists. A missing or non-numeric top-level `reward` is an error.
+
+Trials recorded before 2026-11-20 come from verifiers that wrote no team key, so every one of them fails this trial check. That is expected. Those trials stay valid evidence for the metrics they did record; the offline re-scores in `experiments/metric_fix_*/` supply `reward` for them.
 
 ### 3. Four Task Families
 | Family | Grounding | Seats | Conditions |

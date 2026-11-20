@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import ast
 import json
+import math
 import re
 import shlex
 import tomllib
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 from itertools import pairwise
 from pathlib import Path
 from typing import Literal
@@ -62,6 +64,7 @@ _EVENT_WRITERS = {
     "write_event",
 }
 _REWARD_JSON = "reward.json"
+_TEAM_REWARD_RULE = "verifier_missing_team_reward"
 _CRUCIBLE_REPORT = "crucible_report.json"
 
 
@@ -369,18 +372,19 @@ def _json_non_numeric(value: object) -> bool:
     return any(type(item) not in (int, float) for item in values)
 
 
-def _json_text_non_numeric(text: object) -> bool:
+def _json_text_checks(text: object) -> tuple[bool, bool | None]:
     if not isinstance(text, str):
-        return False
+        return False, None
     try:
-        return _json_non_numeric(json.loads(text))
+        value = json.loads(text)
     except ValueError:
-        return False
+        return False, None
+    return _json_non_numeric(value), isinstance(value, dict) and "reward" in value
 
 
-def _python_non_numeric(
+def _python_reward_checks(
     node: ast.expr | None, bindings: _Bindings, *, serialized: bool
-) -> bool:
+) -> tuple[bool, bool | None]:
     node = _resolve(node, bindings)
     if serialized:
         if (
@@ -392,25 +396,59 @@ def _python_non_numeric(
         if isinstance(node, ast.Call) and _name(node.func) == "dumps":
             node = _resolve(_argument(node, 0, "obj"), bindings)
         else:
-            return _json_text_non_numeric(_literal(node))
+            return _json_text_checks(_literal(node))
+    team_reward = None
+    if isinstance(node, ast.Dict):
+        keys = [_resolve(key, bindings) for key in node.keys]
+        if any(_literal(key) == "reward" for key in keys):
+            team_reward = True
+        elif all(isinstance(key, ast.Constant) for key in keys):
+            team_reward = False
+    elif isinstance(node, (ast.Constant, ast.List, ast.Tuple, ast.Set)):
+        team_reward = False
     values = node.values if isinstance(node, ast.Dict) else (node,)
     for value in values:
         value = _resolve(value, bindings)
         if isinstance(value, ast.Constant) and type(value.value) not in (int, float):
-            return True
+            return True, team_reward
         if isinstance(
             value, (ast.Dict, ast.List, ast.Tuple, ast.Set, ast.JoinedStr, ast.Compare)
         ):
-            return True
+            return True, team_reward
         if isinstance(value, ast.UnaryOp) and isinstance(value.op, ast.Not):
-            return True
+            return True, team_reward
         if (
             isinstance(value, ast.Call)
             and isinstance(value.func, ast.Name)
             and (value.func.id == "bool" and "bool" not in bindings)
         ):
-            return True
-    return False
+            return True, team_reward
+    return False, team_reward
+
+
+def _python_has_team_reward(tree: ast.AST) -> bool:
+    # This is a source-level guard, not interprocedural data-flow analysis.
+    return any(
+        (
+            isinstance(node, ast.Dict)
+            and any(_literal(key) == "reward" for key in node.keys)
+        )
+        or (isinstance(node, ast.Subscript) and _literal(node.slice) == "reward")
+        or (
+            isinstance(node, ast.Call)
+            and _name(node.func) == "dict"
+            and any(kw.arg == "reward" for kw in node.keywords)
+        )
+        for node in ast.walk(tree)
+    )
+
+
+@dataclass(frozen=True)
+class _VerifierWrite:
+    filename: str
+    line: int
+    non_numeric: bool = False
+    team_reward: bool | None = None
 
 
 def _scoped_nodes(scope: ast.AST):
@@ -466,11 +504,13 @@ def _python_writes(scope: ast.AST, outer: _Bindings | None = None):
         else:
             continue
         filename = _python_filename(target, bindings)
-        if filename:
-            invalid = filename == _REWARD_JSON and _python_non_numeric(
+        if filename == _REWARD_JSON:
+            non_numeric, team_reward = _python_reward_checks(
                 payload, bindings, serialized=serialized
             )
-            yield filename, node.lineno, invalid
+            yield _VerifierWrite(filename, node.lineno, non_numeric, team_reward)
+        elif filename:
+            yield _VerifierWrite(filename, node.lineno)
 
 
 _HEREDOC = re.compile(r"(?<!<)<<(-?)[ \t]*['\"]?([A-Za-z_][A-Za-z_0-9]*)")
@@ -478,6 +518,49 @@ _PYTHON = re.compile(r"python(?:\d+(?:\.\d+)?)?$")
 _JSON_MODULE = re.compile(
     r"\b(?:import\s+json\b|from\s+json\s+import\b|json\.(?:dump|dumps|load|loads)\b)"
 )
+# Tokenize quoted strings as a unit so `"reward":` inside a value cannot count.
+_JQ_TOKENS = re.compile(r'"(?:\\.|[^"\\])*"|[A-Za-z_]\w*|\S')
+_JQ_OPTION_ARGS = {
+    "--arg": 2,
+    "--argjson": 2,
+    "--rawfile": 2,
+    "--slurpfile": 2,
+    "--indent": 1,
+    "-L": 1,
+}
+
+
+def _jq_filter(arguments: list[str]) -> str | None:
+    args = iter(arguments)
+    for arg in args:
+        if arg in {"-f", "--from-file"}:
+            return None
+        if arg == "--":
+            return next(args, None)
+        if not arg.startswith("-"):
+            return arg
+        for _ in range(_JQ_OPTION_ARGS.get(arg, 0)):
+            next(args, None)
+    return None
+
+
+def _jq_has_team_reward(program: str) -> bool:
+    """Recognize a literal key in a jq object constructor."""
+    enclosing = []
+    previous = before_previous = ""
+    for match in _JQ_TOKENS.finditer(program):
+        token = match.group()
+        if enclosing and enclosing[-1] == "{" and before_previous in {"{", ","}:
+            if previous in {'"reward"', "reward"} and token == ":":
+                return True
+            if previous == "reward" and token in {",", "}"}:
+                return True
+        if token in {"{", "[", "("}:
+            enclosing.append(token)
+        elif token in {"}", "]", ")"} and enclosing:
+            enclosing.pop()
+        before_previous, previous = previous, token
+    return False
 
 
 def _shell_evidence(source: str):
@@ -526,14 +609,19 @@ def _shell_evidence(source: str):
             if raw.startswith("$"):
                 raw = variables.get(raw[1:].removeprefix("{").removesuffix("}"), raw)
             filename = Path(raw).name
-            payload = body if tokens[0] == "cat" else None
-            if tokens[0] in {"echo", "printf"} and index > 1:
-                payload = tokens[index - 1]
-            yield (
-                filename,
-                line,
-                filename == _REWARD_JSON and _json_text_non_numeric(payload),
-            )
+            if filename == _REWARD_JSON:
+                payload = body if tokens[0] == "cat" else None
+                jq_filter = None
+                if tokens[0] in {"echo", "printf"} and index > 1:
+                    payload = tokens[index - 1]
+                elif Path(tokens[0]).name == "jq":
+                    payload = jq_filter = _jq_filter(tokens[1:index])
+                non_numeric, team_reward = _json_text_checks(payload)
+                if team_reward is None and jq_filter and _jq_has_team_reward(jq_filter):
+                    team_reward = True
+                yield _VerifierWrite(filename, line, non_numeric, team_reward)
+            else:
+                yield _VerifierWrite(filename, line)
 
 
 def _lint_verifier(root: Path, report: LintReport) -> None:
@@ -548,29 +636,29 @@ def _lint_verifier(root: Path, report: LintReport) -> None:
             for path in root.glob(pattern)
         }
     )
-    writes: list[tuple[str, str, int, bool]] = []
+    writes: list[tuple[str, _VerifierWrite]] = []
+    trees: list[ast.Module] = []
     for evidence in _shell_evidence(source):
-        if isinstance(evidence, tuple):
-            filename, line, invalid = evidence
-            writes.append((filename, shell_path, line, invalid))
+        if isinstance(evidence, _VerifierWrite):
+            writes.append((shell_path, evidence))
         elif evidence is not None:
-            writes.extend(
-                (name, shell_path, line, bad)
-                for name, line, bad in _python_writes(evidence)
-            )
+            trees.append(evidence)
+            writes.extend((shell_path, write) for write in _python_writes(evidence))
+    report_literal = False
     for path in python_paths:
-        tree = _parse_python(path.read_text(encoding="utf-8"))
+        python_source = path.read_text(encoding="utf-8")
+        report_literal |= _CRUCIBLE_REPORT in python_source
+        tree = _parse_python(python_source)
         if tree is not None:
+            trees.append(tree)
             location = path.relative_to(root).as_posix()
-            writes.extend(
-                (name, location, line, bad) for name, line, bad in _python_writes(tree)
-            )
+            writes.extend((location, write) for write in _python_writes(tree))
 
     shell_reward = next(
         (
-            line
-            for name, path, line, _ in writes
-            if path == shell_path and name in {"reward.txt", _REWARD_JSON}
+            write.line
+            for path, write in writes
+            if path == shell_path and write.filename in {"reward.txt", _REWARD_JSON}
         ),
         None,
     )
@@ -589,11 +677,8 @@ def _lint_verifier(root: Path, report: LintReport) -> None:
         )
     # A verifier may write both files from one loop over a name tuple, so the
     # write target is a variable. Accept the literal anywhere in the verifier.
-    report_literal = any(
-        _CRUCIBLE_REPORT in path.read_text(encoding="utf-8") for path in python_paths
-    )
     if not report_literal and not any(
-        name == _CRUCIBLE_REPORT for name, _, _, _ in writes
+        write.filename == _CRUCIBLE_REPORT for _, write in writes
     ):
         _add(
             report,
@@ -602,7 +687,9 @@ def _lint_verifier(root: Path, report: LintReport) -> None:
             "The verifier does not write crucible_report.json.",
             shell_path,
         )
-    invalid = next(((path, line) for _, path, line, bad in writes if bad), None)
+    invalid = next(
+        ((path, write.line) for path, write in writes if write.non_numeric), None
+    )
     if invalid is not None:
         _add(
             report,
@@ -612,6 +699,31 @@ def _lint_verifier(root: Path, report: LintReport) -> None:
             *invalid,
             hint="Write numbers only. Use 0 or 1 instead of false or true.",
         )
+
+    rewards = [
+        (path, write) for path, write in writes if write.filename == _REWARD_JSON
+    ]
+    if any(write.team_reward is True for _, write in rewards) or any(
+        _python_has_team_reward(tree) for tree in trees
+    ):
+        return
+    opaque = next(
+        ((path, write) for path, write in rewards if write.team_reward is None), None
+    )
+    location = opaque or (rewards[0] if rewards else None)
+    _add(
+        report,
+        _TEAM_REWARD_RULE,
+        "warning" if opaque else "error",
+        (
+            "The verifier writes reward.json, but lint cannot determine if it has a team reward."
+            if opaque
+            else "The verifier does not write a team reward to reward.json."
+        ),
+        location[0] if location else shell_path,
+        location[1].line if location else None,
+        "Write a top-level numeric reward key.",
+    )
 
 
 def lint_task(task_dir: Path) -> LintReport:
@@ -796,9 +908,30 @@ def lint_trial(trial_dir: Path) -> LintReport:
                         bundle.world_events.append(WorldEvent.model_validate_json(line))
                     except ValidationError:
                         continue
-        report = lint_bundle(bundle)
-        for finding in report.findings:
-            if finding.path == _WORLD_LOG:
-                finding.path = location
-        return report
-    return lint_bundle(bundle)
+        break
+    else:
+        location = _WORLD_LOG
+    report = lint_bundle(bundle)
+    for finding in report.findings:
+        if finding.path == _WORLD_LOG:
+            finding.path = location
+
+    reward_location = f"verifier/{_REWARD_JSON}"
+    reward_path = trial_dir / reward_location
+    if reward_path.is_file():
+        try:
+            payload = json.loads(reward_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            payload = None
+        reward = payload.get("reward") if isinstance(payload, dict) else None
+        if type(reward) not in (int, float) or (
+            isinstance(reward, float) and not math.isfinite(reward)
+        ):
+            _add(
+                report,
+                _TEAM_REWARD_RULE,
+                "error",
+                "The recorded reward.json does not contain a numeric team reward.",
+                reward_location,
+            )
+    return report

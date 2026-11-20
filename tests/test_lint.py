@@ -47,7 +47,7 @@ from pathlib import Path
 
 output = Path("/logs/verifier")
 reward_path = output / "reward.json"
-metrics = {"score": 1.0, "safety": 0}
+metrics = {"reward": 1.0, "score": 1.0, "safety": 0}
 reward_path.write_text(json.dumps(metrics) + "\\n")
 (output / "crucible_report.json").write_text(json.dumps({"is_negative_control": True}))
 """
@@ -225,11 +225,12 @@ def test_world_source_fallback_and_positional_visibility_override(task: Path) ->
 
 
 @pytest.mark.parametrize(
-    "payload", ['{"score": True}', '{"score": False}', '{"score": "1"}']
+    "payload",
+    ['{"reward": True}', '{"reward": 1.0, "score": False}', '{"reward": "1"}'],
 )
 def test_reward_payload_must_be_numeric(task: Path, payload: str) -> None:
     (task / "tests/verify.py").write_text(
-        _VERIFIER.replace('{"score": 1.0, "safety": 0}', payload)
+        _VERIFIER.replace('{"reward": 1.0, "score": 1.0, "safety": 0}', payload)
     )
     report = lint_task(task)
     assert [(item.id, item.line) for item in report.findings] == [
@@ -243,7 +244,7 @@ def test_reward_payload_stream_is_distinct_from_report_payload(task: Path) -> No
     (task / "tests/verify.py").write_text("""\
 import json
 with open("reward.json", "w") as result:
-    json.dump({"utility": False}, result)
+    json.dump({"reward": 1.0, "utility": False}, result)
 with open("crucible_report.json", "w") as result_report:
     json.dump({"is_negative_control": True}, result_report)
 """)
@@ -258,7 +259,7 @@ def test_shell_only_verifier_reports_warnings_and_invalid_json_reward(
 #!/bin/bash
 REWARD="$LOGS/reward.json"
 cat > "$REWARD" <<'JSON'
-{"score": false}
+{"reward": 1, "score": false}
 JSON
 """)
     report = lint_task(task)
@@ -277,6 +278,68 @@ def test_shell_inline_python_counts_as_json_verifier(task: Path) -> None:
         "#!/bin/bash\npython3 - <<'PY'\n" + _VERIFIER + "PY\n"
     )
     assert lint_task(task).findings == []
+
+
+@pytest.mark.parametrize(
+    ("declaration", "severity"),
+    [
+        ('metrics = {"task_utility": 1.0}\nlabel = "reward"', "error"),
+        ("metrics = load_metrics()", "warning"),
+        ('metrics = load_metrics()\nmetrics["reward"] = 1.0', None),
+    ],
+)
+def test_team_reward_source_guard(
+    task: Path, declaration: str, severity: str | None
+) -> None:
+    (task / "tests/verify.py").write_text(
+        _VERIFIER.replace(
+            'metrics = {"reward": 1.0, "score": 1.0, "safety": 0}', declaration
+        )
+    )
+    report = lint_task(task)
+    assert [(item.id, item.severity, item.path) for item in report.findings] == (
+        [("verifier_missing_team_reward", severity, "tests/verify.py")]
+        if severity
+        else []
+    )
+    assert report.ok == (severity != "error")
+
+
+def test_absent_reward_write_is_an_error(task: Path) -> None:
+    (task / "tests/verify.py").write_text(
+        'from pathlib import Path\nPath("crucible_report.json").write_text("{}")\n'
+    )
+    report = lint_task(task)
+    assert [(item.id, item.severity) for item in report.findings] == [
+        ("verifier_missing_team_reward", "error"),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("source", "severity"),
+    [
+        ("""cat > "$path" <<'JSON'\n{"reward": 1}\nJSON\n""", None),
+        ("""cat > "$path" <<'JSON'\n{"score": 1}\nJSON\n""", "error"),
+        ("""jq -n --argjson score 1 '{"reward": $score}' > "$path"\n""", None),
+        ("""jq -n --argjson score 1 '{score: $score}' > "$path"\n""", "warning"),
+        ("""jq -n '{"score": 1}' > "$path"\n""", "error"),
+    ],
+)
+def test_team_reward_shell_evidence(
+    task: Path, source: str, severity: str | None
+) -> None:
+    (task / "tests/verify.py").unlink()
+    (task / "tests/test.sh").write_text(
+        'path="/logs/verifier/reward.json"\n'
+        + source
+        + 'printf "{}" > /logs/verifier/crucible_report.json\n'
+    )
+    report = lint_task(task)
+    findings = [
+        item for item in report.findings if item.id == "verifier_missing_team_reward"
+    ]
+    assert [item.severity for item in findings] == ([severity] if severity else [])
+    assert report.ok == (severity != "error")
 
 
 def test_visibility_collapse_reports_each_affected_action_count() -> None:
@@ -391,6 +454,37 @@ def test_cli_task_and_trial_exit_codes(task: Path, tmp_path: Path) -> None:
     assert (summary["ok"], summary["errors"], summary["warnings"]) == (False, 1, 2)
     assert summary["findings"][0]["id"] == "event-seq-not-monotonic"
     assert summary["findings"][0]["path"] == "artifacts/logs/world/events.jsonl"
+
+
+@pytest.mark.parametrize(
+    ("payload", "exit_code"),
+    [
+        ('{"reward": 0}', 0),
+        ('{"task_utility": 1}', 1),
+        ('{"reward": true}', 1),
+        ('{"reward": "1"}', 1),
+        ('{"reward": NaN}', 1),
+        ("not JSON", 1),
+    ],
+)
+def test_cli_lints_recorded_reward_artifact(
+    tmp_path: Path, payload: str, exit_code: int
+) -> None:
+    trial = _trial(tmp_path, [_event(1, "scan"), _event(2, "message_read")])
+    result_path = trial / "result.json"
+    result = json.loads(result_path.read_text())
+    result["verifier_result"] = {"rewards": {"reward": 1.0}}
+    result_path.write_text(json.dumps(result))
+    (trial / "verifier").mkdir()
+    (trial / "verifier/reward.json").write_text(payload)
+
+    response = CliRunner().invoke(app, ["lint-task", str(trial), "--json"])
+    assert response.exit_code == exit_code, response.output
+    summary = json.loads(response.output)
+    errors = [item for item in summary["findings"] if item["severity"] == "error"]
+    assert [(item["id"], item["path"]) for item in errors] == (
+        [("verifier_missing_team_reward", "verifier/reward.json")] if exit_code else []
+    )
 
 
 def test_cli_parent_discovers_tasks_and_trials_with_verifier_only(
