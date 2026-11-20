@@ -45,72 +45,116 @@ def _parse_world_events(trial_dir: Path) -> list[WorldEvent]:
     return []
 
 
-def _parse_atif_steps(seat: str, trajectory_path: Path) -> list[SeatTrajectoryStep]:
+def _parse_atif_steps(
+    seat: str, trajectory_path: Path
+) -> list[SeatTrajectoryStep] | None:
+    """Return the seat's steps, or None when the file is not a usable ATIF document.
+
+    None (unparseable JSON, ``steps`` not a list of objects, malformed step ids) is
+    distinct from ``[]``: a valid trajectory that recorded no steps.
+    """
     data = _read_json(trajectory_path)
     if not isinstance(data, dict):
-        return []
+        return None
     raw_steps = data.get("steps")
-    if not isinstance(raw_steps, list):
-        return []
-    steps: list[SeatTrajectoryStep] = []
-    for idx, raw in enumerate(raw_steps, start=1):
-        if not isinstance(raw, dict):
-            continue
-        obs = raw.get("observation")
-        obs_parts: list[str] = []
-        if isinstance(obs, dict):
-            for res in obs.get("results") or []:
-                if isinstance(res, dict) and res.get("content") is not None:
-                    obs_parts.append(str(res["content"]))
-        elif isinstance(obs, str):
-            obs_parts.append(obs)
-        metrics = raw.get("metrics") or {}
-        if not isinstance(metrics, dict):
-            metrics = {}
-        msg = raw.get("message")
-        if isinstance(msg, list):
-            msg_str = "\n".join(
-                str(p.get("text", p)) if isinstance(p, dict) else str(p) for p in msg
-            )
-        else:
-            msg_str = "" if msg is None else str(msg)
-        steps.append(
-            SeatTrajectoryStep(
-                seat=seat,
-                step_id=int(raw.get("step_id", idx)),
-                source=str(raw.get("source", "unknown")),
-                timestamp=raw.get("timestamp"),
-                message=msg_str,
-                reasoning_content=raw.get("reasoning_content"),
-                tool_calls=raw.get("tool_calls")
-                if isinstance(raw.get("tool_calls"), list)
-                else [],
-                observation_text="\n".join(obs_parts),
-                prompt_tokens=metrics.get("prompt_tokens"),
-                completion_tokens=metrics.get("completion_tokens"),
-                cost_usd=metrics.get("cost_usd"),
-            )
+    if not isinstance(raw_steps, list) or not all(
+        isinstance(s, dict) for s in raw_steps
+    ):
+        return None
+    try:
+        return [
+            _atif_step(seat, idx, raw) for idx, raw in enumerate(raw_steps, start=1)
+        ]
+    except (TypeError, ValueError):
+        return None
+
+
+def _atif_step(seat: str, idx: int, raw: dict[str, Any]) -> SeatTrajectoryStep:
+    obs = raw.get("observation")
+    obs_parts: list[str] = []
+    if isinstance(obs, dict):
+        for res in obs.get("results") or []:
+            if isinstance(res, dict) and res.get("content") is not None:
+                obs_parts.append(str(res["content"]))
+    elif isinstance(obs, str):
+        obs_parts.append(obs)
+    metrics = raw.get("metrics") or {}
+    if not isinstance(metrics, dict):
+        metrics = {}
+    msg = raw.get("message")
+    if isinstance(msg, list):
+        msg_str = "\n".join(
+            str(p.get("text", p)) if isinstance(p, dict) else str(p) for p in msg
         )
-    return steps
+    else:
+        msg_str = "" if msg is None else str(msg)
+    return SeatTrajectoryStep(
+        seat=seat,
+        step_id=int(raw.get("step_id", idx)),
+        source=str(raw.get("source", "unknown")),
+        timestamp=raw.get("timestamp"),
+        message=msg_str,
+        reasoning_content=raw.get("reasoning_content"),
+        tool_calls=raw.get("tool_calls")
+        if isinstance(raw.get("tool_calls"), list)
+        else [],
+        observation_text="\n".join(obs_parts),
+        prompt_tokens=metrics.get("prompt_tokens"),
+        completion_tokens=metrics.get("completion_tokens"),
+        cost_usd=metrics.get("cost_usd"),
+    )
+
+
+def _numeric_rewards(raw: Any) -> dict[str, float] | None:
+    if not isinstance(raw, dict):
+        return None
+    return {
+        str(k): float(v)
+        for k, v in raw.items()
+        if isinstance(v, (int, float)) and not isinstance(v, bool)
+    }
 
 
 def _load_rewards(
     trial_dir: Path, result_data: dict[str, Any] | None
-) -> dict[str, float]:
-    rewards: dict[str, float] = {}
-    reward_json = _read_json(trial_dir / "verifier" / "reward.json")
-    if isinstance(reward_json, dict):
-        for k, v in reward_json.items():
-            if isinstance(v, (int, float)) and not isinstance(v, bool):
-                rewards[str(k)] = float(v)
-        return rewards
+) -> tuple[dict[str, float] | None, str | None, bool]:
+    """Return (rewards, source, file_mismatch).
+
+    ``result.json`` is Harbor's record of the verifier verdict, so it wins whenever it
+    exists; ``verifier_result: null`` there means the trial was never graded (None, not
+    ``{}``). ``verifier/reward.json`` is a mutable copy: it is used only when no
+    ``result.json`` exists, and any difference from the record is flagged, never
+    silently preferred.
+    """
+    file_rewards = _numeric_rewards(_read_json(trial_dir / "verifier" / "reward.json"))
     if isinstance(result_data, dict):
-        vr = result_data.get("verifier_result") or {}
-        if isinstance(vr, dict) and isinstance(vr.get("rewards"), dict):
-            for k, v in vr["rewards"].items():
-                if isinstance(v, (int, float)) and not isinstance(v, bool):
-                    rewards[str(k)] = float(v)
-    return rewards
+        verifier_result = result_data.get("verifier_result")
+        recorded = (
+            _numeric_rewards(verifier_result.get("rewards"))
+            if isinstance(verifier_result, dict)
+            else None
+        )
+        mismatch = file_rewards is not None and file_rewards != recorded
+        return recorded, ("result_json" if recorded is not None else None), mismatch
+    if file_rewards is not None:
+        return file_rewards, "reward_json", False
+    return None, None, False
+
+
+def _participants(
+    result_data: dict[str, Any] | None, config_data: dict[str, Any] | None
+) -> list[dict[str, Any]]:
+    for source in (
+        (result_data or {}).get("config") if isinstance(result_data, dict) else None,
+        config_data,
+    ):
+        if isinstance(source, dict) and isinstance(source.get("participants"), list):
+            return [
+                p
+                for p in source["participants"]
+                if isinstance(p, dict) and p.get("seat")
+            ]
+    return []
 
 
 def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
@@ -145,10 +189,12 @@ def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
     seats: list[str] = []
     seat_models: dict[str, str] = {}
     seat_usage: dict[str, dict[str, Any]] = {}
+    seat_anomalies: list[str] = []
 
-    if isinstance(result_data, dict) and isinstance(
+    has_seat_results = isinstance(result_data, dict) and isinstance(
         result_data.get("seat_results"), list
-    ):
+    )
+    if has_seat_results:
         for sr in result_data["seat_results"]:
             if not isinstance(sr, dict) or not sr.get("seat"):
                 continue
@@ -167,33 +213,48 @@ def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
                 "cost_usd": ar.get("cost_usd"),
                 "exception": (sr.get("exception_info") or {}).get("exception_type"),
             }
-    elif isinstance(config_data, dict) and isinstance(
-        config_data.get("participants"), list
-    ):
-        for p in config_data["participants"]:
-            if isinstance(p, dict) and p.get("seat"):
-                seat = str(p["seat"])
-                if seat not in seats:
-                    seats.append(seat)
-                seat_models[seat] = str(
-                    p.get("model_name") or p.get("name") or "unknown"
-                )
 
+    # Declared roster: participants recorded in result.json's config, else config.json.
+    # A declared seat with no seat result is still a seat (its model comes from the
+    # declaration), but the missing result is flagged.
+    for p in _participants(result_data, config_data):
+        seat = str(p["seat"])
+        if seat in seats:
+            continue
+        seats.append(seat)
+        seat_models[seat] = str(p.get("model_name") or p.get("name") or "unknown")
+        if has_seat_results:
+            seat_anomalies.append(f"missing_seat_result:{seat}")
+
+    # seats/<name> dirs never add a seat when a roster exists; a stray dir is an anomaly.
+    # Only a trial with no recorded roster at all falls back to the directory names.
     seats_dir = root / "seats"
     if seats_dir.is_dir():
+        has_roster = bool(seats)
         for child in sorted(seats_dir.iterdir()):
-            if child.is_dir() and child.name not in seats:
+            if not child.is_dir() or child.name in seats:
+                continue
+            if has_roster:
+                seat_anomalies.append(f"undeclared_seat_dir:{child.name}")
+            else:
                 seats.append(child.name)
+                seat_anomalies.append(f"seat_from_dir_only:{child.name}")
 
     seat_steps: dict[str, list[SeatTrajectoryStep]] = {}
     missing_traces: list[str] = []
+    invalid_traces: list[str] = []
     for seat in seats:
         traj_path = seats_dir / seat / "agent" / "trajectory.json"
-        if traj_path.is_file():
-            seat_steps[seat] = _parse_atif_steps(seat, traj_path)
-        else:
+        if not traj_path.is_file():
             seat_steps[seat] = []
             missing_traces.append(seat)
+            continue
+        parsed = _parse_atif_steps(seat, traj_path)
+        if parsed is None:
+            seat_steps[seat] = []
+            invalid_traces.append(seat)
+        else:
+            seat_steps[seat] = parsed
 
     trial_exc: str | None = None
     if isinstance(result_data, dict) and isinstance(
@@ -201,6 +262,7 @@ def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
     ):
         trial_exc = str(result_data["exception_info"].get("exception_type") or "")
 
+    rewards, reward_source, reward_file_mismatch = _load_rewards(root, result_data)
     return TrialBundle(
         trial_dir=str(root),
         trial_name=trial_name,
@@ -210,11 +272,15 @@ def load_trial_bundle(trial_dir: Path | str) -> TrialBundle:
         seats=seats,
         seat_models=seat_models,
         seat_usage=seat_usage,
-        rewards=_load_rewards(root, result_data),
+        rewards=rewards,
+        reward_source=reward_source,
+        reward_file_mismatch=reward_file_mismatch,
         report=report,
         world_events=world_events,
         seat_steps=seat_steps,
         missing_traces=missing_traces,
+        invalid_traces=invalid_traces,
+        seat_anomalies=seat_anomalies,
         trial_exception=trial_exc,
     )
 

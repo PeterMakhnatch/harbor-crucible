@@ -90,7 +90,7 @@ def collect_condition_table(
     for (family, condition, models), members in sorted(groups.items()):
         metrics: dict[str, list[float]] = defaultdict(list)
         for bundle in members:
-            for key, value in bundle.rewards.items():
+            for key, value in (bundle.rewards or {}).items():
                 metrics[key].append(value)
         rows.append(
             {

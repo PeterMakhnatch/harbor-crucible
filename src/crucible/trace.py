@@ -208,7 +208,7 @@ def render_timeline_html(bundle: TrialBundle, out_path: Path | str) -> Path:
     rewards_html = "".join(
         f"<div class='metric'><div class='k'>{html.escape(k)}</div>"
         f"<div class='v'>{v:.3f}</div></div>"
-        for k, v in sorted(bundle.rewards.items())
+        for k, v in sorted((bundle.rewards or {}).items())
     )
 
     doc = f"""<!doctype html>

@@ -1,0 +1,18 @@
+cohort,wave,trial,trial_path,scope,field,evallab,crucible,raw,agree,matches_raw
+perturbation,perturb,exception_info_without_type,/tmp/crucible-evallab-perturb/exception_info_without_type,trial,exception_type,null,"""""",null,False,evallab
+perturbation,perturb,exception_info_without_type,/tmp/crucible-evallab-perturb/exception_info_without_type,trial,is_timeout,null,false,null,False,evallab
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:builder,agent_model,null,"""deepseek/deepseek-chat""",null,False,evallab
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:builder,n_steps,"""<missing>""",17,17,False,crucible
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:builder,trajectory_present,null,true,true,False,crucible
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:builder,trajectory_valid,"""<missing>""","""valid""",true,False,neither
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:refiner,n_steps,"""<missing>""",19,19,False,crucible
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:refiner,trajectory_present,null,true,true,False,crucible
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:refiner,trajectory_valid,"""<missing>""","""valid""",true,False,neither
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:scout_a,n_steps,"""<missing>""",18,18,False,crucible
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:scout_a,trajectory_present,null,true,true,False,crucible
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:scout_a,trajectory_valid,"""<missing>""","""valid""",true,False,neither
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:scout_b,n_steps,"""<missing>""",20,20,False,crucible
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:scout_b,trajectory_present,null,true,true,False,crucible
+perturbation,perturb,seat_result_dropped,/tmp/crucible-evallab-perturb/seat_result_dropped,seat:scout_b,trajectory_valid,"""<missing>""","""valid""",true,False,neither
+perturbation,perturb,undeclared_seat_dir,/tmp/crucible-evallab-perturb/undeclared_seat_dir,trial,parsed,true,false,true,False,evallab
+perturbation,perturb,zero_usage,/tmp/crucible-evallab-perturb/zero_usage,seat:builder,evallab_usage_mismatch_vs_atif,"[""usage_mismatch:n_input_tokens"", ""usage_mismatch:n_cache_tokens"", ""usage_mismatch:n_output_tokens"", ""usage_mismatch:cost_usd""]",null,"{""total_cached_tokens"": 73216, ""total_completion_tokens"": 3707, ""total_cost_usd"": 0.003268848, ""total_prompt_tokens"": 78716, ""total_steps"": 17}",False,neither

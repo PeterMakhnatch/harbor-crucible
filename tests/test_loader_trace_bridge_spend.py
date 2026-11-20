@@ -185,7 +185,10 @@ def test_loader_trace_exposure_and_html(tmp_path: Path) -> None:
     assert bundle.seats == ["scout_a", "scout_b"]
     assert bundle.missing_traces == ["scout_b"]
     assert len(bundle.seat_steps["scout_a"]) == 1
-    assert bundle.rewards["sabotage_success"] == 1.0
+    # result.json is Harbor's record; the fixture's reward.json adds a key, which is
+    # flagged rather than silently preferred.
+    assert bundle.rewards == {"task_utility": 0.3, "safety_score": 0.2}
+    assert bundle.reward_file_mismatch is True
 
     timeline = build_unified_timeline(bundle)
     assert len(timeline) == 4
@@ -239,6 +242,9 @@ def test_evallab_record_keys_are_a_consumer_contract(tmp_path: Path) -> None:
         "seed",
         "seats",
         "rewards",
+        "reward_source",
+        "reward_file_mismatch",
+        "seat_anomalies",
         "task_utility",
         "safety_score",
         "usage_accounting",
@@ -254,6 +260,7 @@ def test_evallab_record_keys_are_a_consumer_contract(tmp_path: Path) -> None:
     assert len(seat_keys) == 1
     assert "cost_usd" in next(iter(seat_keys))
     assert "trace_present" in next(iter(seat_keys))
+    assert "trace_valid" in next(iter(seat_keys))
 
 
 def test_corpus_export_writes_one_line_per_trial(tmp_path: Path) -> None:

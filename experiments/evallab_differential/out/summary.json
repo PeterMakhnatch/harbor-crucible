@@ -1,0 +1,1213 @@
+{
+  "agreement": {
+    "extended": {
+      "agent_model": {
+        "agree": 530,
+        "n": 530
+      },
+      "cost_complete": {
+        "agree": 154,
+        "n": 154
+      },
+      "cost_total_usd": {
+        "agree": 154,
+        "n": 154
+      },
+      "cost_usd": {
+        "agree": 530,
+        "n": 530
+      },
+      "crucible_export_vs_loader": {
+        "agree": 154,
+        "n": 154
+      },
+      "evallab_export_vs_inspect": {
+        "agree": 530,
+        "n": 530
+      },
+      "evallab_usage_mismatch_vs_atif": {
+        "agree": 530,
+        "n": 530
+      },
+      "exception_type": {
+        "agree": 154,
+        "n": 154
+      },
+      "is_timeout": {
+        "agree": 154,
+        "n": 154
+      },
+      "n_cache_tokens": {
+        "agree": 530,
+        "n": 530
+      },
+      "n_input_tokens": {
+        "agree": 530,
+        "n": 530
+      },
+      "n_output_tokens": {
+        "agree": 530,
+        "n": 530
+      },
+      "n_steps": {
+        "agree": 530,
+        "n": 530
+      },
+      "parsed": {
+        "agree": 154,
+        "n": 154
+      },
+      "reward_keys": {
+        "agree": 154,
+        "n": 154
+      },
+      "reward_values": {
+        "agree": 154,
+        "n": 154
+      },
+      "seat_exception_type": {
+        "agree": 530,
+        "n": 530
+      },
+      "seat_present": {
+        "agree": 530,
+        "n": 530
+      },
+      "seat_set": {
+        "agree": 154,
+        "n": 154
+      },
+      "trajectory_present": {
+        "agree": 530,
+        "n": 530
+      },
+      "trajectory_valid": {
+        "agree": 530,
+        "n": 530
+      }
+    },
+    "perturbation": {
+      "agent_model": {
+        "agree": 35,
+        "n": 36
+      },
+      "cost_complete": {
+        "agree": 9,
+        "n": 9
+      },
+      "cost_total_usd": {
+        "agree": 9,
+        "n": 9
+      },
+      "cost_usd": {
+        "agree": 36,
+        "n": 36
+      },
+      "crucible_export_vs_loader": {
+        "agree": 9,
+        "n": 9
+      },
+      "evallab_usage_mismatch_vs_atif": {
+        "agree": 35,
+        "n": 36
+      },
+      "exception_type": {
+        "agree": 8,
+        "n": 9
+      },
+      "is_timeout": {
+        "agree": 8,
+        "n": 9
+      },
+      "n_cache_tokens": {
+        "agree": 36,
+        "n": 36
+      },
+      "n_input_tokens": {
+        "agree": 36,
+        "n": 36
+      },
+      "n_output_tokens": {
+        "agree": 36,
+        "n": 36
+      },
+      "n_steps": {
+        "agree": 32,
+        "n": 36
+      },
+      "parsed": {
+        "agree": 8,
+        "n": 9
+      },
+      "reward_keys": {
+        "agree": 9,
+        "n": 9
+      },
+      "reward_values": {
+        "agree": 9,
+        "n": 9
+      },
+      "seat_exception_type": {
+        "agree": 36,
+        "n": 36
+      },
+      "seat_present": {
+        "agree": 37,
+        "n": 37
+      },
+      "seat_set": {
+        "agree": 9,
+        "n": 9
+      },
+      "trajectory_present": {
+        "agree": 32,
+        "n": 36
+      },
+      "trajectory_valid": {
+        "agree": 32,
+        "n": 36
+      }
+    },
+    "primary": {
+      "agent_model": {
+        "agree": 164,
+        "n": 164
+      },
+      "cost_complete": {
+        "agree": 44,
+        "n": 44
+      },
+      "cost_total_usd": {
+        "agree": 44,
+        "n": 44
+      },
+      "cost_usd": {
+        "agree": 164,
+        "n": 164
+      },
+      "crucible_export_vs_loader": {
+        "agree": 44,
+        "n": 44
+      },
+      "evallab_export_vs_inspect": {
+        "agree": 164,
+        "n": 164
+      },
+      "evallab_usage_mismatch_vs_atif": {
+        "agree": 164,
+        "n": 164
+      },
+      "exception_type": {
+        "agree": 44,
+        "n": 44
+      },
+      "is_timeout": {
+        "agree": 44,
+        "n": 44
+      },
+      "n_cache_tokens": {
+        "agree": 164,
+        "n": 164
+      },
+      "n_input_tokens": {
+        "agree": 164,
+        "n": 164
+      },
+      "n_output_tokens": {
+        "agree": 164,
+        "n": 164
+      },
+      "n_steps": {
+        "agree": 164,
+        "n": 164
+      },
+      "parsed": {
+        "agree": 44,
+        "n": 44
+      },
+      "reward_keys": {
+        "agree": 44,
+        "n": 44
+      },
+      "reward_values": {
+        "agree": 44,
+        "n": 44
+      },
+      "seat_exception_type": {
+        "agree": 164,
+        "n": 164
+      },
+      "seat_present": {
+        "agree": 164,
+        "n": 164
+      },
+      "seat_set": {
+        "agree": 44,
+        "n": 44
+      },
+      "trajectory_present": {
+        "agree": 164,
+        "n": 164
+      },
+      "trajectory_valid": {
+        "agree": 164,
+        "n": 164
+      }
+    },
+    "real": {
+      "agent_model": {
+        "agree": 694,
+        "n": 694
+      },
+      "cost_complete": {
+        "agree": 198,
+        "n": 198
+      },
+      "cost_total_usd": {
+        "agree": 198,
+        "n": 198
+      },
+      "cost_usd": {
+        "agree": 694,
+        "n": 694
+      },
+      "crucible_export_vs_loader": {
+        "agree": 198,
+        "n": 198
+      },
+      "evallab_export_vs_inspect": {
+        "agree": 694,
+        "n": 694
+      },
+      "evallab_usage_mismatch_vs_atif": {
+        "agree": 694,
+        "n": 694
+      },
+      "exception_type": {
+        "agree": 198,
+        "n": 198
+      },
+      "is_timeout": {
+        "agree": 198,
+        "n": 198
+      },
+      "n_cache_tokens": {
+        "agree": 694,
+        "n": 694
+      },
+      "n_input_tokens": {
+        "agree": 694,
+        "n": 694
+      },
+      "n_output_tokens": {
+        "agree": 694,
+        "n": 694
+      },
+      "n_steps": {
+        "agree": 694,
+        "n": 694
+      },
+      "parsed": {
+        "agree": 198,
+        "n": 198
+      },
+      "reward_keys": {
+        "agree": 198,
+        "n": 198
+      },
+      "reward_values": {
+        "agree": 198,
+        "n": 198
+      },
+      "seat_exception_type": {
+        "agree": 694,
+        "n": 694
+      },
+      "seat_present": {
+        "agree": 694,
+        "n": 694
+      },
+      "seat_set": {
+        "agree": 198,
+        "n": 198
+      },
+      "trajectory_present": {
+        "agree": 694,
+        "n": 694
+      },
+      "trajectory_valid": {
+        "agree": 694,
+        "n": 694
+      }
+    }
+  },
+  "command_errors": [
+    {
+      "cmd": "seat inspect <trial>",
+      "issues": [
+        "missing_seat"
+      ],
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "",
+      "trial": "seat_result_dropped",
+      "wave": "perturb"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "oracle"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "oracle3"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "probe-id"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "smoke"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "smoke-openrouter"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "smoke-openrouter-qwen"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "verify-migration-timeout"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave1-epistemic"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave1-migration"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave1-migration2"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave1-reward"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave1-supply"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave2-epistemic-full"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave2-epistemic-hidden-profile"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave2-reward-qwen"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave2-supply-deepseek"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave3-hidden-unshared"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave3-reward-fixed-evidence"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave3-supply-saboteur-extra"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave4-epistemic"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave4-supply-saboteur"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave5-reward-committed-scan"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave6-supply-qwen"
+    },
+    {
+      "cmd": "seat inspect runs/<wave> (raw trials-dir)",
+      "expected": "layout incompatibility",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat evidence: missing result.json",
+      "wave": "wave7-supply-qwen-long"
+    },
+    {
+      "cmd": "seat trajectories <trial>",
+      "rc": 1,
+      "side": "evallab",
+      "stderr": "harbor seat trajectories: seat evidence has issues",
+      "trial": "seat_result_dropped",
+      "wave": "perturb"
+    }
+  ],
+  "coverage": [
+    {
+      "cohort": "primary",
+      "crucible_export_trials": 12,
+      "crucible_seats": 48,
+      "evallab_export_rows": 48,
+      "evallab_inspect_ok": 12,
+      "evallab_seats_inspect": 48,
+      "evallab_trajectories_ok": 12,
+      "trial_dirs": 12,
+      "wave": "wave4-supply-saboteur"
+    },
+    {
+      "cohort": "primary",
+      "crucible_export_trials": 12,
+      "crucible_seats": 48,
+      "evallab_export_rows": 48,
+      "evallab_inspect_ok": 12,
+      "evallab_seats_inspect": 48,
+      "evallab_trajectories_ok": 12,
+      "trial_dirs": 12,
+      "wave": "wave4-epistemic"
+    },
+    {
+      "cohort": "primary",
+      "crucible_export_trials": 8,
+      "crucible_seats": 32,
+      "evallab_export_rows": 32,
+      "evallab_inspect_ok": 8,
+      "evallab_seats_inspect": 32,
+      "evallab_trajectories_ok": 8,
+      "trial_dirs": 8,
+      "wave": "wave7-supply-qwen-long"
+    },
+    {
+      "cohort": "primary",
+      "crucible_export_trials": 12,
+      "crucible_seats": 36,
+      "evallab_export_rows": 36,
+      "evallab_inspect_ok": 12,
+      "evallab_seats_inspect": 36,
+      "evallab_trajectories_ok": 12,
+      "trial_dirs": 12,
+      "wave": "wave5-reward-committed-scan"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 23,
+      "crucible_seats": 75,
+      "evallab_export_rows": 75,
+      "evallab_inspect_ok": 23,
+      "evallab_seats_inspect": 75,
+      "evallab_trajectories_ok": 23,
+      "trial_dirs": 23,
+      "wave": "oracle"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 4,
+      "crucible_seats": 12,
+      "evallab_export_rows": 12,
+      "evallab_inspect_ok": 4,
+      "evallab_seats_inspect": 12,
+      "evallab_trajectories_ok": 4,
+      "trial_dirs": 4,
+      "wave": "oracle3"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 1,
+      "crucible_seats": 4,
+      "evallab_export_rows": 4,
+      "evallab_inspect_ok": 1,
+      "evallab_seats_inspect": 4,
+      "evallab_trajectories_ok": 1,
+      "trial_dirs": 1,
+      "wave": "probe-id"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 1,
+      "crucible_seats": 4,
+      "evallab_export_rows": 4,
+      "evallab_inspect_ok": 1,
+      "evallab_seats_inspect": 4,
+      "evallab_trajectories_ok": 1,
+      "trial_dirs": 1,
+      "wave": "smoke"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 1,
+      "crucible_seats": 3,
+      "evallab_export_rows": 3,
+      "evallab_inspect_ok": 1,
+      "evallab_seats_inspect": 3,
+      "evallab_trajectories_ok": 1,
+      "trial_dirs": 1,
+      "wave": "smoke-openrouter"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 1,
+      "crucible_seats": 3,
+      "evallab_export_rows": 3,
+      "evallab_inspect_ok": 1,
+      "evallab_seats_inspect": 3,
+      "evallab_trajectories_ok": 1,
+      "trial_dirs": 1,
+      "wave": "smoke-openrouter-qwen"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 3,
+      "crucible_seats": 9,
+      "evallab_export_rows": 9,
+      "evallab_inspect_ok": 3,
+      "evallab_seats_inspect": 9,
+      "evallab_trajectories_ok": 3,
+      "trial_dirs": 3,
+      "wave": "verify-migration-timeout"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 9,
+      "crucible_seats": 36,
+      "evallab_export_rows": 36,
+      "evallab_inspect_ok": 9,
+      "evallab_seats_inspect": 36,
+      "evallab_trajectories_ok": 9,
+      "trial_dirs": 9,
+      "wave": "wave1-epistemic"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 9,
+      "crucible_seats": 27,
+      "evallab_export_rows": 27,
+      "evallab_inspect_ok": 9,
+      "evallab_seats_inspect": 27,
+      "evallab_trajectories_ok": 9,
+      "trial_dirs": 9,
+      "wave": "wave1-migration"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 9,
+      "crucible_seats": 27,
+      "evallab_export_rows": 27,
+      "evallab_inspect_ok": 9,
+      "evallab_seats_inspect": 27,
+      "evallab_trajectories_ok": 9,
+      "trial_dirs": 9,
+      "wave": "wave1-migration2"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 12,
+      "crucible_seats": 36,
+      "evallab_export_rows": 36,
+      "evallab_inspect_ok": 12,
+      "evallab_seats_inspect": 36,
+      "evallab_trajectories_ok": 12,
+      "trial_dirs": 12,
+      "wave": "wave1-reward"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 12,
+      "crucible_seats": 48,
+      "evallab_export_rows": 48,
+      "evallab_inspect_ok": 12,
+      "evallab_seats_inspect": 48,
+      "evallab_trajectories_ok": 12,
+      "trial_dirs": 12,
+      "wave": "wave1-supply"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 9,
+      "crucible_seats": 36,
+      "evallab_export_rows": 36,
+      "evallab_inspect_ok": 9,
+      "evallab_seats_inspect": 36,
+      "evallab_trajectories_ok": 9,
+      "trial_dirs": 9,
+      "wave": "wave2-epistemic-full"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 6,
+      "crucible_seats": 15,
+      "evallab_export_rows": 15,
+      "evallab_inspect_ok": 6,
+      "evallab_seats_inspect": 15,
+      "evallab_trajectories_ok": 6,
+      "trial_dirs": 6,
+      "wave": "wave2-epistemic-hidden-profile"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 6,
+      "crucible_seats": 18,
+      "evallab_export_rows": 18,
+      "evallab_inspect_ok": 6,
+      "evallab_seats_inspect": 18,
+      "evallab_trajectories_ok": 6,
+      "trial_dirs": 6,
+      "wave": "wave2-reward-qwen"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 24,
+      "crucible_seats": 96,
+      "evallab_export_rows": 96,
+      "evallab_inspect_ok": 24,
+      "evallab_seats_inspect": 96,
+      "evallab_trajectories_ok": 24,
+      "trial_dirs": 24,
+      "wave": "wave2-supply-deepseek"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 6,
+      "crucible_seats": 15,
+      "evallab_export_rows": 15,
+      "evallab_inspect_ok": 6,
+      "evallab_seats_inspect": 15,
+      "evallab_trajectories_ok": 6,
+      "trial_dirs": 6,
+      "wave": "wave3-hidden-unshared"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 6,
+      "crucible_seats": 18,
+      "evallab_export_rows": 18,
+      "evallab_inspect_ok": 6,
+      "evallab_seats_inspect": 18,
+      "evallab_trajectories_ok": 6,
+      "trial_dirs": 6,
+      "wave": "wave3-reward-fixed-evidence"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 6,
+      "crucible_seats": 24,
+      "evallab_export_rows": 24,
+      "evallab_inspect_ok": 6,
+      "evallab_seats_inspect": 24,
+      "evallab_trajectories_ok": 6,
+      "trial_dirs": 6,
+      "wave": "wave3-supply-saboteur-extra"
+    },
+    {
+      "cohort": "extended",
+      "crucible_export_trials": 6,
+      "crucible_seats": 24,
+      "evallab_export_rows": 24,
+      "evallab_inspect_ok": 6,
+      "evallab_seats_inspect": 24,
+      "evallab_trajectories_ok": 6,
+      "trial_dirs": 6,
+      "wave": "wave6-supply-qwen"
+    },
+    {
+      "cohort": "perturbation",
+      "crucible_export_trials": 9,
+      "crucible_seats": 36,
+      "evallab_export_rows": null,
+      "evallab_inspect_ok": 8,
+      "evallab_seats_inspect": 36,
+      "evallab_trajectories_ok": 8,
+      "trial_dirs": 9,
+      "wave": "perturb"
+    }
+  ],
+  "evallab_commit": "11c8b53bc",
+  "jobs_verify": {
+    "oracle": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:reward_missing_exceptioned": 7
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "oracle3": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "perturb": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "block:reward_mismatch_result_vs_file": 1,
+        "block:seat_participant_mismatch": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "seat_result_dropped": [
+          "block:seat_participant_mismatch"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "probe-id": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "smoke": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "smoke-openrouter": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:seat_exception_beside_reward": 3
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "variants-clean-99a0bbec61": [
+          "warn:seat_exception_beside_reward"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "smoke-openrouter-qwen": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:seat_exception_beside_reward": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "variants-clean-501a4a1381": [
+          "warn:seat_exception_beside_reward"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "verify-migration-timeout": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave1-epistemic": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave1-migration": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:seat_exception_beside_reward": 4
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "variants-conflicting_blind-9487a40f11": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-conflicting_with_protocol-3a131560e1": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-conflicting_with_protocol-f555dc1253": [
+          "warn:seat_exception_beside_reward"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave1-migration2": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:seat_exception_beside_reward": 5
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "variants-conflicting_blind-9f62ea49a7": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-conflicting_with_protocol-0ed3176efc": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-conflicting_with_protocol-2a681dc0da": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-conflicting_with_protocol-4bb497339a": [
+          "warn:seat_exception_beside_reward"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave1-reward": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave1-supply": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:seat_exception_beside_reward": 14
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "variants-honest-ca71d48798": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-saboteur-0a293fe3fb": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-saboteur-82146bc5d1": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-saboteur-ea2ccbc970": [
+          "warn:seat_exception_beside_reward"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave2-epistemic-full": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave2-epistemic-hidden-profile": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave2-reward-qwen": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:seat_exception_beside_reward": 12
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "variants-clean-00ab040e24": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-clean-1d4437b22f": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-clean-e676536ff3": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-hack_seeded_planner-0085ac931f": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-hack_seeded_planner-5463997103": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-hack_seeded_planner-9c391ac3d7": [
+          "warn:seat_exception_beside_reward"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave2-supply-deepseek": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave3-hidden-unshared": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave3-reward-fixed-evidence": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave3-supply-saboteur-extra": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave4-epistemic": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave4-supply-saboteur": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave5-reward-committed-scan": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {},
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave6-supply-qwen": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:seat_exception_beside_reward": 5
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "variants-honest-cba2d89153": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-honest-ef3441cd63": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-saboteur-5847e19ca2": [
+          "warn:seat_exception_beside_reward"
+        ],
+        "variants-saboteur-d4e4354693": [
+          "warn:seat_exception_beside_reward"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    },
+    "wave7-supply-qwen-long": {
+      "finding_counts": {
+        "block:job_stats_missing_evals": 1,
+        "warn:seat_exception_beside_reward": 2
+      },
+      "rc": 1,
+      "seat_findings_by_trial": {
+        "variants-honest-73a0c46526": [
+          "warn:seat_exception_beside_reward"
+        ]
+      },
+      "stderr": "",
+      "verdicts": [
+        "block"
+      ]
+    }
+  },
+  "n_disagreements": {
+    "extended": 0,
+    "perturbation": 17,
+    "primary": 0
+  },
+  "verify_commit": "3ee6a0ef3"
+}

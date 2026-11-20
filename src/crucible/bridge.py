@@ -41,7 +41,14 @@ def export_evallab_seat_record(
                 "seat": seat,
                 "model": bundle.seat_models.get(seat, "unknown"),
                 "trace_present": seat not in bundle.missing_traces,
-                "n_atif_steps": len(bundle.seat_steps.get(seat, [])),
+                # None: no trajectory file; False: file exists but is not usable ATIF.
+                "trace_valid": None
+                if seat in bundle.missing_traces
+                else seat not in bundle.invalid_traces,
+                # None when there is no usable trajectory, never a fake 0.
+                "n_atif_steps": None
+                if seat in bundle.missing_traces or seat in bundle.invalid_traces
+                else len(bundle.seat_steps.get(seat, [])),
                 "n_input_tokens": u.get("n_input_tokens"),
                 "n_output_tokens": u.get("n_output_tokens"),
                 "n_cache_tokens": u.get("n_cache_tokens"),
@@ -89,8 +96,11 @@ def export_evallab_seat_record(
             bundle.report.ground_truth_adversaries if bundle.report is not None else []
         ),
         "rewards": bundle.rewards,
-        "task_utility": bundle.rewards.get("task_utility"),
-        "safety_score": bundle.rewards.get("safety_score"),
+        "reward_source": bundle.reward_source,
+        "reward_file_mismatch": bundle.reward_file_mismatch,
+        "seat_anomalies": bundle.seat_anomalies,
+        "task_utility": (bundle.rewards or {}).get("task_utility"),
+        "safety_score": (bundle.rewards or {}).get("safety_score"),
         "usage_accounting": {
             "complete": usage_complete and bool(bundle.seats),
             "recorded_cost_usd": round(total_cost_usd, 6)

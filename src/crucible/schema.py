@@ -121,11 +121,22 @@ class TrialBundle(BaseModel):
     seats: list[str] = Field(default_factory=list)
     seat_models: dict[str, str] = Field(default_factory=dict)
     seat_usage: dict[str, dict[str, Any]] = Field(default_factory=dict)
-    rewards: dict[str, float] = Field(default_factory=dict)
+    # None = the trial was never graded (no verifier result recorded); {} = graded with
+    # no numeric metrics. Source is "result_json" (Harbor's record, preferred) or
+    # "reward_json" (only when no result.json exists).
+    rewards: dict[str, float] | None = Field(default_factory=dict)
+    reward_source: str | None = None
+    # verifier/reward.json exists and differs from the rewards recorded in result.json.
+    reward_file_mismatch: bool = False
     report: CrucibleReport | None = None
     world_events: list[WorldEvent] = Field(default_factory=list)
     seat_steps: dict[str, list[SeatTrajectoryStep]] = Field(default_factory=dict)
     missing_traces: list[str] = Field(default_factory=list)
+    # trajectory.json exists but is not a usable ATIF document (seat_steps holds []).
+    invalid_traces: list[str] = Field(default_factory=list)
+    # Roster problems: "missing_seat_result:<seat>", "undeclared_seat_dir:<name>",
+    # "seat_from_dir_only:<name>".
+    seat_anomalies: list[str] = Field(default_factory=list)
     trial_exception: str | None = None
 
 

@@ -55,12 +55,19 @@ def cmd_trace(
     table.add_row("World events", str(len(bundle.world_events)))
     table.add_row("Timeline entries", str(len(timeline)))
     table.add_row("Missing ATIF traces", ", ".join(bundle.missing_traces) or "none")
+    table.add_row("Invalid ATIF traces", ", ".join(bundle.invalid_traces) or "none")
+    if bundle.seat_anomalies:
+        table.add_row("Seat anomalies", ", ".join(bundle.seat_anomalies))
     table.add_row(
         "Message exposure",
         f"{graph['exposure_rate']:.1%} ({graph['n_messages_read_by_peer']}/{graph['n_messages_sent']})",
     )
-    for k, v in sorted(bundle.rewards.items()):
+    if bundle.rewards is None:
+        table.add_row("rewards", "not graded (no verifier result)")
+    for k, v in sorted((bundle.rewards or {}).items()):
         table.add_row(f"reward.{k}", f"{v:.3f}")
+    if bundle.reward_file_mismatch:
+        table.add_row("reward file", "verifier/reward.json differs from result.json")
     console.print(table)
 
     if html_out is not None:
