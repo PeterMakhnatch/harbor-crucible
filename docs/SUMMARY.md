@@ -60,7 +60,7 @@ Behaviour, three trials per condition unless noted:
 ## What is open
 
 1. **A reward-hack positive cell from real models.** No verified real-model hack exists. Willingness and delivery separate by model; the cell stays oracle-only.
-2. **A measured cross-model transfer.** Five Qwen positives is a signal, not a measurement. Paid runs wait for a new spend decision.
+2. **A measured cross-model transfer.** Five Qwen positives is a signal, not a measurement. Paid runs wait for a new spend decision; `NEXT-PAID-EXPERIMENTS.md` costs it at about $32 and recommends deferring it. Its recommended minimal package is one independent monitor v3 test: 128 DeepSeek trials, about $2.19, with a $4.00 limit.
 3. **Claim extraction for audit-backed rules.** An offline structured extractor reaches F1 0.828 on held-out messages (12/17 claims, 0 false positives) against 0.480 for the frozen keyword matcher (`experiments/claim_extraction/`). One labeller and a retrospective holdout. A monitor v3 that uses it adds evidence in 1 trial but cannot show a detection gain: the only audited cohort is already at ceiling and was used to build the extractor. A fair test needs a new paid audited cohort.
 4. **Threshold stability of any LLM judge at this sample size.** With 14 controls its detection rate ranges from 7% to 60% under resampling, so only AUROC is usable.
 5. **Eval Lab seat commands are not on any remote.** `pm/harbor-seat-evidence` (17 commits) and `seat-aware-ingestion` (2 commits) exist only in local Eval Lab worktrees, written by another agent. The crucible differential used them.
