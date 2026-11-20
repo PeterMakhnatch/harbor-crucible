@@ -17,7 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import typer
 
-from crucible.runner import run_seat_trial
+from crucible.loader import discover_trial_dirs
+from crucible.runner import run_seat_job, run_seat_trial
 from crucible.spend import SpendLedger
 
 app = typer.Typer(add_completion=False)
@@ -100,13 +101,18 @@ def wave1(
         float,
         typer.Option(help="Refuse to start a trial above this estimate."),
     ] = 0.75,
-    out_dir: Annotated[Path | None, typer.Option(help="Trial output root.")] = None,
+    out_dir: Annotated[
+        Path | None, typer.Option(help="Trial output root (job root with --as-job).")
+    ] = None,
     ledger_path: Annotated[Path, typer.Option(help="Spend ledger path.")] = Path(
         "experiments/spend_ledger.jsonl"
     ),
     cap_usd: Annotated[float, typer.Option(help="Hard spend ceiling.")] = 20.0,
     dry_run: Annotated[
         bool, typer.Option(help="Print the plan without running.")
+    ] = False,
+    as_job: Annotated[
+        bool, typer.Option("--as-job", help="Run one native Harbor job per condition.")
     ] = False,
 ) -> None:
     if family not in FAMILIES:
@@ -118,6 +124,7 @@ def wave1(
     tasks_root = Path("tasks") / family / "variants"
     trials_dir = out_dir or Path("runs") / f"wave1-{family}"
     manifest: list[dict[str, object]] = []
+    job_failed = False
 
     selected = (
         tuple(c.strip() for c in conditions.split(",") if c.strip())
@@ -128,21 +135,53 @@ def wave1(
         task_dir = tasks_root / condition
         if not (task_dir / "task.toml").is_file():
             raise typer.BadParameter(f"missing task: {task_dir}")
-        for attempt in range(1, attempts + 1):
-            if dry_run:
-                print(f"DRY {family}/{condition} #{attempt}")
-                continue
-            ledger.check_headroom(planned_usd_per_trial)
-            rc, trial, _out = run_seat_trial(
+        if as_job and not dry_run:
+            job_rc, job_dir, output = run_seat_job(
                 task_dir,
                 trials_dir,
+                job_name=condition,
+                n_attempts=attempts,
                 agent_name="mini-swe-agent",
                 model_name=model,
                 api_key_env=api_key_env,
                 timeout_multiplier=timeout_multiplier,
                 ledger=ledger,
-                estimated_planned_usd=planned_usd_per_trial,
+                estimated_planned_usd_per_trial=planned_usd_per_trial,
             )
+            job_trials = discover_trial_dirs(job_dir) if job_dir is not None else []
+            # Harbor uses random suffixes for trial names. Number attempts by start time.
+            job_trials.sort(
+                key=lambda trial: (
+                    json.loads((trial / "result.json").read_text()).get("started_at")
+                    or "~"
+                )
+            )
+            if job_rc or len(job_trials) != attempts:
+                job_failed = True
+                print(
+                    f"{condition}: Harbor exited {job_rc}, "
+                    f"found {len(job_trials)} of {attempts} trials.\n{output}",
+                    file=sys.stderr,
+                )
+        for attempt in range(1, attempts + 1):
+            if dry_run:
+                print(f"DRY {family}/{condition} #{attempt}")
+                continue
+            if as_job:
+                rc = job_rc
+                trial = job_trials[attempt - 1] if attempt <= len(job_trials) else None
+            else:
+                ledger.check_headroom(planned_usd_per_trial)
+                rc, trial, _out = run_seat_trial(
+                    task_dir,
+                    trials_dir,
+                    agent_name="mini-swe-agent",
+                    model_name=model,
+                    api_key_env=api_key_env,
+                    timeout_multiplier=timeout_multiplier,
+                    ledger=ledger,
+                    estimated_planned_usd=planned_usd_per_trial,
+                )
             row = {
                 "family": family,
                 "condition": condition,
@@ -173,6 +212,8 @@ def wave1(
         f"manifest {dest} now lists {len(ordered)} trials"
     )
     print(json.dumps(ledger.summary(), indent=2))
+    if job_failed:
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":

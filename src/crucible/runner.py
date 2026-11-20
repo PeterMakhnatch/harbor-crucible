@@ -197,3 +197,131 @@ def run_seat_trial(
 
     combined_out = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
     return proc.returncode, created_trial, combined_out
+
+
+def _build_job_config(
+    task_dir: Path,
+    jobs_dir: Path,
+    *,
+    job_name: str,
+    n_attempts: int,
+    agent_name: str,
+    model_name: str | None,
+    api_key_env: str | None,
+    seat_overrides: dict[str, dict[str, Any]] | None,
+    timeout_multiplier: float,
+    n_concurrent: int,
+) -> dict[str, Any]:
+    trial = build_trial_config(
+        task_dir,
+        jobs_dir,
+        agent_name=agent_name,
+        model_name=model_name,
+        api_key_env=api_key_env,
+        seat_overrides=seat_overrides,
+        timeout_multiplier=timeout_multiplier,
+    )
+    if not trial["participants"]:
+        raise ValueError(f"task declares no seats: {task_dir}")
+
+    return {
+        "job_name": job_name,
+        "jobs_dir": trial["trials_dir"],
+        "n_attempts": n_attempts,
+        "n_concurrent_trials": n_concurrent,
+        "timeout_multiplier": trial["timeout_multiplier"],
+        "environment": trial["environment"],
+        "tasks": [trial["task"]],
+        "participants": trial["participants"],
+    }
+
+
+def _record_job_trial_spend(
+    trial_dir: Path, ledger: SpendLedger, model_name: str | None
+) -> None:
+    # Match run_seat_trial: use recorded cost, including zero, or estimate from tokens.
+    bundle = load_trial_bundle(trial_dir)
+    for seat, usage in bundle.seat_usage.items():
+        in_tok = int(usage.get("n_input_tokens") or 0)
+        out_tok = int(usage.get("n_output_tokens") or 0)
+        cache_tok = int(usage.get("n_cache_tokens") or 0)
+        raw_cost = usage.get("cost_usd")
+        seat_model = bundle.seat_models.get(seat, model_name or "unknown")
+        ledger.record(
+            SpendEntry(
+                category="trial_run",
+                provider=seat_model.split("/")[0] if "/" in seat_model else "unknown",
+                model=seat_model,
+                trial_or_job=f"{bundle.trial_name}:{seat}",
+                input_tokens=in_tok,
+                output_tokens=out_tok,
+                cached_tokens=cache_tok,
+                cost_usd=(
+                    float(raw_cost)
+                    if raw_cost is not None
+                    else estimate_cost_usd(seat_model, in_tok, out_tok)
+                ),
+                estimated=raw_cost is None,
+            )
+        )
+
+
+def run_seat_job(
+    task_dir: Path,
+    jobs_dir: Path,
+    *,
+    job_name: str,
+    n_attempts: int = 1,
+    agent_name: str = "oracle",
+    model_name: str | None = None,
+    api_key_env: str | None = None,
+    seat_overrides: dict[str, dict[str, Any]] | None = None,
+    timeout_multiplier: float = 1.0,
+    harbor_bin: Path = DEFAULT_HARBOR_BIN,
+    ledger: SpendLedger | None = None,
+    estimated_planned_usd_per_trial: float = 0.0,
+    n_concurrent: int = 1,
+) -> tuple[int, Path | None, str]:
+    """Run one native Harbor job for a task; return CLI status, job path, and output."""
+    if not job_name or job_name in (".", "..") or Path(job_name).name != job_name:
+        raise ValueError("job_name must be a single directory name")
+    if n_attempts < 1 or n_concurrent < 1:
+        raise ValueError("n_attempts and n_concurrent must be positive")
+
+    cfg = _build_job_config(
+        task_dir,
+        jobs_dir,
+        job_name=job_name,
+        n_attempts=n_attempts,
+        agent_name=agent_name,
+        model_name=model_name,
+        api_key_env=api_key_env,
+        seat_overrides=seat_overrides,
+        timeout_multiplier=timeout_multiplier,
+        n_concurrent=n_concurrent,
+    )
+    billable = any(p["name"] not in ("oracle", "nop") for p in cfg["participants"])
+    if ledger is not None and billable:
+        ledger.check_headroom(n_attempts * estimated_planned_usd_per_trial)
+
+    job_dir = jobs_dir / job_name
+    if job_dir.exists() or job_dir.is_symlink():
+        raise FileExistsError(f"job already exists: {job_dir}")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg_path = Path(tmp) / "job.yaml"
+        cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+        proc = subprocess.run(
+            [str(harbor_bin), "jobs", "start", "-c", str(cfg_path)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+    created_job = job_dir if job_dir.is_dir() else None
+    if ledger is not None and billable and created_job is not None:
+        for result_path in sorted(created_job.glob("*/result.json")):
+            _record_job_trial_spend(result_path.parent, ledger, model_name)
+
+    combined_out = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
+    return proc.returncode, created_job, combined_out
