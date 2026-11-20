@@ -96,3 +96,7 @@ Both jobs have 2 informational findings. `task_digest_namespace` notes that lock
 - `.venv/bin/pytest -q -p no:cacheprovider`: 133 passed. The pytest-asyncio configuration deprecation warning does not affect the result.
 - `.venv/bin/ruff check src tests experiments`: passed.
 - `.venv/bin/ruff format --check src tests experiments`: passed.
+
+## Follow-up: the Eval Lab false block is fixed (2026-11-20)
+
+Eval Lab PR [#2268](https://github.com/PeterMakhnatch/eval-lab/pull/2268), merged as `232d69c869`, compares Harbor reward buckets by numeric value, so `"1"`, `"1.0"` and `1` are one bucket; different values or trial lists still block. Re-run on merged `main`: `job-oracle-smoke` now exits 0 with 0 blocks and 0 warnings (was exit 1 with `job_stats_reward_desync`); `job-model-smoke` is unchanged at 0 blocks. The bug affected any Harbor job with an integer-valued reward, not only seat tasks.

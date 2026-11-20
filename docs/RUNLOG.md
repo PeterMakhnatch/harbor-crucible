@@ -54,6 +54,13 @@ Sibling lanes: flotilla (lab, cooperbench, traces), muster (preflight, secret sc
 
 ## Done
 
+### 2026-11-20 ~00:10-00:45 ET - native jobs and an Eval Lab fix
+
+- **Native Harbor jobs** (`run_wave1.py --as-job`, `run_seat_job`): a wave is now a genuine Harbor job dir. Eval Lab's seat inspect/summary/export and seat-aware `jobs verify` read it with no adapter ($0.01 of real calls).
+- **Eval Lab PR #2268, merged**: `jobs verify` falsely blocked every job with an integer reward (`"1"` vs `str(float(1))`). Now compared numerically; regression tests both ways.
+- **Fork PR #37** (world image `CMD`, opt-in) open and green; PR #36 (timeout guide) open and green; #21 has one unrelated Windows timing failure, rerun requested.
+
+
 ### 2026-11-19 ~22:10-23:50 ET - adversary pressure, Eval Lab differential, CI
 
 - **Evasive saboteur** (12 trials, $0.29): told it is audited, the saboteur does not beat the audit tier (AUROC 0.970 -> 0.933 [0.814, 1.000], attribution 11/12), but it sabotages less (23/24 -> 8/12, Fisher p=0.034). Every monitor miss is a trial where sabotage failed. Blind spot: the world does not log rejected requests, so an "HTTP 400" cover story cannot be disproved from the audit log.
