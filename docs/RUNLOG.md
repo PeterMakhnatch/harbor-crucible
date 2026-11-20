@@ -2,6 +2,12 @@
 
 Running record for the overnight mission. Newest first. Hours are ET.
 
+## Astra takeover: next 3 items (2026-11-20, 2:40 PM ET, $0)
+
+1. Verify fork PR #11 against the recorded-file and roster contracts. Fix remaining blockers on its branch. Do not merge it.
+2. Resolve open findings on #10, #12, #21, #37 and #38. Send Sol the tested heads. Review Sol's fork changes.
+3. Change message visibility in the stored trial evidence. Preserve the originals and distinguish a changed replay view from a changed team outcome.
+
 ## Next 3 items (planned 2026-11-19, before starting)
 
 1. **Fork PR 4: seat-aware job statistics.** `models/job/result.py` groups rewards by the trial-level `agent_info`, which is the first tested seat. A four-seat job therefore reports one model's statistics. No sibling PR touches job aggregation: #17 uploads seat logs, #4 reads seat traces, #15 records failed downloads, #13 preflights participants. Rebase onto `main`, add per-seat grouping, keep single-agent output byte-identical, unit-test both. **Done: PR #21.**
