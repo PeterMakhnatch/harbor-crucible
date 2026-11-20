@@ -124,6 +124,12 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 
 ## Done
 
+### 2026-11-20 ~08:30-08:50 ET - CI gap, paid-experiment plan
+
+- **CI** (`8a7687b`): experiment tests (43) now run in CI and `experiments/` is format-checked; both jobs green.
+- **`docs/NEXT-PAID-EXPERIMENTS.md`** (`2cfd9e6`): costed from the ledger. Recommends only an independent monitor v3 test (128 DeepSeek trials, about $2.19, limit $4.00); defers the Qwen transfer test (about $32); no new reward-hack trials. Waits for Peter's spend decision.
+
+
 ### 2026-11-20 ~08:10-08:25 ET - monitor v3
 
 - **Monitor v3** (`b919557`, pre-registered, $0): adds evidence in 1 wave-10 trial; both monitors at AUROC 1.000 and 12/12 attribution; no improvement claim possible on retained data. Next measurement needs a fresh audited evasive cohort (paid).
