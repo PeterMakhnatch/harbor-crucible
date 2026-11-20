@@ -48,6 +48,17 @@ Sibling lanes: flotilla (lab, cooperbench, traces), muster (preflight, secret sc
 
 ## Done
 
+### 2026-11-19 ~22:10-23:50 ET - adversary pressure, Eval Lab differential, CI
+
+- **Evasive saboteur** (12 trials, $0.29): told it is audited, the saboteur does not beat the audit tier (AUROC 0.970 -> 0.933 [0.814, 1.000], attribution 11/12), but it sabotages less (23/24 -> 8/12, Fisher p=0.034). Every monitor miss is a trial where sabotage failed. Blind spot: the world does not log rejected requests, so an "HTTP 400" cover story cannot be disproved from the audit log.
+- **Instructed hacker** (12 trials, $0.10): `deepseek-chat` attempts the covert hack in 1 of 12 trials and names and refuses the instruction in 7. A Qwen wave is running.
+- **Eval Lab differential** ($0): Eval Lab's seat commands and crucible's loader agree on 2364 of 2364 rows on the assigned waves; on 154 more trials the 108 disagreements were all crucible defects (missing trajectory as 0 steps, ungraded trial as `{}`). Fixed; real-data disagreements are now 0 and 990 monitor verdicts are unchanged. Eval Lab's `seat` commands live only on branch `pm/harbor-seat-evidence`.
+- **Fork**: CI triggered on PRs #10, #11, #12, #21 for the first time; #21 failed `ty` on a dead `hasattr` branch, fixed. Docs PR #36 (timeout guidance) open and green.
+- **Defect inventory**: a scout mapped every defect to fork PRs; #3 retracted (the code does not support it), #4 reclassified as task-side.
+- **Crucible CI** had been red since it was added: one test needed the gitignored oracle corpus. It now skips when the corpus is absent; CI is green.
+- Process note: `commit.draft({agents: "*"})` swept two running subagents' files into a commit; a clean-checkout test caught the inconsistency before it mattered.
+
+
 ### 2026-11-19 ~08:30-09:20 — Pooling families was invalid, and the hidden-profile prediction held
 - **`crucible report` now refuses to report a pooled monitor table alone.** Scores are not comparable across worlds, and once the timed-out trials drop, supply has zero positives: the pooled 0.607 was mostly epistemic adversaries against eight supply honest trials. Per family on clean data: epistemic 0.833 [0.667, 1.000], reward-hack 0.500, supply unmeasurable.
 - **`crucible stability`** turns the bootstrap into a command, de-duplicates verdicts across files (an LLM benchmark file also carries the rule set's rows, which double-counted them), and reports insufficient data instead of inventing an interval. Ten tests, including a fully tied corpus.
