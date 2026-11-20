@@ -104,6 +104,12 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 2. **Re-verify #14** at `98c16ab7` (rainy's answer to my review).
 3. **Update SUMMARY and the lane log**: rainy's re-check closes #38's P1s.
 
+## Next 3 items (2026-11-20 ~07:15 ET, $0 model spend)
+
+1. **Control smoke in crucible CI**: one variant per family, all seats `nop` and all seats oracle, through Harbor in GitHub Actions; assert idle success metrics are 0 and oracle rewards match the documented outcome.
+2. **Offline claim-extraction evaluation**: a hand-labelled set of "transfer failed" claims from recorded supply messages; structured extractor vs the keyword matcher, precision and recall.
+3. **Integrate the #38 hardening** when it lands.
+
 ## Done
 
 ### 2026-11-20 ~04:50-06:30 ET - review follow-ups, lint gate, end-to-end check
