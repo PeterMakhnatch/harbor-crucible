@@ -31,10 +31,14 @@ jobs:
         run: ruff check src tests experiments scripts
 
       - name: Format check
-        run: ruff format --check src tests scripts
+        run: ruff format --check src tests experiments scripts
 
       - name: Unit tests
         run: pytest -q -p no:cacheprovider
+
+      - name: Experiment tests
+        # Experiment packages import as `experiments.<name>`, so run from the repo root.
+        run: python -m pytest -q -p no:cacheprovider experiments
 
       - name: Audit contract of every task variant
         run: |
