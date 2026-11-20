@@ -118,6 +118,11 @@ The rainy lane posted adversarial reviews on five of my fork PRs (#10, #11, #12,
 
 ## Done
 
+### 2026-11-20 ~08:10-08:25 ET - monitor v3
+
+- **Monitor v3** (`b919557`, pre-registered, $0): adds evidence in 1 wave-10 trial; both monitors at AUROC 1.000 and 12/12 attribution; no improvement claim possible on retained data. Next measurement needs a fresh audited evasive cohort (paid).
+
+
 ### 2026-11-20 ~07:15-08:00 ET - CI control smoke, claim extraction, #38 hardening
 
 - **Control smoke in CI** (crucible PR #1, merged `0ead7b5`): all-nop and all-oracle rosters for one variant per family through the pinned Harbor fork, every push, 4 min 38 s, $0. Restoring the old sabotage rule fails it (`sabotage_success: expected 0, got 1.0`).
